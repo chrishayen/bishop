@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 3.16)
+project(nog VERSION 0.1.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
+add_library(nog_lib
+    src/lexer.cpp
+    src/parser.cpp
+    src/codegen.cpp
+)
+
+add_executable(nog src/main.cpp)
+target_link_libraries(nog nog_lib)
+
+enable_testing()
+find_package(GTest REQUIRED)
+
+add_executable(nog_tests
+    tests/test_hello_world.cpp
+)
+target_link_libraries(nog_tests nog_lib GTest::gtest GTest::gtest_main)
+add_test(NAME nog_tests COMMAND nog_tests)
