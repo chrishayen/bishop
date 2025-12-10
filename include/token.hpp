@@ -58,6 +58,7 @@ enum class TokenType {
     GE,
 
     OPTIONAL,
+    SEMICOLON,
 
     EOF_TOKEN
 };

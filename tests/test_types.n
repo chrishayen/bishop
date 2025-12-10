@@ -1,35 +1,35 @@
 fn test_int_equality() {
-    int x = 42
-    int y = 42
-    assert_eq(x, y)
+    int x = 42;
+    int y = 42;
+    assert_eq(x, y);
 }
 
 fn test_int_arithmetic() {
-    int a = 10
-    int b = 5
-    assert_eq(a + b, 15)
-    assert_eq(a - b, 5)
-    assert_eq(a * b, 50)
+    int a = 10;
+    int b = 5;
+    assert_eq(a + b, 15);
+    assert_eq(a - b, 5);
+    assert_eq(a * b, 50);
 }
 
 fn test_bool_equality() {
-    bool t = true
-    bool f = false
-    assert_eq(t, true)
-    assert_eq(f, false)
+    bool t = true;
+    bool f = false;
+    assert_eq(t, true);
+    assert_eq(f, false);
 }
 
 fn test_inferred_types() {
-    x := 100
-    y := 100
-    assert_eq(x, y)
+    x := 100;
+    y := 100;
+    assert_eq(x, y);
 }
 
 fn add(int a, int b) -> int {
-    return a + b
+    return a + b;
 }
 
 fn test_function_return() {
-    int result = add(3, 4)
-    assert_eq(result, 7)
+    int result = add(3, 4);
+    assert_eq(result, 7);
 }

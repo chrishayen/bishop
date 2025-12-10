@@ -211,6 +211,7 @@ unique_ptr<ASTNode> Parser::parse_statement() {
             decl->name = consume(TokenType::IDENT).value;
             consume(TokenType::ASSIGN);
             decl->value = parse_expression();
+            consume(TokenType::SEMICOLON);
             return decl;
         }
 
@@ -221,6 +222,7 @@ unique_ptr<ASTNode> Parser::parse_statement() {
             assign->name = consume(TokenType::IDENT).value;
             consume(TokenType::ASSIGN);
             assign->value = parse_expression();
+            consume(TokenType::SEMICOLON);
             return assign;
         }
 
@@ -243,6 +245,7 @@ unique_ptr<VariableDecl> Parser::parse_variable_decl() {
     decl->name = consume(TokenType::IDENT).value;
     consume(TokenType::ASSIGN);
     decl->value = parse_expression();
+    consume(TokenType::SEMICOLON);
     return decl;
 }
 
@@ -251,6 +254,7 @@ unique_ptr<VariableDecl> Parser::parse_inferred_decl() {
     decl->name = consume(TokenType::IDENT).value;
     consume(TokenType::COLON_ASSIGN);
     decl->value = parse_expression();
+    consume(TokenType::SEMICOLON);
     return decl;
 }
 
@@ -258,6 +262,7 @@ unique_ptr<ReturnStmt> Parser::parse_return() {
     consume(TokenType::RETURN);
     auto ret = make_unique<ReturnStmt>();
     ret->value = parse_expression();
+    consume(TokenType::SEMICOLON);
     return ret;
 }
 
@@ -446,6 +451,7 @@ unique_ptr<FunctionCall> Parser::parse_function_call() {
     }
 
     consume(TokenType::RPAREN);
+    consume(TokenType::SEMICOLON);
     return call;
 }
 

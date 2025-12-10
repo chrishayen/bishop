@@ -187,6 +187,9 @@ vector<Token> Lexer::tokenize() {
         } else if (current() == '?') {
             tokens.push_back({TokenType::OPTIONAL, "?", start_line});
             advance();
+        } else if (current() == ';') {
+            tokens.push_back({TokenType::SEMICOLON, ";", start_line});
+            advance();
         } else if (current() == '"') {
             tokens.push_back(read_string());
         } else if (isdigit(current())) {
