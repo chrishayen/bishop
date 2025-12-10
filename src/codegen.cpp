@@ -37,7 +37,7 @@ std::string CodeGen::generate_test_harness(const std::unique_ptr<Program>& progr
     for (const auto& name : test_names) {
         output += "    " + name + "();\n";
     }
-    output += "    std::cout << (_failures == 0 ? \"PASS\" : \"FAIL\") << std::endl;\n";
+    output += "    // exit code signals pass/fail\n";
     output += "    return _failures;\n";
     output += "}\n";
 

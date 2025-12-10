@@ -74,12 +74,12 @@ int run_tests(const std::string& path) {
             continue;
         }
 
-        std::cout << test_file.string() << ": ";
-        std::cout.flush();
-
         int test_result = std::system(tmp_bin.c_str());
         if (test_result != 0) {
+            std::cout << "\033[31mFAIL\033[0m " << test_file.string() << std::endl;
             total_failures++;
+        } else {
+            std::cout << "\033[32mPASS\033[0m " << test_file.string() << std::endl;
         }
     }
 
@@ -96,11 +96,8 @@ int main(int argc, char* argv[]) {
     std::string cmd = argv[1];
 
     if (cmd == "test") {
-        if (argc < 3) {
-            std::cerr << "Usage: nog test <file or directory>" << std::endl;
-            return 1;
-        }
-        return run_tests(argv[2]);
+        std::string path = argc >= 3 ? argv[2] : "tests/";
+        return run_tests(path);
     }
 
     std::string source = read_file(cmd);

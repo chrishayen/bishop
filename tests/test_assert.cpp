@@ -37,7 +37,7 @@ void test_greeting() {
 
 int main() {
     test_greeting();
-    std::cout << (_failures == 0 ? "PASS" : "FAIL") << std::endl;
+    // exit code signals pass/fail
     return _failures;
 }
 )";

@@ -1,4 +1,4 @@
-.PHONY: all build clean test run configure rebuild
+.PHONY: all build clean test run configure rebuild install
 
 BUILD_DIR := build
 
@@ -21,3 +21,8 @@ test: build
 
 run: build
 	@$(BUILD_DIR)/nog $(ARGS)
+
+install: build
+	@mkdir -p ~/.local/bin
+	@cp $(BUILD_DIR)/nog ~/.local/bin/
+	@echo "Installed nog to ~/.local/bin/"
