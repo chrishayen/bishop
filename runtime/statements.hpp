@@ -8,8 +8,11 @@ using namespace std;
 
 namespace nog::runtime {
 
-inline string variable_decl(const string& type, const string& name, const string& value) {
+inline string variable_decl(const string& type, const string& name, const string& value, bool is_optional = false) {
     string t = type.empty() ? "auto" : map_type(type);
+    if (is_optional) {
+        return fmt::format("std::optional<{}> {} = {};", t, name, value);
+    }
     return fmt::format("{} {} = {};", t, name, value);
 }
 

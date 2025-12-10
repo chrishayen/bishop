@@ -12,6 +12,8 @@ static unordered_map<string, TokenType> keywords = {
     {"if", TokenType::IF},
     {"else", TokenType::ELSE},
     {"while", TokenType::WHILE},
+    {"none", TokenType::NONE},
+    {"is", TokenType::IS},
     {"int", TokenType::TYPE_INT},
     {"str", TokenType::TYPE_STR},
     {"bool", TokenType::TYPE_BOOL},
@@ -182,6 +184,9 @@ vector<Token> Lexer::tokenize() {
                 tokens.push_back({TokenType::GT, ">", start_line});
                 advance();
             }
+        } else if (current() == '?') {
+            tokens.push_back({TokenType::OPTIONAL, "?", start_line});
+            advance();
         } else if (current() == '"') {
             tokens.push_back(read_string());
         } else if (isdigit(current())) {

@@ -14,7 +14,8 @@ inline string map_type(const string& t) {
     if (t == "f64") return "double";
     if (t == "u32") return "uint32_t";
     if (t == "u64") return "uint64_t";
-    return "void";
+    if (t.empty()) return "void";
+    return t;
 }
 
 }

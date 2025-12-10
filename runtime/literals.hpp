@@ -22,4 +22,8 @@ inline string bool_literal(bool value) {
     return value ? "true" : "false";
 }
 
+inline string none_literal() {
+    return "std::nullopt";
+}
+
 }

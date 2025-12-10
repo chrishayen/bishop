@@ -13,6 +13,8 @@ enum class TokenType {
     IF,
     ELSE,
     WHILE,
+    NONE,
+    IS,
 
     // Types
     TYPE_INT,
@@ -54,6 +56,8 @@ enum class TokenType {
     GT,
     LE,
     GE,
+
+    OPTIONAL,
 
     EOF_TOKEN
 };

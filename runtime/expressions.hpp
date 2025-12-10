@@ -20,4 +20,8 @@ inline string function_call(const string& name, const vector<string>& args) {
     return fmt::format("{}({})", name, fmt::join(args, ", "));
 }
 
+inline string is_none(const string& value) {
+    return fmt::format("!{}.has_value()", value);
+}
+
 }

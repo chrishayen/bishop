@@ -31,6 +31,8 @@ struct BoolLiteral : ASTNode {
     explicit BoolLiteral(bool v) : value(v) {}
 };
 
+struct NoneLiteral : ASTNode {};
+
 struct VariableRef : ASTNode {
     string name;
     explicit VariableRef(const string& n) : name(n) {}
@@ -41,6 +43,10 @@ struct BinaryExpr : ASTNode {
     string op;
     unique_ptr<ASTNode> left;
     unique_ptr<ASTNode> right;
+};
+
+struct IsNone : ASTNode {
+    unique_ptr<ASTNode> value;
 };
 
 struct FunctionCall : ASTNode {
@@ -54,6 +60,7 @@ struct VariableDecl : ASTNode {
     string type;
     string name;
     unique_ptr<ASTNode> value;
+    bool is_optional = false;
 };
 
 struct Assignment : ASTNode {

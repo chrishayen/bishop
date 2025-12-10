@@ -189,14 +189,29 @@ unique_ptr<ASTNode> Parser::parse_statement() {
         return parse_variable_decl();
     }
 
-    // inferred variable, assignment, or function call
+    // inferred variable, assignment, function call, or struct-typed variable
     if (check(TokenType::IDENT)) {
         size_t saved_pos = pos;
+        string ident = current().value;
         advance();
 
         if (check(TokenType::COLON_ASSIGN)) {
             pos = saved_pos;
             return parse_inferred_decl();
+        }
+
+        // struct-typed variable: Person p = ... or Person? p = ...
+        if (is_struct_type(ident) && (check(TokenType::IDENT) || check(TokenType::OPTIONAL))) {
+            auto decl = make_unique<VariableDecl>();
+            decl->type = ident;
+            if (check(TokenType::OPTIONAL)) {
+                decl->is_optional = true;
+                advance();
+            }
+            decl->name = consume(TokenType::IDENT).value;
+            consume(TokenType::ASSIGN);
+            decl->value = parse_expression();
+            return decl;
         }
 
         // assignment: x = expr
@@ -221,6 +236,10 @@ unique_ptr<VariableDecl> Parser::parse_variable_decl() {
     auto decl = make_unique<VariableDecl>();
     decl->type = token_to_type(current().type);
     advance();
+    if (check(TokenType::OPTIONAL)) {
+        decl->is_optional = true;
+        advance();
+    }
     decl->name = consume(TokenType::IDENT).value;
     consume(TokenType::ASSIGN);
     decl->value = parse_expression();
@@ -295,6 +314,15 @@ unique_ptr<ASTNode> Parser::parse_expression() {
 unique_ptr<ASTNode> Parser::parse_comparison() {
     auto left = parse_additive();
 
+    // Handle "x is none"
+    if (check(TokenType::IS)) {
+        advance();
+        consume(TokenType::NONE);
+        auto is_none = make_unique<IsNone>();
+        is_none->value = move(left);
+        return is_none;
+    }
+
     while (check(TokenType::EQ) || check(TokenType::NE) ||
            check(TokenType::LT) || check(TokenType::GT) ||
            check(TokenType::LE) || check(TokenType::GE)) {
@@ -360,6 +388,11 @@ unique_ptr<ASTNode> Parser::parse_primary() {
     if (check(TokenType::FALSE)) {
         advance();
         return make_unique<BoolLiteral>(false);
+    }
+
+    if (check(TokenType::NONE)) {
+        advance();
+        return make_unique<NoneLiteral>();
     }
 
     if (check(TokenType::IDENT)) {

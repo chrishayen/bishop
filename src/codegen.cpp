@@ -17,11 +17,17 @@ string CodeGen::emit(const ASTNode& node) {
     if (auto* lit = dynamic_cast<const BoolLiteral*>(&node)) {
         return rt::bool_literal(lit->value);
     }
+    if (dynamic_cast<const NoneLiteral*>(&node)) {
+        return rt::none_literal();
+    }
     if (auto* ref = dynamic_cast<const VariableRef*>(&node)) {
         return rt::variable_ref(ref->name);
     }
     if (auto* expr = dynamic_cast<const BinaryExpr*>(&node)) {
         return rt::binary_expr(emit(*expr->left), expr->op, emit(*expr->right));
+    }
+    if (auto* expr = dynamic_cast<const IsNone*>(&node)) {
+        return rt::is_none(emit(*expr->value));
     }
     if (auto* call = dynamic_cast<const FunctionCall*>(&node)) {
         vector<string> args;
@@ -31,7 +37,7 @@ string CodeGen::emit(const ASTNode& node) {
         return rt::function_call(call->name, args);
     }
     if (auto* decl = dynamic_cast<const VariableDecl*>(&node)) {
-        return rt::variable_decl(decl->type, decl->name, emit(*decl->value));
+        return rt::variable_decl(decl->type, decl->name, emit(*decl->value), decl->is_optional);
     }
     if (auto* assign = dynamic_cast<const Assignment*>(&node)) {
         return rt::assignment(assign->name, emit(*assign->value));
@@ -59,7 +65,7 @@ string CodeGen::generate(const unique_ptr<Program>& program, bool test_mode) {
         return generate_test_harness(program);
     }
 
-    string out = "#include <iostream>\n#include <string>\n\n";
+    string out = "#include <iostream>\n#include <string>\n#include <optional>\n\n";
 
     for (const auto& s : program->structs) {
         out += generate_struct(*s) + "\n\n";
@@ -148,7 +154,7 @@ string CodeGen::generate_statement(const ASTNode& node) {
 }
 
 string CodeGen::generate_test_harness(const unique_ptr<Program>& program) {
-    string out = "#include <iostream>\n#include <string>\n#include <cstdint>\n\n";
+    string out = "#include <iostream>\n#include <string>\n#include <cstdint>\n#include <optional>\n\n";
 
     out += "int _failures = 0;\n\n";
     out += "template<typename T, typename U>\n";
