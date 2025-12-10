@@ -7,20 +7,21 @@
 #include "parser.hpp"
 #include "codegen.hpp"
 
-namespace fs = std::filesystem;
+using namespace std;
+namespace fs = filesystem;
 
-std::string read_file(const std::string& path) {
-    std::ifstream file(path);
+string read_file(const string& path) {
+    ifstream file(path);
     if (!file) {
-        std::cerr << "Error: Could not open file " << path << std::endl;
+        cerr << "Error: Could not open file " << path << endl;
         return "";
     }
-    std::stringstream buffer;
+    stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
 }
 
-std::string transpile(const std::string& source, bool test_mode) {
+string transpile(const string& source, bool test_mode) {
     Lexer lexer(source);
     auto tokens = lexer.tokenize();
     Parser parser(tokens);
@@ -29,8 +30,8 @@ std::string transpile(const std::string& source, bool test_mode) {
     return codegen.generate(ast, test_mode);
 }
 
-int run_tests(const std::string& path) {
-    std::vector<fs::path> test_files;
+int run_tests(const string& path) {
+    vector<fs::path> test_files;
 
     if (fs::is_directory(path)) {
         for (const auto& entry : fs::recursive_directory_iterator(path)) {
@@ -41,45 +42,45 @@ int run_tests(const std::string& path) {
     } else if (fs::exists(path)) {
         test_files.push_back(path);
     } else {
-        std::cerr << "Error: Path does not exist: " << path << std::endl;
+        cerr << "Error: Path does not exist: " << path << endl;
         return 1;
     }
 
     if (test_files.empty()) {
-        std::cerr << "No .n files found" << std::endl;
+        cerr << "No .n files found" << endl;
         return 1;
     }
 
     int total_failures = 0;
 
     for (const auto& test_file : test_files) {
-        std::string source = read_file(test_file.string());
+        string source = read_file(test_file.string());
         if (source.empty()) continue;
 
-        std::string cpp_code = transpile(source, true);
+        string cpp_code = transpile(source, true);
 
-        std::string tmp_cpp = "/tmp/nog_test.cpp";
-        std::string tmp_bin = "/tmp/nog_test";
+        string tmp_cpp = "/tmp/nog_test.cpp";
+        string tmp_bin = "/tmp/nog_test";
 
-        std::ofstream out(tmp_cpp);
+        ofstream out(tmp_cpp);
         out << cpp_code;
         out.close();
 
-        std::string compile_cmd = "g++ -o " + tmp_bin + " " + tmp_cpp + " 2>&1";
-        int compile_result = std::system(compile_cmd.c_str());
+        string compile_cmd = "g++ -o " + tmp_bin + " " + tmp_cpp + " 2>&1";
+        int compile_result = system(compile_cmd.c_str());
 
         if (compile_result != 0) {
-            std::cerr << "Compile failed for " << test_file << std::endl;
+            cerr << "Compile failed for " << test_file << endl;
             total_failures++;
             continue;
         }
 
-        int test_result = std::system(tmp_bin.c_str());
+        int test_result = system(tmp_bin.c_str());
         if (test_result != 0) {
-            std::cout << "\033[31mFAIL\033[0m " << test_file.string() << std::endl;
+            cout << "\033[31mFAIL\033[0m " << test_file.string() << endl;
             total_failures++;
         } else {
-            std::cout << "\033[32mPASS\033[0m " << test_file.string() << std::endl;
+            cout << "\033[32mPASS\033[0m " << test_file.string() << endl;
         }
     }
 
@@ -88,21 +89,21 @@ int run_tests(const std::string& path) {
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Usage: nog <source.n>" << std::endl;
-        std::cerr << "       nog test <path>" << std::endl;
+        cerr << "Usage: nog <source.n>" << endl;
+        cerr << "       nog test <path>" << endl;
         return 1;
     }
 
-    std::string cmd = argv[1];
+    string cmd = argv[1];
 
     if (cmd == "test") {
-        std::string path = argc >= 3 ? argv[2] : "tests/";
+        string path = argc >= 3 ? argv[2] : "tests/";
         return run_tests(path);
     }
 
-    std::string source = read_file(cmd);
+    string source = read_file(cmd);
     if (source.empty()) return 1;
 
-    std::cout << transpile(source, false);
+    cout << transpile(source, false);
     return 0;
 }

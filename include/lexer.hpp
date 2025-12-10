@@ -3,13 +3,15 @@
 #include <vector>
 #include "token.hpp"
 
+using namespace std;
+
 class Lexer {
 public:
-    explicit Lexer(const std::string& source);
-    std::vector<Token> tokenize();
+    explicit Lexer(const string& source);
+    vector<Token> tokenize();
 
 private:
-    std::string source;
+    string source;
     size_t pos = 0;
     int line = 1;
 

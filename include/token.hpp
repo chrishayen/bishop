@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+using namespace std;
+
 enum class TokenType {
     // Keywords
     FN,
@@ -44,6 +46,6 @@ enum class TokenType {
 
 struct Token {
     TokenType type;
-    std::string value;
+    string value;
     int line = 1;
 };

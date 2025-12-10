@@ -1,7 +1,9 @@
 #include "lexer.hpp"
 #include <unordered_map>
 
-static std::unordered_map<std::string, TokenType> keywords = {
+using namespace std;
+
+static unordered_map<string, TokenType> keywords = {
     {"fn", TokenType::FN},
     {"return", TokenType::RETURN},
     {"true", TokenType::TRUE},
@@ -16,7 +18,7 @@ static std::unordered_map<std::string, TokenType> keywords = {
     {"u64", TokenType::TYPE_U64},
 };
 
-Lexer::Lexer(const std::string& source) : source(source) {}
+Lexer::Lexer(const string& source) : source(source) {}
 
 char Lexer::current() {
     if (pos >= source.length()) return '\0';
@@ -42,7 +44,7 @@ void Lexer::skip_whitespace() {
 Token Lexer::read_string() {
     int start_line = line;
     advance();
-    std::string value;
+    string value;
     while (current() != '"' && current() != '\0') {
         value += current();
         advance();
@@ -53,8 +55,8 @@ Token Lexer::read_string() {
 
 Token Lexer::read_identifier() {
     int start_line = line;
-    std::string value;
-    while (std::isalnum(current()) || current() == '_') {
+    string value;
+    while (isalnum(current()) || current() == '_') {
         value += current();
         advance();
     }
@@ -68,10 +70,10 @@ Token Lexer::read_identifier() {
 
 Token Lexer::read_number() {
     int start_line = line;
-    std::string value;
+    string value;
     bool is_float = false;
 
-    while (std::isdigit(current()) || current() == '.') {
+    while (isdigit(current()) || current() == '.') {
         if (current() == '.') {
             if (is_float) break;
             is_float = true;
@@ -83,8 +85,8 @@ Token Lexer::read_number() {
     return {is_float ? TokenType::FLOAT : TokenType::NUMBER, value, start_line};
 }
 
-std::vector<Token> Lexer::tokenize() {
-    std::vector<Token> tokens;
+vector<Token> Lexer::tokenize() {
+    vector<Token> tokens;
 
     while (pos < source.length()) {
         skip_whitespace();
@@ -139,9 +141,9 @@ std::vector<Token> Lexer::tokenize() {
             advance();
         } else if (current() == '"') {
             tokens.push_back(read_string());
-        } else if (std::isdigit(current())) {
+        } else if (isdigit(current())) {
             tokens.push_back(read_number());
-        } else if (std::isalpha(current()) || current() == '_') {
+        } else if (isalpha(current()) || current() == '_') {
             tokens.push_back(read_identifier());
         } else {
             advance();

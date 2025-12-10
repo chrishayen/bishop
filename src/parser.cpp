@@ -1,7 +1,9 @@
 #include "parser.hpp"
 #include <stdexcept>
 
-Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens) {}
+using namespace std;
+
+Parser::Parser(const vector<Token>& tokens) : tokens(tokens) {}
 
 Token Parser::current() {
     if (pos >= tokens.size()) {
@@ -20,7 +22,7 @@ void Parser::advance() {
 
 Token Parser::consume(TokenType type) {
     if (!check(type)) {
-        throw std::runtime_error("Unexpected token");
+        throw runtime_error("Unexpected token");
     }
     Token tok = current();
     advance();
@@ -35,7 +37,7 @@ bool Parser::is_type_token() {
            t == TokenType::TYPE_U32 || t == TokenType::TYPE_U64;
 }
 
-std::string Parser::token_to_type(TokenType type) {
+string Parser::token_to_type(TokenType type) {
     switch (type) {
         case TokenType::TYPE_INT: return "int";
         case TokenType::TYPE_STR: return "str";
@@ -49,8 +51,8 @@ std::string Parser::token_to_type(TokenType type) {
     }
 }
 
-std::unique_ptr<Program> Parser::parse() {
-    auto program = std::make_unique<Program>();
+unique_ptr<Program> Parser::parse() {
+    auto program = make_unique<Program>();
 
     while (!check(TokenType::EOF_TOKEN)) {
         if (check(TokenType::FN)) {
@@ -63,12 +65,12 @@ std::unique_ptr<Program> Parser::parse() {
     return program;
 }
 
-std::unique_ptr<FunctionDef> Parser::parse_function() {
+unique_ptr<FunctionDef> Parser::parse_function() {
     consume(TokenType::FN);
     Token name = consume(TokenType::IDENT);
     consume(TokenType::LPAREN);
 
-    auto func = std::make_unique<FunctionDef>();
+    auto func = make_unique<FunctionDef>();
     func->name = name.value;
 
     // Parse parameters: fn foo(int a, int b)
@@ -104,7 +106,7 @@ std::unique_ptr<FunctionDef> Parser::parse_function() {
     while (!check(TokenType::RBRACE) && !check(TokenType::EOF_TOKEN)) {
         auto stmt = parse_statement();
         if (stmt) {
-            func->body.push_back(std::move(stmt));
+            func->body.push_back(move(stmt));
         }
     }
 
@@ -112,7 +114,7 @@ std::unique_ptr<FunctionDef> Parser::parse_function() {
     return func;
 }
 
-std::unique_ptr<ASTNode> Parser::parse_statement() {
+unique_ptr<ASTNode> Parser::parse_statement() {
     // return statement
     if (check(TokenType::RETURN)) {
         return parse_return();
@@ -142,8 +144,8 @@ std::unique_ptr<ASTNode> Parser::parse_statement() {
     return nullptr;
 }
 
-std::unique_ptr<VariableDecl> Parser::parse_variable_decl() {
-    auto decl = std::make_unique<VariableDecl>();
+unique_ptr<VariableDecl> Parser::parse_variable_decl() {
+    auto decl = make_unique<VariableDecl>();
     decl->type = token_to_type(current().type);
     advance();
     decl->name = consume(TokenType::IDENT).value;
@@ -152,68 +154,68 @@ std::unique_ptr<VariableDecl> Parser::parse_variable_decl() {
     return decl;
 }
 
-std::unique_ptr<VariableDecl> Parser::parse_inferred_decl() {
-    auto decl = std::make_unique<VariableDecl>();
+unique_ptr<VariableDecl> Parser::parse_inferred_decl() {
+    auto decl = make_unique<VariableDecl>();
     decl->name = consume(TokenType::IDENT).value;
     consume(TokenType::COLON_ASSIGN);
     decl->value = parse_expression();
     return decl;
 }
 
-std::unique_ptr<ReturnStmt> Parser::parse_return() {
+unique_ptr<ReturnStmt> Parser::parse_return() {
     consume(TokenType::RETURN);
-    auto ret = std::make_unique<ReturnStmt>();
+    auto ret = make_unique<ReturnStmt>();
     ret->value = parse_expression();
     return ret;
 }
 
-std::unique_ptr<ASTNode> Parser::parse_expression() {
+unique_ptr<ASTNode> Parser::parse_expression() {
     auto left = parse_primary();
 
     // Handle binary operators
     while (check(TokenType::PLUS) || check(TokenType::MINUS) ||
            check(TokenType::STAR) || check(TokenType::SLASH)) {
-        std::string op = current().value;
+        string op = current().value;
         advance();
         auto right = parse_primary();
 
-        auto binop = std::make_unique<BinaryExpr>();
+        auto binop = make_unique<BinaryExpr>();
         binop->op = op;
-        binop->left = std::move(left);
-        binop->right = std::move(right);
-        left = std::move(binop);
+        binop->left = move(left);
+        binop->right = move(right);
+        left = move(binop);
     }
 
     return left;
 }
 
-std::unique_ptr<ASTNode> Parser::parse_primary() {
+unique_ptr<ASTNode> Parser::parse_primary() {
     if (check(TokenType::NUMBER)) {
         Token tok = current();
         advance();
-        return std::make_unique<NumberLiteral>(tok.value);
+        return make_unique<NumberLiteral>(tok.value);
     }
 
     if (check(TokenType::FLOAT)) {
         Token tok = current();
         advance();
-        return std::make_unique<FloatLiteral>(tok.value);
+        return make_unique<FloatLiteral>(tok.value);
     }
 
     if (check(TokenType::STRING)) {
         Token tok = current();
         advance();
-        return std::make_unique<StringLiteral>(tok.value);
+        return make_unique<StringLiteral>(tok.value);
     }
 
     if (check(TokenType::TRUE)) {
         advance();
-        return std::make_unique<BoolLiteral>(true);
+        return make_unique<BoolLiteral>(true);
     }
 
     if (check(TokenType::FALSE)) {
         advance();
-        return std::make_unique<BoolLiteral>(false);
+        return make_unique<BoolLiteral>(false);
     }
 
     if (check(TokenType::IDENT)) {
@@ -221,14 +223,14 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
         advance();
         // Check if it's a function call
         if (check(TokenType::LPAREN)) {
-            auto call = std::make_unique<FunctionCall>();
+            auto call = make_unique<FunctionCall>();
             call->name = tok.value;
             call->line = tok.line;
             consume(TokenType::LPAREN);
             while (!check(TokenType::RPAREN) && !check(TokenType::EOF_TOKEN)) {
                 auto arg = parse_expression();
                 if (arg) {
-                    call->args.push_back(std::move(arg));
+                    call->args.push_back(move(arg));
                 }
                 if (check(TokenType::COMMA)) {
                     advance();
@@ -237,25 +239,25 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
             consume(TokenType::RPAREN);
             return call;
         }
-        return std::make_unique<VariableRef>(tok.value);
+        return make_unique<VariableRef>(tok.value);
     }
 
     advance();
     return nullptr;
 }
 
-std::unique_ptr<FunctionCall> Parser::parse_function_call() {
+unique_ptr<FunctionCall> Parser::parse_function_call() {
     Token name = consume(TokenType::IDENT);
     consume(TokenType::LPAREN);
 
-    auto call = std::make_unique<FunctionCall>();
+    auto call = make_unique<FunctionCall>();
     call->name = name.value;
     call->line = name.line;
 
     while (!check(TokenType::RPAREN) && !check(TokenType::EOF_TOKEN)) {
         auto arg = parse_expression();
         if (arg) {
-            call->args.push_back(std::move(arg));
+            call->args.push_back(move(arg));
         }
         if (check(TokenType::COMMA)) {
             advance();

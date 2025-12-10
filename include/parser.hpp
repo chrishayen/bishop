@@ -4,13 +4,15 @@
 #include "token.hpp"
 #include "ast.hpp"
 
+using namespace std;
+
 class Parser {
 public:
-    explicit Parser(const std::vector<Token>& tokens);
-    std::unique_ptr<Program> parse();
+    explicit Parser(const vector<Token>& tokens);
+    unique_ptr<Program> parse();
 
 private:
-    std::vector<Token> tokens;
+    vector<Token> tokens;
     size_t pos = 0;
 
     Token current();
@@ -19,13 +21,13 @@ private:
     bool is_type_token();
     void advance();
 
-    std::unique_ptr<FunctionDef> parse_function();
-    std::unique_ptr<ASTNode> parse_statement();
-    std::unique_ptr<FunctionCall> parse_function_call();
-    std::unique_ptr<VariableDecl> parse_variable_decl();
-    std::unique_ptr<VariableDecl> parse_inferred_decl();
-    std::unique_ptr<ReturnStmt> parse_return();
-    std::unique_ptr<ASTNode> parse_expression();
-    std::unique_ptr<ASTNode> parse_primary();
-    std::string token_to_type(TokenType type);
+    unique_ptr<FunctionDef> parse_function();
+    unique_ptr<ASTNode> parse_statement();
+    unique_ptr<FunctionCall> parse_function_call();
+    unique_ptr<VariableDecl> parse_variable_decl();
+    unique_ptr<VariableDecl> parse_inferred_decl();
+    unique_ptr<ReturnStmt> parse_return();
+    unique_ptr<ASTNode> parse_expression();
+    unique_ptr<ASTNode> parse_primary();
+    string token_to_type(TokenType type);
 };

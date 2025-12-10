@@ -3,13 +3,16 @@
 #include <memory>
 #include "ast.hpp"
 
+using namespace std;
+
 class CodeGen {
 public:
-    std::string generate(const std::unique_ptr<Program>& program, bool test_mode = false);
+    string generate(const unique_ptr<Program>& program, bool test_mode = false);
 
 private:
     bool test_mode = false;
-    std::string generate_function(const FunctionDef& fn);
-    std::string generate_statement(const ASTNode& node);
-    std::string generate_test_harness(const std::unique_ptr<Program>& program);
+    string emit(const ASTNode& node);
+    string generate_function(const FunctionDef& fn);
+    string generate_statement(const ASTNode& node);
+    string generate_test_harness(const unique_ptr<Program>& program);
 };
