@@ -19,4 +19,5 @@ private:
     void skip_whitespace();
     Token read_string();
     Token read_identifier();
+    Token read_number();
 };

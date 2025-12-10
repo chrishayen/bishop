@@ -20,6 +20,7 @@ fn main() {
     std::string output = codegen.generate(ast);
 
     std::string expected = R"(#include <iostream>
+#include <string>
 
 int main() {
     std::cout << "Hello, World!" << std::endl;

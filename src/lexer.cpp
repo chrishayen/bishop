@@ -1,4 +1,20 @@
 #include "lexer.hpp"
+#include <unordered_map>
+
+static std::unordered_map<std::string, TokenType> keywords = {
+    {"fn", TokenType::FN},
+    {"return", TokenType::RETURN},
+    {"true", TokenType::TRUE},
+    {"false", TokenType::FALSE},
+    {"int", TokenType::TYPE_INT},
+    {"str", TokenType::TYPE_STR},
+    {"bool", TokenType::TYPE_BOOL},
+    {"char", TokenType::TYPE_CHAR},
+    {"f32", TokenType::TYPE_F32},
+    {"f64", TokenType::TYPE_F64},
+    {"u32", TokenType::TYPE_U32},
+    {"u64", TokenType::TYPE_U64},
+};
 
 Lexer::Lexer(const std::string& source) : source(source) {}
 
@@ -25,13 +41,13 @@ void Lexer::skip_whitespace() {
 
 Token Lexer::read_string() {
     int start_line = line;
-    advance(); // skip opening quote
+    advance();
     std::string value;
     while (current() != '"' && current() != '\0') {
         value += current();
         advance();
     }
-    advance(); // skip closing quote
+    advance();
     return {TokenType::STRING, value, start_line};
 }
 
@@ -43,10 +59,28 @@ Token Lexer::read_identifier() {
         advance();
     }
 
-    if (value == "fn") {
-        return {TokenType::FN, value, start_line};
+    auto it = keywords.find(value);
+    if (it != keywords.end()) {
+        return {it->second, value, start_line};
     }
     return {TokenType::IDENT, value, start_line};
+}
+
+Token Lexer::read_number() {
+    int start_line = line;
+    std::string value;
+    bool is_float = false;
+
+    while (std::isdigit(current()) || current() == '.') {
+        if (current() == '.') {
+            if (is_float) break;
+            is_float = true;
+        }
+        value += current();
+        advance();
+    }
+
+    return {is_float ? TokenType::FLOAT : TokenType::NUMBER, value, start_line};
 }
 
 std::vector<Token> Lexer::tokenize() {
@@ -54,26 +88,59 @@ std::vector<Token> Lexer::tokenize() {
 
     while (pos < source.length()) {
         skip_whitespace();
-
         if (current() == '\0') break;
 
+        int start_line = line;
+
         if (current() == '(') {
-            tokens.push_back({TokenType::LPAREN, "(", line});
+            tokens.push_back({TokenType::LPAREN, "(", start_line});
             advance();
         } else if (current() == ')') {
-            tokens.push_back({TokenType::RPAREN, ")", line});
+            tokens.push_back({TokenType::RPAREN, ")", start_line});
             advance();
         } else if (current() == '{') {
-            tokens.push_back({TokenType::LBRACE, "{", line});
+            tokens.push_back({TokenType::LBRACE, "{", start_line});
             advance();
         } else if (current() == '}') {
-            tokens.push_back({TokenType::RBRACE, "}", line});
+            tokens.push_back({TokenType::RBRACE, "}", start_line});
             advance();
         } else if (current() == ',') {
-            tokens.push_back({TokenType::COMMA, ",", line});
+            tokens.push_back({TokenType::COMMA, ",", start_line});
+            advance();
+        } else if (current() == '+') {
+            tokens.push_back({TokenType::PLUS, "+", start_line});
+            advance();
+        } else if (current() == '*') {
+            tokens.push_back({TokenType::STAR, "*", start_line});
+            advance();
+        } else if (current() == '/') {
+            tokens.push_back({TokenType::SLASH, "/", start_line});
+            advance();
+        } else if (current() == '-') {
+            if (peek() == '>') {
+                tokens.push_back({TokenType::ARROW, "->", start_line});
+                advance();
+                advance();
+            } else {
+                tokens.push_back({TokenType::MINUS, "-", start_line});
+                advance();
+            }
+        } else if (current() == ':') {
+            if (peek() == '=') {
+                tokens.push_back({TokenType::COLON_ASSIGN, ":=", start_line});
+                advance();
+                advance();
+            } else {
+                tokens.push_back({TokenType::COLON, ":", start_line});
+                advance();
+            }
+        } else if (current() == '=') {
+            tokens.push_back({TokenType::ASSIGN, "=", start_line});
             advance();
         } else if (current() == '"') {
             tokens.push_back(read_string());
+        } else if (std::isdigit(current())) {
+            tokens.push_back(read_number());
         } else if (std::isalpha(current()) || current() == '_') {
             tokens.push_back(read_identifier());
         } else {

@@ -17,16 +17,18 @@ fn test_greeting() {
     auto ast = parser.parse();
 
     CodeGen codegen;
-    std::string output = codegen.generate(ast, true);  // test mode
+    std::string output = codegen.generate(ast, true);
 
     std::string expected = R"(#include <iostream>
 #include <string>
+#include <cstdint>
 
 int _failures = 0;
 
-void _assert_eq(const std::string& a, const std::string& b, int line) {
+template<typename T>
+void _assert_eq(T a, T b, int line) {
     if (a != b) {
-        std::cerr << "line " << line << ": FAIL: \"" << a << "\" != \"" << b << "\"" << std::endl;
+        std::cerr << "line " << line << ": FAIL: " << a << " != " << b << std::endl;
         _failures++;
     }
 }
