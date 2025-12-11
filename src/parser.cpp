@@ -428,16 +428,41 @@ unique_ptr<ASTNode> Parser::parse_statement() {
             return decl;
         }
 
-        // Check for qualified type: module.Type var = ...
+        // Check for qualified reference: module.func() or module.Type var = ...
         if (check(TokenType::DOT) && is_imported_module(ident)) {
             advance();
-            string type_name = consume(TokenType::IDENT).value;
-            string qualified_type = ident + "." + type_name;
+            string member_name = consume(TokenType::IDENT).value;
+            string qualified_name = ident + "." + member_name;
 
-            // This is a qualified type declaration: module.Type var = ...
+            // Qualified function call: module.func()
+            if (check(TokenType::LPAREN)) {
+                auto call = make_unique<FunctionCall>();
+                call->name = qualified_name;
+                call->line = current().line;
+
+                consume(TokenType::LPAREN);
+
+                while (!check(TokenType::RPAREN) && !check(TokenType::EOF_TOKEN)) {
+                    auto arg = parse_expression();
+
+                    if (arg) {
+                        call->args.push_back(move(arg));
+                    }
+
+                    if (check(TokenType::COMMA)) {
+                        advance();
+                    }
+                }
+
+                consume(TokenType::RPAREN);
+                consume(TokenType::SEMICOLON);
+                return call;
+            }
+
+            // Qualified type declaration: module.Type var = ...
             if (check(TokenType::IDENT) || check(TokenType::OPTIONAL)) {
                 auto decl = make_unique<VariableDecl>();
-                decl->type = qualified_type;
+                decl->type = qualified_name;
 
                 if (check(TokenType::OPTIONAL)) {
                     decl->is_optional = true;
@@ -451,7 +476,7 @@ unique_ptr<ASTNode> Parser::parse_statement() {
                 return decl;
             }
 
-            // Otherwise treat it as a qualified function call or other expression
+            // Fallback
             pos = saved_pos;
             return parse_function_call();
         }
