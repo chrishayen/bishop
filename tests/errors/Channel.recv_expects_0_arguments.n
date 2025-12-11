@@ -1,0 +1,7 @@
+async fn bad_recv() {
+    ch := Channel<int>();
+    await ch.recv(1);
+}
+
+fn main() {
+}

@@ -1,0 +1,7 @@
+async fn foo() -> int {
+    return 1;
+}
+
+fn main() {
+    x := await foo();
+}
