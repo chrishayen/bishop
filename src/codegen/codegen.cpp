@@ -43,8 +43,21 @@ string CodeGen::emit(const ASTNode& node) {
         return rt::is_none(emit(*expr->value));
     }
     if (auto* expr = dynamic_cast<const AwaitExpr*>(&node)) {
+        // Special handling for channel recv: await ch.recv() -> std::get<1>(co_await ch.async_receive(...))
+        if (auto* mcall = dynamic_cast<const MethodCall*>(expr->value.get())) {
+            if (mcall->method_name == "recv") {
+                return "std::get<1>(co_await " + emit(*mcall->object) +
+                       ".async_receive(asio::as_tuple(asio::use_awaitable)))";
+            }
+        }
+
         // Wrap in parentheses since co_await has low precedence in C++
         return "(co_await " + emit(*expr->value) + ")";
+    }
+    if (auto* channel = dynamic_cast<const ChannelCreate*>(&node)) {
+        // Channel<T>() -> asio::experimental::channel<void(asio::error_code, T)>(ex, 1)
+        string cpp_type = rt::map_type(channel->element_type);
+        return "asio::experimental::channel<void(asio::error_code, " + cpp_type + ")>(co_await asio::this_coro::executor, 1)";
     }
     if (auto* qref = dynamic_cast<const QualifiedRef*>(&node)) {
         // Qualified reference: module.name -> module::name
@@ -125,6 +138,17 @@ string CodeGen::emit(const ASTNode& node) {
             }
         }
 
+        // Handle channel methods using ASIO experimental channel
+        if (call->method_name == "send") {
+            string val = args.empty() ? "" : args[0];
+            return emit(*call->object) + ".async_send(asio::error_code{}, " + val + ", asio::use_awaitable)";
+        }
+
+        if (call->method_name == "recv") {
+            // Return raw async call - will be wrapped by AwaitExpr or used in select
+            return emit(*call->object) + ".async_receive(asio::as_tuple(asio::use_awaitable))";
+        }
+
         return rt::method_call(emit(*call->object), call->method_name, args);
     }
 
@@ -156,6 +180,14 @@ static bool has_async_functions(const Program& program) {
 }
 
 /**
+ * Checks if the program uses channels (simple heuristic: async functions assumed to use channels).
+ */
+static bool has_channels(const Program& program) {
+    // For now, assume async functions may use channels
+    return has_async_functions(program);
+}
+
+/**
  * Main code generation entry point. Generates complete C++ source with headers,
  * structs, and functions. In test mode, generates a test harness instead.
  */
@@ -172,6 +204,12 @@ string CodeGen::generate(const unique_ptr<Program>& program, bool test_mode) {
 
     if (has_async_functions(*program)) {
         out += "#include <asio.hpp>\n#include <asio/awaitable.hpp>\n";
+    }
+
+    if (has_channels(*program)) {
+        out += "#include <asio/experimental/channel.hpp>\n";
+        out += "#include <asio/experimental/awaitable_operators.hpp>\n";
+        out += "using namespace asio::experimental::awaitable_operators;\n";
     }
 
     out += "\n";
@@ -204,6 +242,12 @@ string CodeGen::generate_with_imports(
 
     if (has_async_functions(*program)) {
         out += "#include <asio.hpp>\n#include <asio/awaitable.hpp>\n";
+    }
+
+    if (has_channels(*program)) {
+        out += "#include <asio/experimental/channel.hpp>\n";
+        out += "#include <asio/experimental/awaitable_operators.hpp>\n";
+        out += "using namespace asio::experimental::awaitable_operators;\n";
     }
 
     out += "\n";
@@ -434,6 +478,14 @@ string CodeGen::generate_statement(const ASTNode& node) {
         return rt::while_stmt(emit(*stmt->condition), body);
     }
 
+    if (auto* select_stmt = dynamic_cast<const SelectStmt*>(&node)) {
+        return generate_select(*select_stmt);
+    }
+
+    if (auto* await_expr = dynamic_cast<const AwaitExpr*>(&node)) {
+        return emit(node) + ";";
+    }
+
     if (auto* call = dynamic_cast<const MethodCall*>(&node)) {
         return emit(node) + ";";
     }
@@ -455,6 +507,12 @@ string CodeGen::generate_test_harness(const unique_ptr<Program>& program) {
 
     if (has_async_functions(*program)) {
         out += "#include <asio.hpp>\n#include <asio/awaitable.hpp>\n";
+    }
+
+    if (has_channels(*program)) {
+        out += "#include <asio/experimental/channel.hpp>\n";
+        out += "#include <asio/experimental/awaitable_operators.hpp>\n";
+        out += "using namespace asio::experimental::awaitable_operators;\n";
     }
 
     out += "\n";
@@ -487,6 +545,63 @@ string CodeGen::generate_test_harness(const unique_ptr<Program>& program) {
     out += "\t// exit code signals pass/fail\n";
     out += "\treturn _failures;\n";
     out += "}\n";
+
+    return out;
+}
+
+/**
+ * Generates C++ for a select statement using ASIO awaitable operators.
+ * Uses the || operator to select between multiple channel operations.
+ */
+string CodeGen::generate_select(const SelectStmt& stmt) {
+    string out;
+
+    // Build the operations for select using awaitable operator||
+    vector<string> ops;
+
+    for (const auto& c : stmt.cases) {
+        string channel_code = emit(*c->channel);
+
+        if (c->operation == "recv") {
+            ops.push_back(channel_code + ".async_receive(asio::as_tuple(asio::use_awaitable))");
+        } else if (c->operation == "send") {
+            string send_val = c->send_value ? emit(*c->send_value) : "";
+            ops.push_back(channel_code + ".async_send(asio::error_code{}, " + send_val + ", asio::use_awaitable)");
+        }
+    }
+
+    // Generate the select using || operator from awaitable_operators
+    out += "auto _sel_result = co_await (";
+
+    for (size_t i = 0; i < ops.size(); i++) {
+        out += ops[i];
+
+        if (i < ops.size() - 1) {
+            out += " || ";
+        }
+    }
+
+    out += ");\n";
+
+    // Generate the case handling using index checking on the variant
+    size_t case_idx = 0;
+
+    for (const auto& c : stmt.cases) {
+        out += "if (_sel_result.index() == " + to_string(case_idx) + ") {\n";
+
+        // For recv cases with binding, extract the value from the tuple
+        if (c->operation == "recv" && !c->binding_name.empty()) {
+            out += "\tauto " + c->binding_name + " = std::get<1>(std::get<" + to_string(case_idx) + ">(_sel_result));\n";
+        }
+
+        // Generate case body
+        for (const auto& s : c->body) {
+            out += "\t" + generate_statement(*s) + "\n";
+        }
+
+        out += "}\n";
+        case_idx++;
+    }
 
     return out;
 }

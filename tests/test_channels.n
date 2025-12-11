@@ -1,0 +1,54 @@
+// ============================================
+// Channel Creation
+// ============================================
+
+// Test basic channel creation
+async fn test_channel_create() {
+    ch := Channel<int>();
+}
+
+// Test channel with different types
+async fn test_channel_types() {
+    ch_int := Channel<int>();
+    ch_str := Channel<str>();
+    ch_bool := Channel<bool>();
+}
+
+// ============================================
+// Channel Send/Recv
+// ============================================
+
+// Test basic send and receive
+async fn test_send_recv() {
+    ch := Channel<int>();
+    await ch.send(42);
+    val := await ch.recv();
+}
+
+// ============================================
+// Select Statement
+// ============================================
+
+// Test select with recv
+async fn test_select_recv() {
+    ch1 := Channel<int>();
+    ch2 := Channel<int>();
+
+    select {
+        case val := ch1.recv() {
+            x := val + 1;
+        }
+        case val := ch2.recv() {
+            x := val + 2;
+        }
+    }
+}
+
+// ============================================
+// Sync test
+// ============================================
+
+fn test_sync_still_works() {
+    x := 1;
+    assert_eq(x, 1);
+}

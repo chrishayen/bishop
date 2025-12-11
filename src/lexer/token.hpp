@@ -33,6 +33,9 @@ enum class TokenType {
     IS,
     IMPORT,
     PRIVATE,
+    CHANNEL,
+    SELECT,
+    CASE,
 
     // Annotations
     AT,

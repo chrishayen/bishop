@@ -437,6 +437,18 @@ unique_ptr<ASTNode> Parser::parse_statement() {
         return parse_while();
     }
 
+    // select statement
+    if (check(TokenType::SELECT)) {
+        return parse_select();
+    }
+
+    // await expression as statement: await expr;
+    if (check(TokenType::AWAIT)) {
+        auto expr = parse_expression();
+        consume(TokenType::SEMICOLON);
+        return expr;
+    }
+
     // typed variable: int x = 5
     if (is_type_token()) {
         return parse_variable_decl();
@@ -679,6 +691,88 @@ unique_ptr<WhileStmt> Parser::parse_while() {
 }
 
 /**
+ * Parses a select statement: select { case val := ch.recv() { body } ... }
+ * Each case is either a recv with optional binding or a send operation.
+ */
+unique_ptr<SelectStmt> Parser::parse_select() {
+    int start_line = current().line;
+    consume(TokenType::SELECT);
+    consume(TokenType::LBRACE);
+
+    auto stmt = make_unique<SelectStmt>();
+    stmt->line = start_line;
+
+    while (check(TokenType::CASE)) {
+        auto select_case = make_unique<SelectCase>();
+        select_case->line = current().line;
+        advance();  // consume 'case'
+
+        // Parse case: either "val := ch.recv()" or "ch.send(value)"
+        // First check for binding: val := ...
+        if (check(TokenType::IDENT)) {
+            size_t saved_pos = pos;
+            string first_ident = current().value;
+            advance();
+
+            if (check(TokenType::COLON_ASSIGN)) {
+                // This is a recv with binding: val := ch.recv()
+                select_case->binding_name = first_ident;
+                advance();  // consume :=
+
+                // Now parse the channel.recv()
+                select_case->channel = parse_primary();
+                select_case->channel = parse_postfix(move(select_case->channel));
+
+                // The channel expression should be a MethodCall with method_name "recv"
+                if (auto* method_call = dynamic_cast<MethodCall*>(select_case->channel.get())) {
+                    select_case->operation = method_call->method_name;
+
+                    // For recv, we need to keep the channel object, not the method call
+                    auto channel_obj = move(method_call->object);
+                    select_case->channel = move(channel_obj);
+                }
+            } else if (check(TokenType::DOT)) {
+                // This is either ch.send(value) or ch.recv() without binding
+                pos = saved_pos;
+
+                // Parse channel expression (identifier + method call)
+                auto expr = parse_primary();
+                expr = parse_postfix(move(expr));
+
+                if (auto* method_call = dynamic_cast<MethodCall*>(expr.get())) {
+                    select_case->operation = method_call->method_name;
+
+                    if (method_call->method_name == "send" && !method_call->args.empty()) {
+                        select_case->send_value = move(method_call->args[0]);
+                    }
+
+                    select_case->channel = move(method_call->object);
+                }
+            } else {
+                pos = saved_pos;
+            }
+        }
+
+        // Parse the case body: { statements }
+        consume(TokenType::LBRACE);
+
+        while (!check(TokenType::RBRACE) && !check(TokenType::EOF_TOKEN)) {
+            auto s = parse_statement();
+
+            if (s) {
+                select_case->body.push_back(move(s));
+            }
+        }
+
+        consume(TokenType::RBRACE);
+        stmt->cases.push_back(move(select_case));
+    }
+
+    consume(TokenType::RBRACE);
+    return stmt;
+}
+
+/**
  * Entry point for expression parsing. Delegates to comparison (lowest precedence).
  */
 unique_ptr<ASTNode> Parser::parse_expression() {
@@ -754,6 +848,32 @@ unique_ptr<ASTNode> Parser::parse_primary() {
         await_expr->value = parse_primary();
         await_expr->value = parse_postfix(move(await_expr->value));
         return await_expr;
+    }
+
+    // Handle channel creation: Channel<int>()
+    if (check(TokenType::CHANNEL)) {
+        int start_line = current().line;
+        advance();
+        consume(TokenType::LT);
+
+        string element_type;
+
+        if (is_type_token()) {
+            element_type = token_to_type(current().type);
+            advance();
+        } else if (check(TokenType::IDENT)) {
+            element_type = current().value;
+            advance();
+        }
+
+        consume(TokenType::GT);
+        consume(TokenType::LPAREN);
+        consume(TokenType::RPAREN);
+
+        auto channel = make_unique<ChannelCreate>();
+        channel->element_type = element_type;
+        channel->line = start_line;
+        return channel;
     }
 
     if (check(TokenType::NUMBER)) {

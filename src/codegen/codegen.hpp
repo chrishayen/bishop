@@ -103,4 +103,10 @@ private:
      * Contains only public structs and functions.
      */
     string generate_module_namespace(const string& name, const Module& module);
+
+    /**
+     * @brief Generates C++ for a select statement.
+     * Uses asiochan::select for multiplexing channel operations.
+     */
+    string generate_select(const SelectStmt& stmt);
 };

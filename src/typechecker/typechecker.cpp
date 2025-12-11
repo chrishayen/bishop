@@ -254,6 +254,41 @@ void TypeChecker::check_statement(const ASTNode& stmt) {
         for (const auto& s : while_stmt->body) {
             check_statement(*s);
         }
+    } else if (auto* select_stmt = dynamic_cast<const SelectStmt*>(&stmt)) {
+        for (const auto& select_case : select_stmt->cases) {
+            // Validate channel is actually a channel type
+            TypeInfo channel_type = infer_type(*select_case->channel);
+
+            if (channel_type.base_type.rfind("Channel<", 0) != 0) {
+                error("select case requires a channel, got '" + channel_type.base_type + "'", select_case->line);
+                continue;
+            }
+
+            // Extract element type
+            size_t start = 8;
+            size_t end = channel_type.base_type.find('>', start);
+            string element_type = channel_type.base_type.substr(start, end - start);
+
+            // For recv with binding, add the binding to locals
+            if (select_case->operation == "recv" && !select_case->binding_name.empty()) {
+                locals[select_case->binding_name] = {element_type, false, false};
+            }
+
+            // For send, validate the send value type
+            if (select_case->operation == "send" && select_case->send_value) {
+                TypeInfo val_type = infer_type(*select_case->send_value);
+                TypeInfo expected = {element_type, false, false};
+
+                if (!types_compatible(expected, val_type)) {
+                    error("select send expects '" + element_type + "', got '" + val_type.base_type + "'", select_case->line);
+                }
+            }
+
+            // Check the case body
+            for (const auto& s : select_case->body) {
+                check_statement(*s);
+            }
+        }
     } else if (auto* call = dynamic_cast<const FunctionCall*>(&stmt)) {
         infer_type(*call);
     } else if (auto* mcall = dynamic_cast<const MethodCall*>(&stmt)) {
@@ -336,6 +371,11 @@ TypeInfo TypeChecker::infer_type(const ASTNode& expr) {
 
         // Await unwraps the awaitable - return the inner type
         return infer_type(*await_expr->value);
+    }
+
+    if (auto* channel = dynamic_cast<const ChannelCreate*>(&expr)) {
+        // Channel<T>() creates a Channel<T> type
+        return {"Channel<" + channel->element_type + ">", false, false};
     }
 
     if (auto* qref = dynamic_cast<const QualifiedRef*>(&expr)) {
@@ -423,6 +463,40 @@ TypeInfo TypeChecker::infer_type(const ASTNode& expr) {
 
     if (auto* mcall = dynamic_cast<const MethodCall*>(&expr)) {
         TypeInfo obj_type = infer_type(*mcall->object);
+
+        // Handle Channel<T> method calls
+        if (obj_type.base_type.rfind("Channel<", 0) == 0) {
+            // Extract element type from Channel<T>
+            size_t start = 8;  // length of "Channel<"
+            size_t end = obj_type.base_type.find('>', start);
+            string element_type = obj_type.base_type.substr(start, end - start);
+
+            if (mcall->method_name == "send") {
+                // send(value) - check argument type matches element type
+                if (mcall->args.size() != 1) {
+                    error("Channel.send expects 1 argument, got " + to_string(mcall->args.size()), mcall->line);
+                } else {
+                    TypeInfo arg_type = infer_type(*mcall->args[0]);
+                    TypeInfo expected = {element_type, false, false};
+
+                    if (!types_compatible(expected, arg_type)) {
+                        error("Channel.send expects '" + element_type + "', got '" + arg_type.base_type + "'", mcall->line);
+                    }
+                }
+
+                return {"void", false, true};
+            } else if (mcall->method_name == "recv") {
+                // recv() - returns element type
+                if (!mcall->args.empty()) {
+                    error("Channel.recv expects 0 arguments, got " + to_string(mcall->args.size()), mcall->line);
+                }
+
+                return {element_type, false, false};
+            } else {
+                error("Channel has no method '" + mcall->method_name + "'", mcall->line);
+                return {"unknown", false, false};
+            }
+        }
 
         // Handle str (std::string) method calls
         if (obj_type.base_type == "str") {
@@ -579,7 +653,7 @@ bool TypeChecker::is_primitive_type(const string& type) const {
 }
 
 /**
- * Checks if a type is valid (either a primitive, a known struct, or a qualified module type).
+ * Checks if a type is valid (either a primitive, a known struct, channel, or a qualified module type).
  */
 bool TypeChecker::is_valid_type(const string& type) const {
     if (is_primitive_type(type)) {
@@ -588,6 +662,15 @@ bool TypeChecker::is_valid_type(const string& type) const {
 
     if (structs.find(type) != structs.end()) {
         return true;
+    }
+
+    // Check for Channel<T> type
+    if (type.rfind("Channel<", 0) == 0 && type.back() == '>') {
+        // Extract element type and validate it
+        size_t start = 8;
+        size_t end = type.find('>', start);
+        string element_type = type.substr(start, end - start);
+        return is_valid_type(element_type);
     }
 
     // Check for qualified type (module.Type)

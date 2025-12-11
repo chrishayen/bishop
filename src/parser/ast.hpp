@@ -125,6 +125,29 @@ struct AwaitExpr : ASTNode {
     unique_ptr<ASTNode> value;  ///< The awaitable expression
 };
 
+//------------------------------------------------------------------------------
+// Channels - Concurrent communication primitives
+//------------------------------------------------------------------------------
+
+/** @brief Channel creation: Channel<int>() */
+struct ChannelCreate : ASTNode {
+    string element_type;  ///< Type of elements the channel carries
+};
+
+/** @brief A single case in a select statement */
+struct SelectCase : ASTNode {
+    string binding_name;              ///< Variable to bind result (empty for send)
+    unique_ptr<ASTNode> channel;      ///< Channel expression (e.g., ch1)
+    string operation;                 ///< "recv" or "send"
+    unique_ptr<ASTNode> send_value;   ///< Value to send (null for recv)
+    vector<unique_ptr<ASTNode>> body; ///< Case body statements
+};
+
+/** @brief Select statement for multiplexing channel operations */
+struct SelectStmt : ASTNode {
+    vector<unique_ptr<SelectCase>> cases;  ///< All case branches
+};
+
 /** @brief Function call: func(arg1, arg2) */
 struct FunctionCall : ASTNode {
     string name;                        ///< Function name

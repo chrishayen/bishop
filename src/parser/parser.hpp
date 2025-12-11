@@ -78,6 +78,7 @@ private:
     unique_ptr<ReturnStmt> parse_return();            ///< Parses return statement
     unique_ptr<IfStmt> parse_if();                    ///< Parses if/else statement
     unique_ptr<WhileStmt> parse_while();              ///< Parses while loop
+    unique_ptr<SelectStmt> parse_select();            ///< Parses select statement
 
     // Expression parsing (precedence climbing)
     unique_ptr<ASTNode> parse_expression();        ///< Entry point for expressions
