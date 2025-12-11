@@ -90,4 +90,5 @@ private:
     // Helpers
     string token_to_type(TokenType type);          ///< Converts type token to string
     bool is_struct_type(const string& name);       ///< Checks if name is a known struct
+    string collect_doc_comments();                 ///< Collects consecutive /// doc comments
 };

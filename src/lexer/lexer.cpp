@@ -166,8 +166,36 @@ vector<Token> Lexer::tokenize() {
             tokens.push_back({TokenType::STAR, "*", start_line});
             advance();
         } else if (current() == '/') {
-            tokens.push_back({TokenType::SLASH, "/", start_line});
-            advance();
+            if (peek() == '/') {
+                advance();  // skip first /
+                advance();  // skip second /
+
+                if (current() == '/') {
+                    // Doc comment ///
+                    advance();  // skip third /
+
+                    // Skip leading space if present
+                    if (current() == ' ') {
+                        advance();
+                    }
+
+                    string doc_text;
+                    while (current() != '\n' && current() != '\0') {
+                        doc_text += current();
+                        advance();
+                    }
+
+                    tokens.push_back({TokenType::DOC_COMMENT, doc_text, start_line});
+                } else {
+                    // Regular comment // - skip until newline
+                    while (current() != '\n' && current() != '\0') {
+                        advance();
+                    }
+                }
+            } else {
+                tokens.push_back({TokenType::SLASH, "/", start_line});
+                advance();
+            }
         } else if (current() == '-') {
             if (peek() == '>') {
                 tokens.push_back({TokenType::ARROW, "->", start_line});

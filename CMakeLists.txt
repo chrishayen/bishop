@@ -18,6 +18,7 @@ add_library(nog_lib
     src/codegen/codegen.cpp
     src/project/project.cpp
     src/project/module.cpp
+    src/docgen/docgen.cpp
 )
 target_link_libraries(nog_lib fmt::fmt tomlplusplus::tomlplusplus)
 

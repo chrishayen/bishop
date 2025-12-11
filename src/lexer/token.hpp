@@ -51,6 +51,9 @@ enum class TokenType {
     NUMBER,
     FLOAT,
 
+    // Documentation
+    DOC_COMMENT,  ///< /// doc comment text
+
     // Punctuation
     LPAREN,
     RPAREN,

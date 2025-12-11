@@ -193,6 +193,7 @@ struct FunctionDef : ASTNode {
     string return_type;                   ///< Return type (empty for void)
     vector<unique_ptr<ASTNode>> body;     ///< Function body statements
     Visibility visibility = Visibility::Public;  ///< Access modifier
+    string doc_comment;                   ///< Documentation comment (from ///)
 };
 
 /** @brief Method definition: StructName :: method_name(self, params) -> ret_type { body } */
@@ -203,6 +204,7 @@ struct MethodDef : ASTNode {
     string return_type;                   ///< Return type (empty for void)
     vector<unique_ptr<ASTNode>> body;     ///< Method body statements
     Visibility visibility = Visibility::Public;  ///< Access modifier
+    string doc_comment;                   ///< Documentation comment (from ///)
 };
 
 //------------------------------------------------------------------------------
@@ -211,8 +213,9 @@ struct MethodDef : ASTNode {
 
 /** @brief A field in a struct definition */
 struct StructField {
-    string name;   ///< Field name
-    string type;   ///< Field type
+    string name;        ///< Field name
+    string type;        ///< Field type
+    string doc_comment; ///< Documentation comment (from ///)
 };
 
 /** @brief Struct definition: Name :: struct { fields } */
@@ -220,6 +223,7 @@ struct StructDef : ASTNode {
     string name;                  ///< Struct name
     vector<StructField> fields;   ///< List of fields
     Visibility visibility = Visibility::Public;  ///< Access modifier
+    string doc_comment;           ///< Documentation comment (from ///)
 };
 
 /** @brief Struct literal: TypeName { field: value, ... } */

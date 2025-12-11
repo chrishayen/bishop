@@ -151,11 +151,16 @@ unique_ptr<Program> Parser::parse() {
     }
 
     while (!check(TokenType::EOF_TOKEN)) {
+        // Collect any doc comments before the definition
+        string doc = collect_doc_comments();
+
         // Check for visibility annotation
         Visibility vis = parse_visibility();
 
         if (check(TokenType::FN)) {
-            program->functions.push_back(parse_function(vis));
+            auto fn = parse_function(vis);
+            fn->doc_comment = doc;
+            program->functions.push_back(move(fn));
             continue;
         }
 
@@ -180,12 +185,16 @@ unique_ptr<Program> Parser::parse() {
         advance();
 
         if (check(TokenType::STRUCT)) {
-            program->structs.push_back(parse_struct_def(name, vis));
+            auto s = parse_struct_def(name, vis);
+            s->doc_comment = doc;
+            program->structs.push_back(move(s));
             continue;
         }
 
         if (check(TokenType::IDENT)) {
-            program->methods.push_back(parse_method_def(name, name_tok.line, vis));
+            auto m = parse_method_def(name, name_tok.line, vis);
+            m->doc_comment = doc;
+            program->methods.push_back(move(m));
             continue;
         }
 
@@ -209,10 +218,14 @@ unique_ptr<StructDef> Parser::parse_struct_def(const string& name, Visibility vi
     def->visibility = vis;
     struct_names.push_back(name);
 
-    // Parse fields: name type, name type
+    // Parse fields: name type, name type (with optional doc comments)
     while (!check(TokenType::RBRACE) && !check(TokenType::EOF_TOKEN)) {
+        // Collect doc comment for this field
+        string field_doc = collect_doc_comments();
+
         StructField field;
         field.name = consume(TokenType::IDENT).value;
+        field.doc_comment = field_doc;
 
         if (is_type_token()) {
             field.type = token_to_type(current().type);
@@ -242,6 +255,24 @@ bool Parser::is_struct_type(const string& name) {
         if (s == name) return true;
     }
     return false;
+}
+
+/**
+ * Collects consecutive doc comment tokens into a single string.
+ * Multiple /// lines are joined with newlines.
+ */
+string Parser::collect_doc_comments() {
+    string doc;
+
+    while (check(TokenType::DOC_COMMENT)) {
+        if (!doc.empty()) {
+            doc += "\n";
+        }
+        doc += current().value;
+        advance();
+    }
+
+    return doc;
 }
 
 /**
