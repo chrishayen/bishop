@@ -7,8 +7,8 @@
  */
 
 #include "module.hpp"
-#include "lexer.hpp"
-#include "parser.hpp"
+#include "lexer/lexer.hpp"
+#include "parser/parser.hpp"
 #include <fstream>
 #include <sstream>
 

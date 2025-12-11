@@ -13,12 +13,12 @@
 #include <sstream>
 #include <filesystem>
 #include <cstdlib>
-#include "lexer.hpp"
-#include "parser.hpp"
-#include "codegen.hpp"
-#include "typechecker.hpp"
-#include "project.hpp"
-#include "module.hpp"
+#include "lexer/lexer.hpp"
+#include "parser/parser.hpp"
+#include "codegen/codegen.hpp"
+#include "typechecker/typechecker.hpp"
+#include "project/project.hpp"
+#include "project/module.hpp"
 
 using namespace std;
 namespace fs = filesystem;
@@ -158,7 +158,7 @@ int run_tests(const string& path) {
         out << cpp_code;
         out.close();
 
-        string compile_cmd = "g++ -o " + tmp_bin + " " + tmp_cpp + " 2>&1";
+        string compile_cmd = "g++ -std=c++23 -o " + tmp_bin + " " + tmp_cpp + " 2>&1";
         int compile_result = system(compile_cmd.c_str());
 
         if (compile_result != 0) {
@@ -240,7 +240,7 @@ int run_file(const string& filename) {
     out.close();
 
     // Compile
-    string compile_cmd = "g++ -std=c++20 -o " + exe_file + " " + cpp_file + " 2>&1";
+    string compile_cmd = "g++ -std=c++23 -o " + exe_file + " " + cpp_file + " 2>&1";
     int compile_result = system(compile_cmd.c_str());
 
     if (compile_result != 0) {
@@ -282,7 +282,7 @@ int build_file(const string& filename) {
     fs::path src_path(filename);
     string exe_name = src_path.stem().string();
 
-    string compile_cmd = "g++ -std=c++20 -o " + exe_name + " " + cpp_file;
+    string compile_cmd = "g++ -std=c++23 -o " + exe_name + " " + cpp_file;
 
     if (system(compile_cmd.c_str()) != 0) {
         cerr << "Compile failed" << endl;

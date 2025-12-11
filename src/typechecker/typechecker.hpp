@@ -15,8 +15,8 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "ast.hpp"
-#include "module.hpp"
+#include "parser/ast.hpp"
+#include "project/module.hpp"
 
 using namespace std;
 

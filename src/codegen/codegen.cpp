@@ -7,7 +7,7 @@
  */
 
 #include "codegen.hpp"
-#include "../runtime/runtime.hpp"
+#include "emit/runtime.hpp"
 
 using namespace std;
 namespace rt = nog::runtime;

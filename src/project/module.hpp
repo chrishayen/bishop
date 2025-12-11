@@ -13,7 +13,7 @@
 #include <vector>
 #include <memory>
 #include <optional>
-#include "ast.hpp"
+#include "parser/ast.hpp"
 #include "project.hpp"
 
 /**

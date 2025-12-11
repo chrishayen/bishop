@@ -7,6 +7,7 @@
  */
 
 #include "typechecker.hpp"
+#include "strings.hpp"
 #include <iostream>
 
 using namespace std;
@@ -406,6 +407,39 @@ TypeInfo TypeChecker::infer_type(const ASTNode& expr) {
 
     if (auto* mcall = dynamic_cast<const MethodCall*>(&expr)) {
         TypeInfo obj_type = infer_type(*mcall->object);
+
+        // Handle str (std::string) method calls
+        if (obj_type.base_type == "str") {
+            auto method_info = nog::get_str_method_info(mcall->method_name);
+
+            if (!method_info) {
+                error("str has no method '" + mcall->method_name + "'", mcall->line);
+                return {"unknown", false, false};
+            }
+
+            const auto& [param_types, return_type] = *method_info;
+
+            // Check argument count
+            if (mcall->args.size() != param_types.size()) {
+                error("method '" + mcall->method_name + "' expects " +
+                      to_string(param_types.size()) + " arguments, got " +
+                      to_string(mcall->args.size()), mcall->line);
+            }
+
+            // Check argument types
+            for (size_t i = 0; i < mcall->args.size() && i < param_types.size(); i++) {
+                TypeInfo arg_type = infer_type(*mcall->args[i]);
+                TypeInfo expected = {param_types[i], false, false};
+
+                if (!types_compatible(expected, arg_type)) {
+                    error("argument " + to_string(i + 1) + " of method '" +
+                          mcall->method_name + "' expects '" + param_types[i] +
+                          "', got '" + arg_type.base_type + "'", mcall->line);
+                }
+            }
+
+            return {return_type, false, false};
+        }
 
         // Check object is a struct (using get_struct to handle qualified types)
         const StructDef* sdef = get_struct(obj_type.base_type);

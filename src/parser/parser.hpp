@@ -10,7 +10,7 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include "token.hpp"
+#include "lexer/token.hpp"
 #include "ast.hpp"
 
 using namespace std;

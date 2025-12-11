@@ -14,9 +14,9 @@ using namespace std;
 
 namespace nog::runtime {
 
-/** Emits a C++ string literal: "value" */
+/** Emits a C++ string literal wrapped in std::string constructor */
 inline string string_literal(const string& value) {
-    return fmt::format("\"{}\"", value);
+    return fmt::format("std::string(\"{}\")", value);
 }
 
 /** Emits a C++ integer literal */
