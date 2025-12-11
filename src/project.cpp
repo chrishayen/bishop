@@ -114,32 +114,3 @@ vector<fs::path> get_module_files(const fs::path& module_dir) {
 
     return files;
 }
-
-/**
- * @brief Creates a new nog.toml file in the specified directory.
- *
- * Uses the directory name as the project name.
- * Returns true on success, false if file already exists or on write error.
- */
-bool create_init_file(const fs::path& directory) {
-    fs::path dir = fs::absolute(directory);
-    fs::path init_file = dir / "nog.toml";
-
-    if (fs::exists(init_file)) {
-        return false;  // Already exists
-    }
-
-    string project_name = dir.filename().string();
-
-    ofstream out(init_file);
-
-    if (!out) {
-        return false;
-    }
-
-    out << "[project]" << endl;
-    out << "name = \"" << project_name << "\"" << endl;
-    out.close();
-
-    return true;
-}

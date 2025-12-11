@@ -53,11 +53,3 @@ std::optional<fs::path> resolve_module(const ProjectConfig& config, const std::s
  * @brief Gets all .n files in a module directory.
  */
 std::vector<fs::path> get_module_files(const fs::path& module_dir);
-
-/**
- * @brief Creates a new nog.toml file in the specified directory.
- *
- * Uses the directory name as the project name.
- * Returns true on success, false if file already exists or on write error.
- */
-bool create_init_file(const fs::path& directory);

@@ -172,31 +172,33 @@ int run_tests(const string& path) {
 }
 
 /**
- * Initializes a new Nog project by creating a nog.toml file.
- * Uses the directory name as the project name.
+ * Initializes a new Nog project by creating a nog.toml file in the current directory.
  */
-int init_project(const string& path) {
-    fs::path project_path = path.empty() ? fs::current_path() : fs::path(path);
-
-    if (!fs::is_directory(project_path)) {
-        cerr << "Error: " << project_path << " is not a directory" << endl;
+int init_project(const string& project_name) {
+    if (project_name.empty()) {
+        cerr << "Usage: nog init <project_name>" << endl;
         return 1;
     }
 
-    if (create_init_file(project_path)) {
-        cout << "Initialized project '" << project_path.filename().string() << "'" << endl;
-        return 0;
-    }
-
-    fs::path init_file = project_path / "nog.toml";
+    fs::path init_file = fs::current_path() / "nog.toml";
 
     if (fs::exists(init_file)) {
         cerr << "Error: nog.toml already exists" << endl;
-    } else {
-        cerr << "Error: Could not create nog.toml" << endl;
+        return 1;
     }
 
-    return 1;
+    ofstream out(init_file);
+
+    if (!out) {
+        cerr << "Error: Could not create nog.toml" << endl;
+        return 1;
+    }
+
+    out << "[project]" << endl;
+    out << "name = \"" << project_name << "\"" << endl;
+
+    cout << "Initialized project '" << project_name << "'" << endl;
+    return 0;
 }
 
 /**
