@@ -47,7 +47,15 @@ string transpile(const string& source, const string& filename, bool test_mode) {
     Lexer lexer(source);
     auto tokens = lexer.tokenize();
     Parser parser(tokens);
-    auto ast = parser.parse();
+
+    unique_ptr<Program> ast;
+
+    try {
+        ast = parser.parse();
+    } catch (const runtime_error& e) {
+        cerr << filename << ": parse error: " << e.what() << endl;
+        return "";
+    }
 
     // Find project configuration (for module resolution)
     auto config = find_project(fs::path(filename));
@@ -202,16 +210,101 @@ int init_project(const string& project_name) {
 }
 
 /**
+ * Compiles and runs a nog source file.
+ */
+int run_file(const string& filename) {
+    string source = read_file(filename);
+
+    if (source.empty()) {
+        return 1;
+    }
+
+    string cpp_code = transpile(source, filename, false);
+
+    if (cpp_code.empty()) {
+        return 1;
+    }
+
+    // Write to temp file
+    string cpp_file = "/tmp/nog_run.cpp";
+    string exe_file = "/tmp/nog_run";
+
+    ofstream out(cpp_file);
+
+    if (!out) {
+        cerr << "Error: Could not create temp file" << endl;
+        return 1;
+    }
+
+    out << cpp_code;
+    out.close();
+
+    // Compile
+    string compile_cmd = "g++ -std=c++20 -o " + exe_file + " " + cpp_file + " 2>&1";
+    int compile_result = system(compile_cmd.c_str());
+
+    if (compile_result != 0) {
+        cerr << "Compile failed" << endl;
+        return 1;
+    }
+
+    // Run
+    return system(exe_file.c_str());
+}
+
+/**
+ * Builds a nog source file to an executable.
+ */
+int build_file(const string& filename) {
+    string source = read_file(filename);
+
+    if (source.empty()) {
+        return 1;
+    }
+
+    string cpp_code = transpile(source, filename, false);
+
+    if (cpp_code.empty()) {
+        return 1;
+    }
+
+    string cpp_file = "/tmp/nog_build.cpp";
+    ofstream out(cpp_file);
+
+    if (!out) {
+        cerr << "Error: Could not create temp file" << endl;
+        return 1;
+    }
+
+    out << cpp_code;
+    out.close();
+
+    fs::path src_path(filename);
+    string exe_name = src_path.stem().string();
+
+    string compile_cmd = "g++ -std=c++20 -o " + exe_name + " " + cpp_file;
+
+    if (system(compile_cmd.c_str()) != 0) {
+        cerr << "Compile failed" << endl;
+        return 1;
+    }
+
+    return 0;
+}
+
+/**
  * Main entry point. Usage:
- *   nog <source.n>   - Transpile to C++ and print to stdout
- *   nog test <path>  - Run tests in directory or single file
- *   nog init [path]  - Initialize a new project
+ *   nog <file>       - Build executable
+ *   nog run <file>   - Build and run
+ *   nog test <path>  - Run tests
+ *   nog init <name>  - Initialize project
  */
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        cerr << "Usage: nog <source.n>" << endl;
+        cerr << "Usage: nog <file>" << endl;
+        cerr << "       nog run <file>" << endl;
         cerr << "       nog test <path>" << endl;
-        cerr << "       nog init [path]" << endl;
+        cerr << "       nog init <name>" << endl;
         return 1;
     }
 
@@ -223,19 +316,18 @@ int main(int argc, char* argv[]) {
     }
 
     if (cmd == "init") {
-        string path = argc >= 3 ? argv[2] : "";
-        return init_project(path);
+        string name = argc >= 3 ? argv[2] : "";
+        return init_project(name);
     }
 
-    string source = read_file(cmd);
-    if (source.empty()) return 1;
+    if (cmd == "run") {
+        if (argc < 3) {
+            cerr << "Usage: nog run <file>" << endl;
+            return 1;
+        }
 
-    string result = transpile(source, cmd, false);
-
-    if (result.empty()) {
-        return 1;
+        return run_file(argv[2]);
     }
 
-    cout << result;
-    return 0;
+    return build_file(cmd);
 }

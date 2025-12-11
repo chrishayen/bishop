@@ -43,8 +43,17 @@ void Parser::advance() {
  */
 Token Parser::consume(TokenType type) {
     if (!check(type)) {
-        throw runtime_error("Unexpected token");
+        Token tok = current();
+        string msg = "unexpected token";
+
+        if (!tok.value.empty()) {
+            msg += " '" + tok.value + "'";
+        }
+
+        msg += " at line " + to_string(tok.line);
+        throw runtime_error(msg);
     }
+
     Token tok = current();
     advance();
     return tok;
