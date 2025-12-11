@@ -24,8 +24,16 @@ struct FunctionParam {
 
 /** Emits a complete function definition with parameters, return type, and body */
 inline string function_def(const string& name, const vector<FunctionParam>& params,
-                           const string& return_type, const vector<string>& body) {
-    string rt = return_type.empty() ? "void" : map_type(return_type);
+                           const string& return_type, const vector<string>& body,
+                           bool is_async = false) {
+    string rt;
+
+    if (is_async) {
+        string inner_type = return_type.empty() ? "void" : map_type(return_type);
+        rt = "asio::awaitable<" + inner_type + ">";
+    } else {
+        rt = return_type.empty() ? "void" : map_type(return_type);
+    }
 
     vector<string> param_strs;
     for (const auto& p : params) {
@@ -36,6 +44,13 @@ inline string function_def(const string& name, const vector<FunctionParam>& para
     for (const auto& stmt : body) {
         out += fmt::format("\t{}\n", stmt);
     }
+
+    // Async functions need at least one co_await/co_return to be recognized as coroutines
+    // Add implicit co_return for void async functions without explicit return
+    if (is_async && return_type.empty()) {
+        out += "\tco_return;\n";
+    }
+
     out += "}\n";
     return out;
 }

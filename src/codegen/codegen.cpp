@@ -42,6 +42,10 @@ string CodeGen::emit(const ASTNode& node) {
     if (auto* expr = dynamic_cast<const IsNone*>(&node)) {
         return rt::is_none(emit(*expr->value));
     }
+    if (auto* expr = dynamic_cast<const AwaitExpr*>(&node)) {
+        // Wrap in parentheses since co_await has low precedence in C++
+        return "(co_await " + emit(*expr->value) + ")";
+    }
     if (auto* qref = dynamic_cast<const QualifiedRef*>(&node)) {
         // Qualified reference: module.name -> module::name
         return qref->module_name + "::" + qref->name;
@@ -70,7 +74,8 @@ string CodeGen::emit(const ASTNode& node) {
         return rt::assignment(assign->name, emit(*assign->value));
     }
     if (auto* ret = dynamic_cast<const ReturnStmt*>(&node)) {
-        return rt::return_stmt(emit(*ret->value));
+        string keyword = in_async_function ? "co_return" : "return";
+        return keyword + " " + emit(*ret->value) + ";";
     }
     if (auto* lit = dynamic_cast<const StructLiteral*>(&node)) {
         vector<pair<string, string>> field_values;
@@ -106,6 +111,20 @@ string CodeGen::emit(const ASTNode& node) {
             args.push_back(emit(*arg));
         }
 
+        // Handle self.method() -> this->method() in methods
+        if (auto* ref = dynamic_cast<const VariableRef*>(call->object.get())) {
+            if (ref->name == "self") {
+                string args_str;
+
+                for (size_t i = 0; i < args.size(); i++) {
+                    if (i > 0) args_str += ", ";
+                    args_str += args[i];
+                }
+
+                return "this->" + call->method_name + "(" + args_str + ")";
+            }
+        }
+
         return rt::method_call(emit(*call->object), call->method_name, args);
     }
 
@@ -124,6 +143,19 @@ string CodeGen::emit(const ASTNode& node) {
 }
 
 /**
+ * Checks if any function in the program is async.
+ */
+static bool has_async_functions(const Program& program) {
+    for (const auto& fn : program.functions) {
+        if (fn->is_async) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
  * Main code generation entry point. Generates complete C++ source with headers,
  * structs, and functions. In test mode, generates a test harness instead.
  */
@@ -136,7 +168,13 @@ string CodeGen::generate(const unique_ptr<Program>& program, bool test_mode) {
         return generate_test_harness(program);
     }
 
-    string out = "#include <iostream>\n#include <string>\n#include <optional>\n\n";
+    string out = "#include <iostream>\n#include <string>\n#include <optional>\n";
+
+    if (has_async_functions(*program)) {
+        out += "#include <asio.hpp>\n#include <asio/awaitable.hpp>\n";
+    }
+
+    out += "\n";
 
     for (const auto& s : program->structs) {
         out += generate_struct(*s) + "\n\n";
@@ -162,7 +200,13 @@ string CodeGen::generate_with_imports(
     this->current_program = program.get();
     this->imported_modules = imports;
 
-    string out = "#include <iostream>\n#include <string>\n#include <cstdint>\n#include <optional>\n\n";
+    string out = "#include <iostream>\n#include <string>\n#include <cstdint>\n#include <optional>\n";
+
+    if (has_async_functions(*program)) {
+        out += "#include <asio.hpp>\n#include <asio/awaitable.hpp>\n";
+    }
+
+    out += "\n";
 
     // Generate test harness infrastructure if in test mode
     if (test_mode) {
@@ -276,6 +320,9 @@ string CodeGen::generate_struct(const StructDef& def) {
  * Skips the 'self' parameter (becomes implicit 'this').
  */
 string CodeGen::generate_method(const MethodDef& method) {
+    // Track if we're in an async method for co_return generation
+    in_async_function = method.is_async;
+
     // Params: skip 'self' since it becomes implicit 'this'
     vector<pair<string, string>> params;
 
@@ -289,15 +336,21 @@ string CodeGen::generate_method(const MethodDef& method) {
         body.push_back(generate_statement(*stmt));
     }
 
-    return rt::method_def(method.name, params, method.return_type, body);
+    string result = rt::method_def(method.name, params, method.return_type, body, method.is_async);
+    in_async_function = false;
+    return result;
 }
 
 /**
  * Generates a C++ function. Handles 'main' specially (adds return 0 if no return type).
  * Maps Nog types to C++ types for parameters and return type.
+ * Async functions generate asio::awaitable<T> return type and use co_return.
  */
 string CodeGen::generate_function(const FunctionDef& fn) {
     bool is_main = (fn.name == "main" && !test_mode);
+
+    // Track if we're in an async function for co_return generation
+    in_async_function = fn.is_async;
 
     vector<rt::FunctionParam> params;
     for (const auto& p : fn.params) {
@@ -311,17 +364,19 @@ string CodeGen::generate_function(const FunctionDef& fn) {
 
     string rt_type = is_main ? "int" : fn.return_type;
 
-    string out = rt::function_def(fn.name, params, rt_type, body);
+    string out = rt::function_def(fn.name, params, rt_type, body, fn.is_async);
 
     // For main without explicit return, add return 0
     if (is_main && fn.return_type.empty()) {
         // Insert return 0 before closing brace
         auto pos = out.rfind("}\n");
+
         if (pos != string::npos) {
             out.insert(pos, "\treturn 0;\n");
         }
     }
 
+    in_async_function = false;
     return out;
 }
 
@@ -396,7 +451,13 @@ string CodeGen::generate_statement(const ASTNode& node) {
  */
 string CodeGen::generate_test_harness(const unique_ptr<Program>& program) {
     this->current_program = program.get();
-    string out = "#include <iostream>\n#include <string>\n#include <cstdint>\n#include <optional>\n\n";
+    string out = "#include <iostream>\n#include <string>\n#include <cstdint>\n#include <optional>\n";
+
+    if (has_async_functions(*program)) {
+        out += "#include <asio.hpp>\n#include <asio/awaitable.hpp>\n";
+    }
+
+    out += "\n";
 
     out += "int _failures = 0;\n\n";
     out += "template<typename T, typename U>\n";

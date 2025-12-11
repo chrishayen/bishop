@@ -17,6 +17,8 @@ using namespace std;
  */
 static unordered_map<string, TokenType> keywords = {
     {"fn", TokenType::FN},
+    {"async", TokenType::ASYNC},
+    {"await", TokenType::AWAIT},
     {"return", TokenType::RETURN},
     {"true", TokenType::TRUE},
     {"false", TokenType::FALSE},

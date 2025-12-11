@@ -88,6 +88,7 @@ void TypeChecker::collect_functions(const Program& program) {
 void TypeChecker::check_method(const MethodDef& method) {
     locals.clear();
     current_struct = method.struct_name;
+    in_async_context = method.is_async;
 
     // Set up expected return type
     if (method.return_type.empty()) {
@@ -116,6 +117,8 @@ void TypeChecker::check_method(const MethodDef& method) {
         check_statement(*stmt);
     }
 
+    in_async_context = false;
+
     current_struct.clear();
 }
 
@@ -125,6 +128,7 @@ void TypeChecker::check_method(const MethodDef& method) {
 void TypeChecker::check_function(const FunctionDef& func) {
     locals.clear();
     current_struct.clear();
+    in_async_context = func.is_async;
 
     // Set up expected return type
     if (func.return_type.empty()) {
@@ -146,6 +150,8 @@ void TypeChecker::check_function(const FunctionDef& func) {
     for (const auto& stmt : func.body) {
         check_statement(*stmt);
     }
+
+    in_async_context = false;
 }
 
 /**
@@ -320,6 +326,16 @@ TypeInfo TypeChecker::infer_type(const ASTNode& expr) {
     if (auto* is_none = dynamic_cast<const IsNone*>(&expr)) {
         (void)is_none;
         return {"bool", false, false};
+    }
+
+    if (auto* await_expr = dynamic_cast<const AwaitExpr*>(&expr)) {
+        // Await can only be used inside async functions/methods
+        if (!in_async_context) {
+            error("'await' can only be used inside async functions", await_expr->line);
+        }
+
+        // Await unwraps the awaitable - return the inner type
+        return infer_type(*await_expr->value);
     }
 
     if (auto* qref = dynamic_cast<const QualifiedRef*>(&expr)) {

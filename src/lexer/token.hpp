@@ -20,6 +20,8 @@ using namespace std;
 enum class TokenType {
     // Keywords
     FN,
+    ASYNC,
+    AWAIT,
     RETURN,
     TRUE,
     FALSE,

@@ -120,6 +120,11 @@ struct IsNone : ASTNode {
     unique_ptr<ASTNode> value;  ///< The optional value to check
 };
 
+/** @brief Await expression: await expr */
+struct AwaitExpr : ASTNode {
+    unique_ptr<ASTNode> value;  ///< The awaitable expression
+};
+
 /** @brief Function call: func(arg1, arg2) */
 struct FunctionCall : ASTNode {
     string name;                        ///< Function name
@@ -186,7 +191,7 @@ struct FunctionParam {
     string name;   ///< Parameter name
 };
 
-/** @brief Function definition: fn name(params) -> ret_type { body } */
+/** @brief Function definition: fn name(params) -> ret_type { body } or async fn ... */
 struct FunctionDef : ASTNode {
     string name;                          ///< Function name
     vector<FunctionParam> params;         ///< Parameter list
@@ -194,9 +199,10 @@ struct FunctionDef : ASTNode {
     vector<unique_ptr<ASTNode>> body;     ///< Function body statements
     Visibility visibility = Visibility::Public;  ///< Access modifier
     string doc_comment;                   ///< Documentation comment (from ///)
+    bool is_async = false;                ///< True if declared with async keyword
 };
 
-/** @brief Method definition: StructName :: method_name(self, params) -> ret_type { body } */
+/** @brief Method definition: StructName :: method_name(self, params) -> ret_type { body } or async ... */
 struct MethodDef : ASTNode {
     string struct_name;                   ///< Struct this method belongs to
     string name;                          ///< Method name
@@ -205,6 +211,7 @@ struct MethodDef : ASTNode {
     vector<unique_ptr<ASTNode>> body;     ///< Method body statements
     Visibility visibility = Visibility::Public;  ///< Access modifier
     string doc_comment;                   ///< Documentation comment (from ///)
+    bool is_async = false;                ///< True if declared with async keyword
 };
 
 //------------------------------------------------------------------------------

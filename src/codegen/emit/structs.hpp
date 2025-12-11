@@ -79,8 +79,16 @@ inline string struct_def_with_methods(const string& name,
 inline string method_def(const string& name,
                          const vector<pair<string, string>>& params,
                          const string& return_type,
-                         const vector<string>& body_stmts) {
-    string rt = return_type.empty() ? "void" : map_type(return_type);
+                         const vector<string>& body_stmts,
+                         bool is_async = false) {
+    string rt;
+
+    if (is_async) {
+        string inner_type = return_type.empty() ? "void" : map_type(return_type);
+        rt = "asio::awaitable<" + inner_type + ">";
+    } else {
+        rt = return_type.empty() ? "void" : map_type(return_type);
+    }
 
     vector<string> param_strs;
     for (const auto& [ptype, pname] : params) {
@@ -91,6 +99,11 @@ inline string method_def(const string& name,
 
     for (const auto& stmt : body_stmts) {
         out += fmt::format("\t\t{}\n", stmt);
+    }
+
+    // Async methods need at least one co_await/co_return to be recognized as coroutines
+    if (is_async && return_type.empty()) {
+        out += "\t\tco_return;\n";
     }
 
     out += "\t}\n";

@@ -58,6 +58,7 @@ public:
 
 private:
     bool test_mode = false;                  ///< Whether generating test harness
+    bool in_async_function = false;          ///< Whether currently generating async function body
     const Program* current_program = nullptr;  ///< Current program for method lookup
     map<string, const Module*> imported_modules;  ///< Imported modules for namespace generation
 

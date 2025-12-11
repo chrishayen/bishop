@@ -157,8 +157,16 @@ unique_ptr<Program> Parser::parse() {
         // Check for visibility annotation
         Visibility vis = parse_visibility();
 
+        // Check for async keyword (can precede fn or method definition)
+        bool is_async = false;
+
+        if (check(TokenType::ASYNC)) {
+            is_async = true;
+            advance();
+        }
+
         if (check(TokenType::FN)) {
-            auto fn = parse_function(vis);
+            auto fn = parse_function(vis, is_async);
             fn->doc_comment = doc;
             program->functions.push_back(move(fn));
             continue;
@@ -170,7 +178,7 @@ unique_ptr<Program> Parser::parse() {
         }
 
         // Check for struct definition: Name :: struct { ... }
-        // or method definition: Name :: method_name(...) -> type { ... }
+        // or method definition: [async] Name :: method_name(...) -> type { ... }
         size_t saved_pos = pos;
         Token name_tok = current();
         string name = name_tok.value;
@@ -192,7 +200,7 @@ unique_ptr<Program> Parser::parse() {
         }
 
         if (check(TokenType::IDENT)) {
-            auto m = parse_method_def(name, name_tok.line, vis);
+            auto m = parse_method_def(name, name_tok.line, vis, is_async);
             m->doc_comment = doc;
             program->methods.push_back(move(m));
             continue;
@@ -279,7 +287,7 @@ string Parser::collect_doc_comments() {
  * Parses a method definition: StructName :: method_name(self, params) -> type { body }
  * The first parameter must be 'self', which becomes implicit 'this' in generated C++.
  */
-unique_ptr<MethodDef> Parser::parse_method_def(const string& struct_name, int line, Visibility vis) {
+unique_ptr<MethodDef> Parser::parse_method_def(const string& struct_name, int line, Visibility vis, bool is_async) {
     // We're past "Name ::", now at method_name
     Token method_name = consume(TokenType::IDENT);
     consume(TokenType::LPAREN);
@@ -289,6 +297,7 @@ unique_ptr<MethodDef> Parser::parse_method_def(const string& struct_name, int li
     method->name = method_name.value;
     method->line = line;
     method->visibility = vis;
+    method->is_async = is_async;
 
     // Parse parameters (first should be 'self')
     while (!check(TokenType::RPAREN) && !check(TokenType::EOF_TOKEN)) {
@@ -351,8 +360,9 @@ unique_ptr<MethodDef> Parser::parse_method_def(const string& struct_name, int li
 
 /**
  * Parses a function definition: fn name(type param, ...) -> return_type { body }
+ * Or async fn for async functions.
  */
-unique_ptr<FunctionDef> Parser::parse_function(Visibility vis) {
+unique_ptr<FunctionDef> Parser::parse_function(Visibility vis, bool is_async) {
     consume(TokenType::FN);
     Token name = consume(TokenType::IDENT);
     consume(TokenType::LPAREN);
@@ -360,6 +370,7 @@ unique_ptr<FunctionDef> Parser::parse_function(Visibility vis) {
     auto func = make_unique<FunctionDef>();
     func->name = name.value;
     func->visibility = vis;
+    func->is_async = is_async;
 
     // Parse parameters: fn foo(int a, int b)
     while (!check(TokenType::RPAREN) && !check(TokenType::EOF_TOKEN)) {
@@ -733,9 +744,18 @@ unique_ptr<ASTNode> Parser::parse_additive() {
 }
 
 /**
- * Parses primary expressions: literals, identifiers, function calls, struct literals.
+ * Parses primary expressions: literals, identifiers, function calls, struct literals, await.
  */
 unique_ptr<ASTNode> Parser::parse_primary() {
+    // Handle await expression: await expr
+    if (check(TokenType::AWAIT)) {
+        advance();
+        auto await_expr = make_unique<AwaitExpr>();
+        await_expr->value = parse_primary();
+        await_expr->value = parse_postfix(move(await_expr->value));
+        return await_expr;
+    }
+
     if (check(TokenType::NUMBER)) {
         Token tok = current();
         advance();

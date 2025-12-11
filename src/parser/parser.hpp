@@ -65,9 +65,9 @@ private:
     // Definition parsing
     unique_ptr<ImportStmt> parse_import();                                 ///< Parses import statement
     Visibility parse_visibility();                                         ///< Parses @private annotation
-    unique_ptr<FunctionDef> parse_function(Visibility vis);                ///< Parses fn definition
+    unique_ptr<FunctionDef> parse_function(Visibility vis, bool is_async = false);  ///< Parses fn definition
     unique_ptr<StructDef> parse_struct_def(const string& name, Visibility vis);  ///< Parses struct definition
-    unique_ptr<MethodDef> parse_method_def(const string& struct_name, int line, Visibility vis);  ///< Parses method definition
+    unique_ptr<MethodDef> parse_method_def(const string& struct_name, int line, Visibility vis, bool is_async = false);  ///< Parses method definition
     bool is_imported_module(const string& name);                           ///< Checks if name is an imported module
 
     // Statement parsing

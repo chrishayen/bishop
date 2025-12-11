@@ -1,0 +1,82 @@
+// ============================================
+// Async Functions
+// ============================================
+
+// Test async function with return value
+async fn async_returns_int() -> int {
+    return 42;
+}
+
+// Test async function with parameters
+async fn async_add(int a, int b) -> int {
+    return a + b;
+}
+
+// Test async function calling another async function
+async fn async_with_await() -> int {
+    result := await async_returns_int();
+    return result;
+}
+
+// Test async void function
+async fn async_void_fn() {
+    x := 1;
+}
+
+// Test typed variable with await
+async fn async_typed_await() -> int {
+    int val = await async_returns_int();
+    return val;
+}
+
+// Test multiple awaits in sequence
+async fn async_multiple_awaits() -> int {
+    a := await async_returns_int();
+    b := await async_add(a, 10);
+    return b;
+}
+
+// Test await in arithmetic expression
+async fn async_await_in_expr() -> int {
+    result := await async_returns_int() + 10;
+    return result;
+}
+
+// Test await with nested calls
+async fn async_nested() -> int {
+    result := await async_add(await async_returns_int(), 5);
+    return result;
+}
+
+// ============================================
+// Async Methods
+// ============================================
+
+Counter :: struct {
+    value int
+}
+
+// Test async method with return value
+async Counter :: get_value_async(self) -> int {
+    return self.value;
+}
+
+// Test async method with await
+async Counter :: add_async(self, int amount) -> int {
+    current := await self.get_value_async();
+    return current + amount;
+}
+
+// Test async void method
+async Counter :: increment_async(self) {
+    self.value = self.value + 1;
+}
+
+// ============================================
+// Sync test
+// ============================================
+
+fn test_sync_still_works() {
+    x := 1;
+    assert_eq(x, 1);
+}

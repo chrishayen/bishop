@@ -98,6 +98,7 @@ private:
     string current_struct;     ///< Struct name when checking a method
     TypeInfo current_return;   ///< Expected return type of current function/method
     string filename;           ///< Current source filename
+    bool in_async_context = false;  ///< True when checking async function/method body
 
     vector<TypeError> errors;  ///< Accumulated type errors
 
