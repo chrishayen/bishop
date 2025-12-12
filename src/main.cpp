@@ -26,10 +26,35 @@ namespace fs = filesystem;
 
 /**
  * Gets the directory where the nog executable is located.
- * Used to find build artifacts like llhttp library.
+ * Used to find runtime libraries relative to the compiler.
  */
 fs::path get_executable_dir() {
     return fs::read_symlink("/proc/self/exe").parent_path();
+}
+
+/**
+ * Gets the library and include paths based on where nog is installed.
+ * Development: build/nog -> build/lib, build/include
+ * Installed: ~/.local/bin/nog -> ~/.local/lib/nog, ~/.local/include
+ *
+ * Include path points to parent so #include <nog/http.hpp> works.
+ */
+pair<fs::path, fs::path> get_runtime_paths() {
+    fs::path exe_dir = get_executable_dir();
+
+    // Check if we're in a build directory (has lib/ subdirectory)
+    fs::path build_lib = exe_dir / "lib";
+    fs::path build_include = exe_dir / "include";
+
+    if (fs::exists(build_lib) && fs::exists(build_include)) {
+        return {build_lib, build_include};
+    }
+
+    // Otherwise assume installed layout: bin/nog -> lib/nog, include
+    // Include path is ~/.local/include (so nog/http.hpp is found)
+    // Lib path is ~/.local/lib/nog (where our libs are)
+    fs::path install_base = exe_dir.parent_path();
+    return {install_base / "lib" / "nog", install_base / "include"};
 }
 
 /**
@@ -41,19 +66,17 @@ bool uses_http_module(const string& source) {
 
 /**
  * Builds the g++ compile command with appropriate flags.
- * Adds llhttp library when http module is used.
+ * Adds runtime libraries when http module is used.
  */
 string build_compile_cmd(const string& source, const string& output, const string& input) {
     string cmd = "g++ -std=c++23 -o " + output + " " + input;
 
     if (uses_http_module(source)) {
-        fs::path exe_dir = get_executable_dir();
-        fs::path llhttp_include = exe_dir / "_deps" / "llhttp-src" / "include";
-        fs::path llhttp_lib = exe_dir / "_deps" / "llhttp-build";
+        auto [lib_path, include_path] = get_runtime_paths();
 
-        cmd += " -I" + llhttp_include.string();
-        cmd += " -L" + llhttp_lib.string();
-        cmd += " -lllhttp";
+        cmd += " -I" + include_path.string();
+        cmd += " -L" + lib_path.string();
+        cmd += " -lnog_http -lllhttp";
     }
 
     cmd += " 2>&1";
@@ -347,16 +370,8 @@ int run_file(const string& filename) {
         return 1;
     }
 
-    // Run - need to set library path if using http
-    string run_cmd = exe_file;
-
-    if (uses_http_module(source)) {
-        fs::path exe_dir = get_executable_dir();
-        fs::path llhttp_lib = exe_dir / "_deps" / "llhttp-build";
-        run_cmd = "LD_LIBRARY_PATH=" + llhttp_lib.string() + " " + exe_file;
-    }
-
-    return system(run_cmd.c_str());
+    // Run (static linking, no LD_LIBRARY_PATH needed)
+    return system(exe_file.c_str());
 }
 
 /**
@@ -393,13 +408,11 @@ int build_file(const string& filename) {
     string compile_cmd = "g++ -std=c++23 -o " + exe_name + " " + cpp_file;
 
     if (uses_http_module(source)) {
-        fs::path exe_dir = get_executable_dir();
-        fs::path llhttp_include = exe_dir / "_deps" / "llhttp-src" / "include";
-        fs::path llhttp_lib = exe_dir / "_deps" / "llhttp-build";
+        auto [lib_path, include_path] = get_runtime_paths();
 
-        compile_cmd += " -I" + llhttp_include.string();
-        compile_cmd += " -L" + llhttp_lib.string();
-        compile_cmd += " -lllhttp";
+        compile_cmd += " -I" + include_path.string();
+        compile_cmd += " -L" + lib_path.string();
+        compile_cmd += " -lnog_http -lllhttp";
     }
 
     if (system(compile_cmd.c_str()) != 0) {
