@@ -332,9 +332,44 @@ int init_project(const string& project_name) {
 }
 
 /**
- * Compiles and runs a nog source file.
+ * Compiles and runs a nog source file or project directory.
  */
-int run_file(const string& filename) {
+int run_file(const string& path) {
+    string filename;
+
+    if (fs::is_directory(path)) {
+        fs::path dir_path = fs::absolute(path);
+        fs::path toml_path = dir_path / "nog.toml";
+
+        if (!fs::exists(toml_path)) {
+            cerr << "Error: No nog.toml found in " << path << endl;
+            return 1;
+        }
+
+        auto config = parse_init_file(toml_path);
+
+        if (!config) {
+            cerr << "Error: Could not parse nog.toml" << endl;
+            return 1;
+        }
+
+        if (!config->entry) {
+            cerr << "Error: No entry field in nog.toml" << endl;
+            return 1;
+        }
+
+        fs::path entry_path = dir_path / *config->entry;
+
+        if (!fs::exists(entry_path)) {
+            cerr << "Error: Entry file not found: " << *config->entry << endl;
+            return 1;
+        }
+
+        filename = entry_path.string();
+    } else {
+        filename = path;
+    }
+
     string source = read_file(filename);
 
     if (source.empty()) {
@@ -524,17 +559,16 @@ int generate_docs(int argc, char* argv[]) {
 
 /**
  * Main entry point. Usage:
- *   nog <file>       - Build executable from source file
- *   nog <dir>        - Build project in directory (requires nog.toml with entry)
- *   nog run <file>   - Build and run
- *   nog test <path>  - Run tests
- *   nog init <name>  - Initialize project
- *   nog doc <input>  - Generate HTML documentation
+ *   nog <file|dir>       - Build executable from source file or project directory
+ *   nog run <file|dir>   - Build and run
+ *   nog test <path>      - Run tests
+ *   nog init <name>      - Initialize project
+ *   nog doc <input>      - Generate HTML documentation
  */
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         cerr << "Usage: nog <file|dir>" << endl;
-        cerr << "       nog run <file>" << endl;
+        cerr << "       nog run <file|dir>" << endl;
         cerr << "       nog test <path>" << endl;
         cerr << "       nog init <name>" << endl;
         cerr << "       nog doc <input> [--output <dir>]" << endl;
