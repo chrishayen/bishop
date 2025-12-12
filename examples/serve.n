@@ -22,7 +22,6 @@ async fn handle(http.Request req) -> http.Response {
     }
 
     content := fs.read_file(path);
-    print(content);
     return http.text(content);
 }
 
