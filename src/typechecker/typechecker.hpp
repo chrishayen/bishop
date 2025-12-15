@@ -91,6 +91,7 @@ private:
     map<string, const StructDef*> structs;          ///< Struct name -> definition
     map<string, vector<const MethodDef*>> methods;  ///< Struct name -> its methods
     map<string, const FunctionDef*> functions;      ///< Function name -> definition
+    map<string, const ExternFunctionDef*> extern_functions;  ///< Extern function name -> definition
     map<string, TypeInfo> locals;                   ///< Local variable types in current scope
     map<string, const Module*> imported_modules;    ///< Module alias -> module
 
@@ -103,9 +104,10 @@ private:
     vector<TypeError> errors;  ///< Accumulated type errors
 
     // First pass: collect declarations into symbol tables
-    void collect_structs(const Program& program);   ///< Registers all struct definitions
-    void collect_methods(const Program& program);   ///< Registers all method definitions
-    void collect_functions(const Program& program); ///< Registers all function definitions
+    void collect_structs(const Program& program);          ///< Registers all struct definitions
+    void collect_methods(const Program& program);          ///< Registers all method definitions
+    void collect_functions(const Program& program);        ///< Registers all function definitions
+    void collect_extern_functions(const Program& program); ///< Registers all extern function declarations
 
     // Second pass: validate bodies
     void check_method(const MethodDef& method);     ///< Validates method body

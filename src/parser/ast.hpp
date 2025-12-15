@@ -236,6 +236,16 @@ struct FunctionDef : ASTNode {
     bool is_async = false;                ///< True if declared with async keyword
 };
 
+/** @brief External function declaration: @extern("lib") fn name(params) -> ret_type; */
+struct ExternFunctionDef : ASTNode {
+    string name;                          ///< Function name
+    vector<FunctionParam> params;         ///< Parameter list with C-compatible types
+    string return_type;                   ///< Return type (cint, cstr, void, or empty)
+    string library;                       ///< Library to link against ("c", "m", etc.)
+    Visibility visibility = Visibility::Public;  ///< Access modifier
+    string doc_comment;                   ///< Documentation comment (from ///)
+};
+
 /** @brief Method definition: StructName :: method_name(self, params) -> ret_type { body } or async ... */
 struct MethodDef : ASTNode {
     string struct_name;                   ///< Struct this method belongs to
@@ -285,8 +295,9 @@ struct FieldAccess : ASTNode {
 
 /** @brief The complete program: all structs, functions, and methods */
 struct Program : ASTNode {
-    vector<unique_ptr<ImportStmt>> imports;     ///< All import statements
-    vector<unique_ptr<StructDef>> structs;      ///< All struct definitions
-    vector<unique_ptr<FunctionDef>> functions;  ///< All function definitions
-    vector<unique_ptr<MethodDef>> methods;      ///< All method definitions
+    vector<unique_ptr<ImportStmt>> imports;           ///< All import statements
+    vector<unique_ptr<StructDef>> structs;            ///< All struct definitions
+    vector<unique_ptr<FunctionDef>> functions;        ///< All function definitions
+    vector<unique_ptr<MethodDef>> methods;            ///< All method definitions
+    vector<unique_ptr<ExternFunctionDef>> externs;    ///< All extern function declarations
 };

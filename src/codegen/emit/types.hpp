@@ -27,6 +27,9 @@ inline string map_type(const string& t) {
     if (t == "f64") return "double";
     if (t == "u32") return "uint32_t";
     if (t == "u64") return "uint64_t";
+    if (t == "cint") return "int";
+    if (t == "cstr") return "const char*";
+    if (t == "void") return "void";
     if (t.empty()) return "void";
 
     // Handle function types: fn(int, str) -> bool -> std::function<bool(int, std::string)>

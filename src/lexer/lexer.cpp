@@ -33,6 +33,7 @@ static unordered_map<string, TokenType> keywords = {
     {"Channel", TokenType::CHANNEL},
     {"select", TokenType::SELECT},
     {"case", TokenType::CASE},
+    {"extern", TokenType::EXTERN},
     {"int", TokenType::TYPE_INT},
     {"str", TokenType::TYPE_STR},
     {"bool", TokenType::TYPE_BOOL},
@@ -41,6 +42,9 @@ static unordered_map<string, TokenType> keywords = {
     {"f64", TokenType::TYPE_F64},
     {"u32", TokenType::TYPE_U32},
     {"u64", TokenType::TYPE_U64},
+    {"cint", TokenType::TYPE_CINT},
+    {"cstr", TokenType::TYPE_CSTR},
+    {"void", TokenType::TYPE_VOID},
 };
 
 Lexer::Lexer(const string& source) : source(source) {}

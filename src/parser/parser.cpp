@@ -67,7 +67,9 @@ bool Parser::is_type_token() {
     return t == TokenType::TYPE_INT || t == TokenType::TYPE_STR ||
            t == TokenType::TYPE_BOOL || t == TokenType::TYPE_CHAR ||
            t == TokenType::TYPE_F32 || t == TokenType::TYPE_F64 ||
-           t == TokenType::TYPE_U32 || t == TokenType::TYPE_U64;
+           t == TokenType::TYPE_U32 || t == TokenType::TYPE_U64 ||
+           t == TokenType::TYPE_CINT || t == TokenType::TYPE_CSTR ||
+           t == TokenType::TYPE_VOID;
 }
 
 /**
@@ -83,6 +85,9 @@ string Parser::token_to_type(TokenType type) {
         case TokenType::TYPE_F64: return "f64";
         case TokenType::TYPE_U32: return "u32";
         case TokenType::TYPE_U64: return "u64";
+        case TokenType::TYPE_CINT: return "cint";
+        case TokenType::TYPE_CSTR: return "cstr";
+        case TokenType::TYPE_VOID: return "void";
         default: return "";
     }
 }
@@ -216,6 +221,27 @@ unique_ptr<Program> Parser::parse() {
     while (!check(TokenType::EOF_TOKEN)) {
         // Collect any doc comments before the definition
         string doc = collect_doc_comments();
+
+        // Check for @extern("lib") annotation
+        if (check(TokenType::AT)) {
+            size_t at_pos = pos;
+            advance();
+
+            if (check(TokenType::EXTERN)) {
+                advance();
+                consume(TokenType::LPAREN);
+                string library = consume(TokenType::STRING).value;
+                consume(TokenType::RPAREN);
+
+                auto ext = parse_extern_function(library);
+                ext->doc_comment = doc;
+                program->externs.push_back(move(ext));
+                continue;
+            }
+
+            // Not @extern, restore position for visibility parsing
+            pos = at_pos;
+        }
 
         // Check for visibility annotation
         Visibility vis = parse_visibility();
@@ -646,6 +672,53 @@ unique_ptr<FunctionDef> Parser::parse_function(Visibility vis, bool is_async) {
     }
 
     consume(TokenType::RBRACE);
+    return func;
+}
+
+/**
+ * @nog_syntax @extern
+ * @category FFI
+ * @order 1
+ * @description Declare an external C function to call from Nog.
+ * @syntax @extern("lib") fn name(params) -> type;
+ * @example
+ * @extern("c") fn puts(cstr s) -> cint;
+ * @extern("m") fn sqrt(f64 x) -> f64;
+ * @note Use C-compatible types: cint, cstr, void
+ */
+unique_ptr<ExternFunctionDef> Parser::parse_extern_function(const string& library) {
+    consume(TokenType::FN);
+    Token name = consume(TokenType::IDENT);
+    consume(TokenType::LPAREN);
+
+    auto func = make_unique<ExternFunctionDef>();
+    func->name = name.value;
+    func->library = library;
+    func->line = name.line;
+
+    // Parse parameters
+    while (!check(TokenType::RPAREN) && !check(TokenType::EOF_TOKEN)) {
+        FunctionParam param;
+        param.type = parse_type();
+        param.name = consume(TokenType::IDENT).value;
+        func->params.push_back(param);
+
+        if (check(TokenType::COMMA)) {
+            advance();
+        }
+    }
+
+    consume(TokenType::RPAREN);
+
+    // Parse return type: -> cint
+    if (check(TokenType::ARROW)) {
+        advance();
+        func->return_type = parse_type();
+    }
+
+    // Extern functions end with semicolon, no body
+    consume(TokenType::SEMICOLON);
+
     return func;
 }
 

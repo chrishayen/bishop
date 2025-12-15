@@ -166,6 +166,7 @@ enum class TokenType {
     CHANNEL,
     SELECT,
     CASE,
+    EXTERN,
 
     // Annotations
     AT,
@@ -179,6 +180,9 @@ enum class TokenType {
     TYPE_F64,
     TYPE_U32,
     TYPE_U64,
+    TYPE_CINT,
+    TYPE_CSTR,
+    TYPE_VOID,
 
     // Literals
     IDENT,

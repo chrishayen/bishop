@@ -61,6 +61,7 @@ private:
     bool in_async_function = false;          ///< Whether currently generating async function body
     const Program* current_program = nullptr;  ///< Current program for method lookup
     map<string, const Module*> imported_modules;  ///< Imported modules for namespace generation
+    map<string, const ExternFunctionDef*> extern_functions;  ///< Extern functions for FFI call handling
 
     /**
      * @brief Emits C++ for an expression node.
@@ -109,4 +110,15 @@ private:
      * Uses asiochan::select for multiplexing channel operations.
      */
     string generate_select(const SelectStmt& stmt);
+
+    /**
+     * @brief Generates extern "C" declarations for FFI functions.
+     * Called after includes, before struct/function definitions.
+     */
+    string generate_extern_declarations(const unique_ptr<Program>& program);
+
+    /**
+     * @brief Checks if a function name is an extern function.
+     */
+    bool is_extern_function(const string& name) const;
 };

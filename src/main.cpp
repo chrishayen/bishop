@@ -13,6 +13,7 @@
 #include <sstream>
 #include <filesystem>
 #include <cstdlib>
+#include <set>
 #include "lexer/lexer.hpp"
 #include "parser/parser.hpp"
 #include "codegen/codegen.hpp"
@@ -28,9 +29,10 @@ namespace fs = filesystem;
  * Contains both the generated C++ code and metadata about module usage.
  */
 struct TranspileResult {
-    string cpp_code;        ///< Generated C++ source code
-    bool uses_http = false; ///< True if http module is imported
-    bool uses_fs = false;   ///< True if fs module is imported
+    string cpp_code;           ///< Generated C++ source code
+    bool uses_http = false;    ///< True if http module is imported
+    bool uses_fs = false;      ///< True if fs module is imported
+    set<string> extern_libs;   ///< Libraries needed by extern functions
 };
 
 /**
@@ -86,6 +88,13 @@ string build_compile_cmd(const TranspileResult& result, const string& output, co
         cmd += " -lllhttp";
     }
 
+    // Add extern library flags (skip "c" as libc is implicit)
+    for (const auto& lib : result.extern_libs) {
+        if (lib != "c") {
+            cmd += " -l" + lib;
+        }
+    }
+
     cmd += " 2>&1";
     return cmd;
 }
@@ -133,6 +142,11 @@ TranspileResult transpile(const string& source, const string& filename, bool tes
         } else if (imp->module_path == "fs") {
             result.uses_fs = true;
         }
+    }
+
+    // Collect libraries from extern functions
+    for (const auto& ext : ast->externs) {
+        result.extern_libs.insert(ext->library);
     }
 
     // Find project configuration (for module resolution)

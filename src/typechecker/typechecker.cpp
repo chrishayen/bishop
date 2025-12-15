@@ -24,6 +24,7 @@ bool TypeChecker::check(const Program& program, const string& fname) {
     collect_structs(program);
     collect_methods(program);
     collect_functions(program);
+    collect_extern_functions(program);
 
     // Second pass: validate method definitions
     for (const auto& method : program.methods) {
@@ -78,6 +79,15 @@ void TypeChecker::collect_methods(const Program& program) {
 void TypeChecker::collect_functions(const Program& program) {
     for (const auto& f : program.functions) {
         functions[f->name] = f.get();
+    }
+}
+
+/**
+ * Collects all extern function declarations into the extern_functions symbol table.
+ */
+void TypeChecker::collect_extern_functions(const Program& program) {
+    for (const auto& e : program.externs) {
+        extern_functions[e->name] = e.get();
     }
 }
 
@@ -498,33 +508,60 @@ TypeInfo TypeChecker::infer_type(const ASTNode& expr) {
             }
         }
 
-        if (functions.find(call->name) == functions.end()) {
-            error("undefined function '" + call->name + "'", call->line);
-            return {"unknown", false, false};
-        }
+        // Check if it's a regular function
+        if (functions.find(call->name) != functions.end()) {
+            const FunctionDef* func = functions[call->name];
 
-        const FunctionDef* func = functions[call->name];
-
-        // Check argument count
-        if (call->args.size() != func->params.size()) {
-            error("function '" + call->name + "' expects " + to_string(func->params.size()) + " arguments, got " + to_string(call->args.size()), call->line);
-        }
-
-        // Check argument types
-        for (size_t i = 0; i < call->args.size() && i < func->params.size(); i++) {
-            TypeInfo arg_type = infer_type(*call->args[i]);
-            TypeInfo param_type = {func->params[i].type, false, false};
-
-            if (!types_compatible(param_type, arg_type)) {
-                error("argument " + to_string(i + 1) + " of function '" + call->name + "' expects '" + param_type.base_type + "', got '" + arg_type.base_type + "'", call->line);
+            // Check argument count
+            if (call->args.size() != func->params.size()) {
+                error("function '" + call->name + "' expects " + to_string(func->params.size()) + " arguments, got " + to_string(call->args.size()), call->line);
             }
+
+            // Check argument types
+            for (size_t i = 0; i < call->args.size() && i < func->params.size(); i++) {
+                TypeInfo arg_type = infer_type(*call->args[i]);
+                TypeInfo param_type = {func->params[i].type, false, false};
+
+                if (!types_compatible(param_type, arg_type)) {
+                    error("argument " + to_string(i + 1) + " of function '" + call->name + "' expects '" + param_type.base_type + "', got '" + arg_type.base_type + "'", call->line);
+                }
+            }
+
+            if (func->return_type.empty()) {
+                return {"void", false, true};
+            }
+
+            return {func->return_type, false, false};
         }
 
-        if (func->return_type.empty()) {
-            return {"void", false, true};
+        // Check if it's an extern function
+        if (extern_functions.find(call->name) != extern_functions.end()) {
+            const ExternFunctionDef* ext = extern_functions[call->name];
+
+            // Check argument count
+            if (call->args.size() != ext->params.size()) {
+                error("function '" + call->name + "' expects " + to_string(ext->params.size()) + " arguments, got " + to_string(call->args.size()), call->line);
+            }
+
+            // Check argument types
+            for (size_t i = 0; i < call->args.size() && i < ext->params.size(); i++) {
+                TypeInfo arg_type = infer_type(*call->args[i]);
+                TypeInfo param_type = {ext->params[i].type, false, false};
+
+                if (!types_compatible(param_type, arg_type)) {
+                    error("argument " + to_string(i + 1) + " of function '" + call->name + "' expects '" + param_type.base_type + "', got '" + arg_type.base_type + "'", call->line);
+                }
+            }
+
+            if (ext->return_type.empty() || ext->return_type == "void") {
+                return {"void", false, true};
+            }
+
+            return {ext->return_type, false, false};
         }
 
-        return {func->return_type, false, false};
+        error("undefined function '" + call->name + "'", call->line);
+        return {"unknown", false, false};
     }
 
     if (auto* mcall = dynamic_cast<const MethodCall*>(&expr)) {
@@ -715,7 +752,8 @@ TypeInfo TypeChecker::infer_type(const ASTNode& expr) {
 bool TypeChecker::is_primitive_type(const string& type) const {
     return type == "int" || type == "str" || type == "bool" ||
            type == "char" || type == "f32" || type == "f64" ||
-           type == "u32" || type == "u64";
+           type == "u32" || type == "u64" ||
+           type == "cint" || type == "cstr" || type == "void";
 }
 
 /**
@@ -775,6 +813,16 @@ bool TypeChecker::types_compatible(const TypeInfo& expected, const TypeInfo& act
     // Function reference compatibility: fn:name is compatible with fn(...) type
     // For now, accept any function reference for any function parameter type
     if (actual.base_type.rfind("fn:", 0) == 0 && expected.base_type.rfind("fn(", 0) == 0) {
+        return true;
+    }
+
+    // FFI compatibility: str can be passed where cstr is expected
+    if (expected.base_type == "cstr" && actual.base_type == "str") {
+        return true;
+    }
+
+    // FFI compatibility: int can be passed where cint is expected
+    if (expected.base_type == "cint" && actual.base_type == "int") {
         return true;
     }
 

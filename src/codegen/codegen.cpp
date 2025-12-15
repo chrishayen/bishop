@@ -299,6 +299,11 @@ string CodeGen::generate(const unique_ptr<Program>& program, bool test_mode) {
     this->current_program = program.get();
     this->imported_modules.clear();
 
+    // Collect extern functions for FFI handling
+    for (const auto& ext : program->externs) {
+        extern_functions[ext->name] = ext.get();
+    }
+
     if (test_mode) {
         return generate_test_harness(program);
     }
@@ -317,6 +322,9 @@ string CodeGen::generate(const unique_ptr<Program>& program, bool test_mode) {
     }
 
     out += "\n";
+
+    // Generate extern "C" declarations for FFI
+    out += generate_extern_declarations(program);
 
     for (const auto& s : program->structs) {
         out += generate_struct(*s) + "\n\n";
@@ -341,6 +349,11 @@ string CodeGen::generate_with_imports(
     this->test_mode = test_mode;
     this->current_program = program.get();
     this->imported_modules = imports;
+
+    // Collect extern functions for FFI handling
+    for (const auto& ext : program->externs) {
+        extern_functions[ext->name] = ext.get();
+    }
 
     string out;
 
@@ -372,6 +385,9 @@ string CodeGen::generate_with_imports(
     if (has_fs_import(imports)) {
         out += "#include <nog/fs.hpp>\n\n";
     }
+
+    // Generate extern "C" declarations for FFI
+    out += generate_extern_declarations(program);
 
     // Generate test harness infrastructure if in test mode
     if (test_mode) {
@@ -590,6 +606,37 @@ string CodeGen::generate_statement(const ASTNode& node) {
             return rt::assert_eq(emit(*call->args[0]), emit(*call->args[1]), call->line) + ";";
         }
 
+        // Check if this is an extern function call
+        auto ext_it = extern_functions.find(call->name);
+
+        if (ext_it != extern_functions.end()) {
+            // Extern function - convert string args to const char* with .c_str()
+            const ExternFunctionDef* ext = ext_it->second;
+            vector<string> args;
+
+            for (size_t i = 0; i < call->args.size(); i++) {
+                string arg_code = emit(*call->args[i]);
+
+                // If param type is cstr, convert std::string to const char*
+                if (i < ext->params.size() && ext->params[i].type == "cstr") {
+                    // Wrap the argument with .c_str() call
+                    // Need to handle string literals specially
+                    if (auto* str_lit = dynamic_cast<const StringLiteral*>(call->args[i].get())) {
+                        // String literal - just emit the raw string for C function
+                        (void)str_lit;
+                        args.push_back(arg_code + ".c_str()");
+                    } else {
+                        // Variable or expression - needs .c_str()
+                        args.push_back("(" + arg_code + ").c_str()");
+                    }
+                } else {
+                    args.push_back(arg_code);
+                }
+            }
+
+            return rt::function_call(call->name, args) + ";";
+        }
+
         vector<string> args;
         for (const auto& arg : call->args) {
             args.push_back(emit(*arg));
@@ -652,6 +699,11 @@ string CodeGen::generate_statement(const ASTNode& node) {
 string CodeGen::generate_test_harness(const unique_ptr<Program>& program) {
     this->current_program = program.get();
 
+    // Collect extern functions for FFI handling
+    for (const auto& ext : program->externs) {
+        extern_functions[ext->name] = ext.get();
+    }
+
     // std.hpp PCH includes iostream, string, optional, functional, memory, etc.
     string out = "#include <nog/std.hpp>\n";
 
@@ -666,6 +718,9 @@ string CodeGen::generate_test_harness(const unique_ptr<Program>& program) {
     }
 
     out += "\n";
+
+    // Generate extern "C" declarations for FFI
+    out += generate_extern_declarations(program);
 
     out += "int _failures = 0;\n\n";
     out += "template<typename T, typename U>\n";
@@ -760,4 +815,48 @@ string CodeGen::generate_select(const SelectStmt& stmt) {
     }
 
     return out;
+}
+
+/**
+ * Generates extern "C" declarations for FFI functions.
+ */
+string CodeGen::generate_extern_declarations(const unique_ptr<Program>& program) {
+    if (program->externs.empty()) {
+        return "";
+    }
+
+    string out = "extern \"C\" {\n";
+
+    for (const auto& ext : program->externs) {
+        // Map return type
+        string ret = rt::map_type(ext->return_type);
+
+        // Build parameter list
+        vector<string> params;
+        for (const auto& p : ext->params) {
+            params.push_back(rt::map_type(p.type) + " " + p.name);
+        }
+
+        out += "\t" + ret + " " + ext->name + "(";
+
+        for (size_t i = 0; i < params.size(); i++) {
+            out += params[i];
+
+            if (i < params.size() - 1) {
+                out += ", ";
+            }
+        }
+
+        out += ");\n";
+    }
+
+    out += "}\n\n";
+    return out;
+}
+
+/**
+ * Checks if a function name is an extern function.
+ */
+bool CodeGen::is_extern_function(const string& name) const {
+    return extern_functions.find(name) != extern_functions.end();
 }
