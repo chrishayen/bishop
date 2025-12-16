@@ -25,9 +25,23 @@ FetchContent_MakeAvailable(llhttp)
 add_library(nog_lib
     src/lexer/lexer.cpp
     src/parser/parser.cpp
+    src/parser/parse_expression.cpp
+    src/parser/parse_statement.cpp
+    src/parser/parse_function.cpp
+    src/parser/parse_struct.cpp
+    src/parser/parse_type.cpp
+    src/parser/parse_import.cpp
     src/typechecker/typechecker.cpp
+    src/typechecker/check_expression.cpp
+    src/typechecker/check_statement.cpp
+    src/typechecker/check_function.cpp
     src/typechecker/strings.cpp
     src/codegen/codegen.cpp
+    src/codegen/emit_type.cpp
+    src/codegen/emit_expression.cpp
+    src/codegen/emit_statement.cpp
+    src/codegen/emit_function.cpp
+    src/codegen/emit_struct.cpp
     src/project/project.cpp
     src/project/module.cpp
     src/stdlib/http.cpp

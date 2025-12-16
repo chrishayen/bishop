@@ -124,12 +124,12 @@ TranspileResult transpile(const string& source, const string& filename, bool tes
 
     Lexer lexer(source);
     auto tokens = lexer.tokenize();
-    Parser parser(tokens);
+    ParserState state(tokens);
 
     unique_ptr<Program> ast;
 
     try {
-        ast = parser.parse();
+        ast = parser::parse(state);
     } catch (const runtime_error& e) {
         cerr << filename << ": parse error: " << e.what() << endl;
         return result;

@@ -241,8 +241,8 @@ unique_ptr<Program> ModuleManager::merge_files(const vector<fs::path>& files, co
 
         Lexer lexer(source);
         auto tokens = lexer.tokenize();
-        Parser parser(tokens);
-        auto ast = parser.parse();
+        ParserState state(tokens);
+        auto ast = parser::parse(state);
 
         // Merge imports
         for (auto& imp : ast->imports) {

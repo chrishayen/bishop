@@ -1,16 +1,15 @@
 /**
- * @file types.hpp
- * @brief Nog-to-C++ type mapping.
+ * @file emit_type.cpp
+ * @brief Type mapping for Nog to C++ conversion.
  *
  * Maps Nog primitive types to their C++ equivalents.
  */
 
-#pragma once
-#include <string>
+#include "codegen.hpp"
 
 using namespace std;
 
-namespace nog::runtime {
+namespace codegen {
 
 /**
  * Maps a Nog type name to its C++ equivalent.
@@ -18,7 +17,7 @@ namespace nog::runtime {
  * Handles qualified types (module.Type -> module::Type).
  * Handles function types (fn(int, int) -> int -> std::function<int(int, int)>).
  */
-inline string map_type(const string& t) {
+string map_type(const string& t) {
     if (t == "int") return "int";
     if (t == "str") return "std::string";
     if (t == "bool") return "bool";
@@ -103,4 +102,4 @@ inline string map_type(const string& t) {
     return t;
 }
 
-}
+} // namespace codegen

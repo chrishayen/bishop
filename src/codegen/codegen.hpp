@@ -2,123 +2,103 @@
  * @file codegen.hpp
  * @brief C++ code generator for the Nog language.
  *
- * Transforms a type-checked AST into C++ source code. The generated code
- * uses the runtime helpers defined in runtime/*.hpp to produce idiomatic C++.
- *
- * Features:
- * - Structs become C++ structs with member functions for methods
- * - Optional types map to std::optional<T>
- * - Built-in print() maps to std::cout
- * - Test mode generates a test harness with assert_eq support
+ * Transforms a type-checked AST into C++ source code using
+ * standalone functions in the codegen namespace with explicit state passing.
  */
 
 #pragma once
 #include <string>
 #include <memory>
 #include <map>
+#include <vector>
 #include "parser/ast.hpp"
 #include "project/module.hpp"
 
-using namespace std;
+/**
+ * @brief Code generator state passed to all generation functions.
+ *
+ * Contains mode flags and context needed during code generation.
+ */
+struct CodeGenState {
+    bool test_mode = false;
+    bool in_async_function = false;
+    const Program* current_program = nullptr;
+    std::map<std::string, const Module*> imported_modules;
+    std::map<std::string, const ExternFunctionDef*> extern_functions;
+};
+
+namespace codegen {
+
+// Main entry points (codegen.cpp)
+std::string generate(CodeGenState& state, const std::unique_ptr<Program>& program, bool test_mode = false);
+std::string generate_with_imports(
+    CodeGenState& state,
+    const std::unique_ptr<Program>& program,
+    const std::map<std::string, const Module*>& imports,
+    bool test_mode = false
+);
+std::string generate_module_namespace(CodeGenState& state, const std::string& name, const Module& module);
+std::string generate_select(CodeGenState& state, const SelectStmt& stmt);
+std::string generate_extern_declarations(const std::unique_ptr<Program>& program);
+
+// Type utilities (emit_type.cpp)
+std::string map_type(const std::string& t);
+
+// Expression emission (emit_expression.cpp)
+std::string emit(CodeGenState& state, const ASTNode& node);
+std::string string_literal(const std::string& value);
+std::string number_literal(const std::string& value);
+std::string float_literal(const std::string& value);
+std::string bool_literal(bool value);
+std::string none_literal();
+std::string variable_ref(const std::string& name);
+std::string binary_expr(const std::string& left, const std::string& op, const std::string& right);
+std::string function_call(const std::string& name, const std::vector<std::string>& args);
+std::string is_none(const std::string& value);
+std::string method_call(const std::string& object, const std::string& method, const std::vector<std::string>& args);
+
+// Statement emission (emit_statement.cpp)
+std::string generate_statement(CodeGenState& state, const ASTNode& node);
+std::string variable_decl(const std::string& type, const std::string& name, const std::string& value, bool is_optional = false);
+std::string return_stmt(const std::string& value);
+std::string assignment(const std::string& name, const std::string& value);
+std::string if_stmt(const std::string& condition, const std::vector<std::string>& then_body, const std::vector<std::string>& else_body);
+std::string while_stmt(const std::string& condition, const std::vector<std::string>& body);
+std::string print_multi(const std::vector<std::string>& args);
+std::string assert_eq(const std::string& a, const std::string& b, int line);
+
+// Function emission (emit_function.cpp)
+struct FunctionParam {
+    std::string type;
+    std::string name;
+};
+std::string generate_function(CodeGenState& state, const FunctionDef& fn);
+std::string generate_method(CodeGenState& state, const MethodDef& method);
+std::string generate_test_harness(CodeGenState& state, const std::unique_ptr<Program>& program);
+std::string function_def(const std::string& name, const std::vector<FunctionParam>& params, const std::string& return_type, const std::vector<std::string>& body, bool is_async = false);
+std::string method_def(const std::string& name, const std::vector<std::pair<std::string, std::string>>& params, const std::string& return_type, const std::vector<std::string>& body_stmts, bool is_async = false);
+
+// Struct emission (emit_struct.cpp)
+std::string generate_struct(CodeGenState& state, const StructDef& def);
+std::string struct_def(const std::string& name, const std::vector<std::pair<std::string, std::string>>& fields);
+std::string struct_def_with_methods(const std::string& name, const std::vector<std::pair<std::string, std::string>>& fields, const std::vector<std::string>& method_bodies);
+std::string struct_literal(const std::string& name, const std::vector<std::pair<std::string, std::string>>& field_values);
+std::string field_access(const std::string& object, const std::string& field);
+std::string field_assignment(const std::string& object, const std::string& field, const std::string& value);
+
+} // namespace codegen
 
 /**
- * @brief Generates C++ code from a Nog AST.
+ * @brief Legacy class API for backwards compatibility.
  *
- * The generated code includes necessary headers and uses runtime helper
- * functions to emit idiomatic C++. In test mode, generates a main() that
- * runs all test_* functions and tracks failures.
- *
- * @example
- *   CodeGen codegen;
- *   string cpp_code = codegen.generate(program, false);  // normal mode
- *   string test_code = codegen.generate(program, true);  // test mode
+ * Wraps the codegen namespace functions for existing code.
  */
 class CodeGen {
 public:
-    /**
-     * @brief Generates C++ code for the entire program.
-     * @param program The type-checked AST
-     * @param test_mode If true, generates test harness with assert_eq support
-     * @return Complete C++ source code as a string
-     */
-    string generate(const unique_ptr<Program>& program, bool test_mode = false);
-
-    /**
-     * @brief Generates C++ code for a program with imported modules.
-     * @param program The type-checked AST
-     * @param imports Map of module alias -> Module for imported modules
-     * @param test_mode If true, generates test harness with assert_eq support
-     * @return Complete C++ source code as a string
-     */
-    string generate_with_imports(
-        const unique_ptr<Program>& program,
-        const map<string, const Module*>& imports,
+    std::string generate(const std::unique_ptr<Program>& program, bool test_mode = false);
+    std::string generate_with_imports(
+        const std::unique_ptr<Program>& program,
+        const std::map<std::string, const Module*>& imports,
         bool test_mode = false
     );
-
-private:
-    bool test_mode = false;                  ///< Whether generating test harness
-    bool in_async_function = false;          ///< Whether currently generating async function body
-    const Program* current_program = nullptr;  ///< Current program for method lookup
-    map<string, const Module*> imported_modules;  ///< Imported modules for namespace generation
-    map<string, const ExternFunctionDef*> extern_functions;  ///< Extern functions for FFI call handling
-
-    /**
-     * @brief Emits C++ for an expression node.
-     * Handles literals, variables, binary expressions, function calls, etc.
-     */
-    string emit(const ASTNode& node);
-
-    /**
-     * @brief Generates a C++ function from a FunctionDef.
-     * Maps Nog types to C++ types and handles main() specially.
-     */
-    string generate_function(const FunctionDef& fn);
-
-    /**
-     * @brief Generates a C++ struct with optional methods.
-     * Methods become member functions with 'self' mapped to 'this'.
-     */
-    string generate_struct(const StructDef& def);
-
-    /**
-     * @brief Generates a C++ member function from a MethodDef.
-     * Transforms self.field into this->field.
-     */
-    string generate_method(const MethodDef& method);
-
-    /**
-     * @brief Generates C++ for a statement node.
-     * Handles if/while, function calls, assignments, etc.
-     */
-    string generate_statement(const ASTNode& node);
-
-    /**
-     * @brief Generates the test harness main() function.
-     * Calls all test_* functions and returns failure count.
-     */
-    string generate_test_harness(const unique_ptr<Program>& program);
-
-    /**
-     * @brief Generates a C++ namespace for an imported module.
-     * Contains only public structs and functions.
-     */
-    string generate_module_namespace(const string& name, const Module& module);
-
-    /**
-     * @brief Generates C++ for a select statement.
-     * Uses asiochan::select for multiplexing channel operations.
-     */
-    string generate_select(const SelectStmt& stmt);
-
-    /**
-     * @brief Generates extern "C" declarations for FFI functions.
-     * Called after includes, before struct/function definitions.
-     */
-    string generate_extern_declarations(const unique_ptr<Program>& program);
-
-    /**
-     * @brief Checks if a function name is an extern function.
-     */
-    bool is_extern_function(const string& name) const;
 };

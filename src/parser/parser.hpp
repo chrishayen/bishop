@@ -2,99 +2,87 @@
  * @file parser.hpp
  * @brief Recursive descent parser for the Nog language.
  *
- * Transforms a token stream into an Abstract Syntax Tree (AST). Handles
- * all Nog constructs including functions, structs, methods, control flow,
- * and expressions.
+ * Transforms a token stream into an Abstract Syntax Tree (AST). Uses
+ * standalone functions in the parser namespace with explicit state passing.
  */
 
 #pragma once
 #include <vector>
 #include <memory>
+#include <string>
 #include "lexer/token.hpp"
 #include "ast.hpp"
 
-using namespace std;
+/**
+ * @brief Parser state passed to all parsing functions.
+ *
+ * Contains the token stream, current position, and lookup tables
+ * for struct/function names and imported modules.
+ */
+struct ParserState {
+    const std::vector<Token>& tokens;
+    size_t pos = 0;
+    std::vector<std::string> struct_names;
+    std::vector<std::string> function_names;
+    std::vector<std::string> imported_modules;
+
+    explicit ParserState(const std::vector<Token>& toks) : tokens(toks) {}
+};
+
+namespace parser {
 
 /**
- * @brief Parses Nog tokens into an AST.
- *
- * Uses recursive descent parsing with separate methods for each grammar rule.
- * Expression parsing uses precedence climbing for operators.
- *
- * Grammar overview:
- *   program     -> import* (function | struct | method)*
- *   import      -> "import" module_path ";"
- *   function    -> visibility? "fn" IDENT "(" params ")" ("->" type)? "{" statements "}"
- *   struct      -> visibility? IDENT "::" "struct" "{" fields "}"
- *   method      -> visibility? IDENT "::" IDENT "(" params ")" ("->" type)? "{" statements "}"
- *   visibility  -> "@private"
- *   statement   -> var_decl | assignment | return | if | while | call
- *   expression  -> comparison
- *   comparison  -> additive (("==" | "!=" | ...) additive)*
- *   additive    -> primary (("+" | "-" | "*" | "/") primary)*
- *   primary     -> literal | IDENT | qualified_ref | call | struct_literal | "(" expression ")"
+ * @brief Parses all tokens into a complete Program AST.
+ * @param state Parser state with token stream
+ * @return The parsed program containing all definitions
+ * @throws runtime_error on syntax errors
  */
-class Parser {
-public:
-    /**
-     * @brief Constructs a parser for the given token stream.
-     * @param tokens Vector of tokens from the lexer
-     */
-    explicit Parser(const vector<Token>& tokens);
+std::unique_ptr<Program> parse(ParserState& state);
 
-    /**
-     * @brief Parses all tokens into a complete Program AST.
-     * @return The parsed program containing all definitions
-     * @throws runtime_error on syntax errors
-     */
-    unique_ptr<Program> parse();
+// Token navigation
+Token current(const ParserState& state);
+Token consume(ParserState& state, TokenType type);
+bool check(const ParserState& state, TokenType type);
+void advance(ParserState& state);
 
-private:
-    vector<Token> tokens;          ///< Token stream to parse
-    size_t pos = 0;                ///< Current position in tokens
-    vector<string> struct_names;   ///< Known struct names for type resolution
-    vector<string> function_names; ///< Known function names for function reference resolution
-    vector<string> imported_modules;  ///< Imported module aliases for qualified reference resolution
+// Type utilities (parse_type.cpp)
+bool is_type_token(const ParserState& state);
+std::string token_to_type(TokenType type);
+std::string parse_type(ParserState& state);
 
-    // Token navigation
-    Token current();               ///< Returns current token
-    Token consume(TokenType type); ///< Consumes expected token or throws
-    bool check(TokenType type);    ///< Checks if current token matches
-    bool is_type_token();          ///< Checks if current is a type keyword
-    void advance();                ///< Moves to next token
+// Struct utilities (parse_struct.cpp)
+bool is_struct_type(const ParserState& state, const std::string& name);
+std::unique_ptr<StructDef> parse_struct_def(ParserState& state, const std::string& name, Visibility vis);
+std::unique_ptr<StructLiteral> parse_struct_literal(ParserState& state, const std::string& name);
 
-    // Definition parsing
-    unique_ptr<ImportStmt> parse_import();                                 ///< Parses import statement
-    Visibility parse_visibility();                                         ///< Parses @private annotation
-    unique_ptr<FunctionDef> parse_function(Visibility vis, bool is_async = false);  ///< Parses fn definition
-    unique_ptr<ExternFunctionDef> parse_extern_function(const string& library);    ///< Parses @extern fn declaration
-    unique_ptr<StructDef> parse_struct_def(const string& name, Visibility vis);  ///< Parses struct definition
-    unique_ptr<MethodDef> parse_method_def(const string& struct_name, int line, Visibility vis, bool is_async = false);  ///< Parses method definition
-    bool is_imported_module(const string& name);                           ///< Checks if name is an imported module
+// Import utilities (parse_import.cpp)
+bool is_imported_module(const ParserState& state, const std::string& name);
+bool is_function_name(const ParserState& state, const std::string& name);
+void prescan_definitions(ParserState& state);
+std::string collect_doc_comments(ParserState& state);
+std::unique_ptr<ImportStmt> parse_import(ParserState& state);
 
-    // Statement parsing
-    unique_ptr<ASTNode> parse_statement();         ///< Parses any statement
-    unique_ptr<FunctionCall> parse_function_call();   ///< Parses function call statement
-    unique_ptr<VariableDecl> parse_variable_decl();   ///< Parses typed variable declaration
-    unique_ptr<VariableDecl> parse_inferred_decl();   ///< Parses := inference declaration
-    unique_ptr<ReturnStmt> parse_return();            ///< Parses return statement
-    unique_ptr<IfStmt> parse_if();                    ///< Parses if/else statement
-    unique_ptr<WhileStmt> parse_while();              ///< Parses while loop
-    unique_ptr<SelectStmt> parse_select();            ///< Parses select statement
+// Function parsing (parse_function.cpp)
+Visibility parse_visibility(ParserState& state);
+std::unique_ptr<FunctionDef> parse_function(ParserState& state, Visibility vis, bool is_async = false);
+std::unique_ptr<ExternFunctionDef> parse_extern_function(ParserState& state, const std::string& library);
+std::unique_ptr<MethodDef> parse_method_def(ParserState& state, const std::string& struct_name, int line, Visibility vis, bool is_async = false);
 
-    // Expression parsing (precedence climbing)
-    unique_ptr<ASTNode> parse_expression();        ///< Entry point for expressions
-    unique_ptr<ASTNode> parse_comparison();        ///< Handles comparison operators
-    unique_ptr<ASTNode> parse_additive();          ///< Handles +, -, *, /
-    unique_ptr<ASTNode> parse_primary();           ///< Handles literals, identifiers
-    unique_ptr<ASTNode> parse_postfix(unique_ptr<ASTNode> left);  ///< Handles . access/calls
-    unique_ptr<StructLiteral> parse_struct_literal(const string& name);  ///< Parses { field: value }
+// Statement parsing (parse_statement.cpp)
+std::unique_ptr<ASTNode> parse_statement(ParserState& state);
+std::unique_ptr<FunctionCall> parse_function_call(ParserState& state);
+std::unique_ptr<VariableDecl> parse_variable_decl(ParserState& state);
+std::unique_ptr<VariableDecl> parse_inferred_decl(ParserState& state);
+std::unique_ptr<ReturnStmt> parse_return(ParserState& state);
+std::unique_ptr<IfStmt> parse_if(ParserState& state);
+std::unique_ptr<WhileStmt> parse_while(ParserState& state);
+std::unique_ptr<SelectStmt> parse_select(ParserState& state);
 
-    // Helpers
-    void prescan_definitions();                    ///< Pre-scans for function/struct names
-    string token_to_type(TokenType type);          ///< Converts type token to string
-    string parse_type();                           ///< Parses a type (including fn types)
-    bool is_struct_type(const string& name);       ///< Checks if name is a known struct
-    bool is_function_name(const string& name);     ///< Checks if name is a known function
-    string collect_doc_comments();                 ///< Collects consecutive /// doc comments
-};
+// Expression parsing (parse_expression.cpp)
+std::unique_ptr<ASTNode> parse_expression(ParserState& state);
+std::unique_ptr<ASTNode> parse_comparison(ParserState& state);
+std::unique_ptr<ASTNode> parse_additive(ParserState& state);
+std::unique_ptr<ASTNode> parse_primary(ParserState& state);
+std::unique_ptr<ASTNode> parse_postfix(ParserState& state, std::unique_ptr<ASTNode> left);
+
+} // namespace parser
