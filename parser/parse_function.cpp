@@ -47,6 +47,7 @@ unique_ptr<FunctionDef> parse_function(ParserState& state, Visibility vis, bool 
 
     auto func = make_unique<FunctionDef>();
     func->name = name.value;
+    func->line = name.line;
     func->visibility = vis;
     func->is_async = is_async;
 
@@ -95,7 +96,7 @@ unique_ptr<FunctionDef> parse_function(ParserState& state, Visibility vis, bool 
  *     return self.name;
  * }
  */
-unique_ptr<MethodDef> parse_method_def(ParserState& state, const string& struct_name, int line, Visibility vis, bool is_async) {
+unique_ptr<MethodDef> parse_method_def(ParserState& state, const string& struct_name, Visibility vis, bool is_async) {
     // We're past "Name ::", now at method_name
     Token method_name = consume(state, TokenType::IDENT);
     consume(state, TokenType::LPAREN);
@@ -103,7 +104,7 @@ unique_ptr<MethodDef> parse_method_def(ParserState& state, const string& struct_
     auto method = make_unique<MethodDef>();
     method->struct_name = struct_name;
     method->name = method_name.value;
-    method->line = line;
+    method->line = method_name.line;
     method->visibility = vis;
     method->is_async = is_async;
 

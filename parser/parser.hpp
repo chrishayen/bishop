@@ -66,7 +66,7 @@ std::unique_ptr<ImportStmt> parse_import(ParserState& state);
 Visibility parse_visibility(ParserState& state);
 std::unique_ptr<FunctionDef> parse_function(ParserState& state, Visibility vis, bool is_async = false);
 std::unique_ptr<ExternFunctionDef> parse_extern_function(ParserState& state, const std::string& library);
-std::unique_ptr<MethodDef> parse_method_def(ParserState& state, const std::string& struct_name, int line, Visibility vis, bool is_async = false);
+std::unique_ptr<MethodDef> parse_method_def(ParserState& state, const std::string& struct_name, Visibility vis, bool is_async = false);
 
 // Statement parsing (parse_statement.cpp)
 std::unique_ptr<ASTNode> parse_statement(ParserState& state);

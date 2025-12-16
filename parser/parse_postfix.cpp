@@ -47,6 +47,7 @@ unique_ptr<ASTNode> parse_postfix(ParserState& state, unique_ptr<ASTNode> left) 
             auto access = make_unique<FieldAccess>();
             access->object = move(left);
             access->field_name = member_name;
+            access->line = member_tok.line;
             left = move(access);
         }
     }

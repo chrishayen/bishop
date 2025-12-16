@@ -147,7 +147,7 @@ unique_ptr<Program> parse(ParserState& state) {
         }
 
         if (check(state, TokenType::IDENT)) {
-            auto m = parse_method_def(state, name, name_tok.line, vis, is_async);
+            auto m = parse_method_def(state, name, vis, is_async);
             m->doc_comment = doc;
             program->methods.push_back(move(m));
             continue;

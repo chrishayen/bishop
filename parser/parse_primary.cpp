@@ -44,8 +44,10 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
 
     // Handle await expression: await expr
     if (check(state, TokenType::AWAIT)) {
+        int start_line = current(state).line;
         advance(state);
         auto await_expr = make_unique<AwaitExpr>();
+        await_expr->line = start_line;
         await_expr->value = parse_primary(state);
         await_expr->value = parse_postfix(state, move(await_expr->value));
         return await_expr;
@@ -130,19 +132,25 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
     if (check(state, TokenType::NUMBER)) {
         Token tok = current(state);
         advance(state);
-        return make_unique<NumberLiteral>(tok.value);
+        auto lit = make_unique<NumberLiteral>(tok.value);
+        lit->line = tok.line;
+        return lit;
     }
 
     if (check(state, TokenType::FLOAT)) {
         Token tok = current(state);
         advance(state);
-        return make_unique<FloatLiteral>(tok.value);
+        auto lit = make_unique<FloatLiteral>(tok.value);
+        lit->line = tok.line;
+        return lit;
     }
 
     if (check(state, TokenType::STRING)) {
         Token tok = current(state);
         advance(state);
-        return make_unique<StringLiteral>(tok.value);
+        auto lit = make_unique<StringLiteral>(tok.value);
+        lit->line = tok.line;
+        return lit;
     }
 
     if (check(state, TokenType::CHAR_LITERAL)) {
@@ -152,18 +160,27 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
     }
 
     if (check(state, TokenType::TRUE)) {
+        int start_line = current(state).line;
         advance(state);
-        return make_unique<BoolLiteral>(true);
+        auto lit = make_unique<BoolLiteral>(true);
+        lit->line = start_line;
+        return lit;
     }
 
     if (check(state, TokenType::FALSE)) {
+        int start_line = current(state).line;
         advance(state);
-        return make_unique<BoolLiteral>(false);
+        auto lit = make_unique<BoolLiteral>(false);
+        lit->line = start_line;
+        return lit;
     }
 
     if (check(state, TokenType::NONE)) {
+        int start_line = current(state).line;
         advance(state);
-        return make_unique<NoneLiteral>();
+        auto lit = make_unique<NoneLiteral>();
+        lit->line = start_line;
+        return lit;
     }
 
     if (check(state, TokenType::IDENT)) {
@@ -246,7 +263,9 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
             return ref;
         }
 
-        return make_unique<VariableRef>(tok.value);
+        auto ref = make_unique<VariableRef>(tok.value);
+        ref->line = tok.line;
+        return ref;
     }
 
     advance(state);

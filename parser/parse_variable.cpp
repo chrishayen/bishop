@@ -21,7 +21,9 @@ namespace parser {
  * bool flag = true;
  */
 unique_ptr<VariableDecl> parse_variable_decl(ParserState& state) {
+    int start_line = current(state).line;
     auto decl = make_unique<VariableDecl>();
+    decl->line = start_line;
     decl->type = token_to_type(current(state).type);
     advance(state);
 
@@ -50,7 +52,9 @@ unique_ptr<VariableDecl> parse_variable_decl(ParserState& state) {
  */
 unique_ptr<VariableDecl> parse_inferred_decl(ParserState& state) {
     auto decl = make_unique<VariableDecl>();
-    decl->name = consume(state, TokenType::IDENT).value;
+    Token name_tok = consume(state, TokenType::IDENT);
+    decl->name = name_tok.value;
+    decl->line = name_tok.line;
     consume(state, TokenType::COLON_ASSIGN);
     decl->value = parse_expression(state);
     consume(state, TokenType::SEMICOLON);

@@ -23,8 +23,9 @@ namespace parser {
  * }
  */
 unique_ptr<WhileStmt> parse_while(ParserState& state) {
-    consume(state, TokenType::WHILE);
+    Token while_tok = consume(state, TokenType::WHILE);
     auto stmt = make_unique<WhileStmt>();
+    stmt->line = while_tok.line;
     stmt->condition = parse_expression(state);
     consume(state, TokenType::LBRACE);
 

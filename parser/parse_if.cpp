@@ -23,8 +23,9 @@ namespace parser {
  * }
  */
 unique_ptr<IfStmt> parse_if(ParserState& state) {
-    consume(state, TokenType::IF);
+    Token if_tok = consume(state, TokenType::IF);
     auto stmt = make_unique<IfStmt>();
+    stmt->line = if_tok.line;
     stmt->condition = parse_expression(state);
     consume(state, TokenType::LBRACE);
 

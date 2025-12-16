@@ -114,7 +114,7 @@ string collect_doc_comments(ParserState& state) {
  * @note Use dot notation for nested modules
  */
 unique_ptr<ImportStmt> parse_import(ParserState& state) {
-    consume(state, TokenType::IMPORT);
+    Token import_tok = consume(state, TokenType::IMPORT);
 
     // Parse module path: math or utils.helpers
     string module_path = consume(state, TokenType::IDENT).value;
@@ -127,6 +127,7 @@ unique_ptr<ImportStmt> parse_import(ParserState& state) {
     consume(state, TokenType::SEMICOLON);
 
     auto import = make_unique<ImportStmt>(module_path);
+    import->line = import_tok.line;
     state.imported_modules.push_back(import->alias);
     return import;
 }

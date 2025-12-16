@@ -93,8 +93,7 @@ struct NoneLiteral : ASTNode {};
 /** @brief Character literal: 'a' */
 struct CharLiteral : ASTNode {
     char value;
-    int line;
-    CharLiteral(char v, int l) : value(v), line(l) {}
+    CharLiteral(char v, int l) : value(v) { this->line = l; }
 };
 
 /** @brief Reference to a variable by name */

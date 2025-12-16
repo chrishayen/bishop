@@ -35,12 +35,13 @@ bool is_struct_type(const ParserState& state, const string& name) {
  * }
  */
 unique_ptr<StructDef> parse_struct_def(ParserState& state, const string& name, Visibility vis) {
-    consume(state, TokenType::STRUCT);
+    Token struct_tok = consume(state, TokenType::STRUCT);
     consume(state, TokenType::LBRACE);
 
     auto def = make_unique<StructDef>();
     def->name = name;
     def->visibility = vis;
+    def->line = struct_tok.line;
     state.struct_names.push_back(name);
 
     // Parse fields: name type, name type (with optional doc comments)
@@ -83,10 +84,11 @@ unique_ptr<StructDef> parse_struct_def(ParserState& state, const string& name, V
  * req := http.Request { method: "GET", path: "/", body: "" };
  */
 unique_ptr<StructLiteral> parse_struct_literal(ParserState& state, const string& name) {
-    consume(state, TokenType::LBRACE);
+    Token lbrace = consume(state, TokenType::LBRACE);
 
     auto lit = make_unique<StructLiteral>();
     lit->struct_name = name;
+    lit->line = lbrace.line;
 
     // Parse field values: field: value, field: value
     while (!check(state, TokenType::RBRACE) && !check(state, TokenType::EOF_TOKEN)) {

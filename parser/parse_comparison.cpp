@@ -18,9 +18,11 @@ unique_ptr<ASTNode> parse_comparison(ParserState& state) {
 
     // Handle "x is none"
     if (check(state, TokenType::IS)) {
+        Token is_tok = current(state);
         advance(state);
         consume(state, TokenType::NONE);
         auto is_none = make_unique<IsNone>();
+        is_none->line = is_tok.line;
         is_none->value = move(left);
         return is_none;
     }
@@ -28,12 +30,14 @@ unique_ptr<ASTNode> parse_comparison(ParserState& state) {
     while (check(state, TokenType::EQ) || check(state, TokenType::NE) ||
            check(state, TokenType::LT) || check(state, TokenType::GT) ||
            check(state, TokenType::LE) || check(state, TokenType::GE)) {
-        string op = current(state).value;
+        Token op_tok = current(state);
+        string op = op_tok.value;
         advance(state);
         auto right = parse_additive(state);
 
         auto binop = make_unique<BinaryExpr>();
         binop->op = op;
+        binop->line = op_tok.line;
         binop->left = move(left);
         binop->right = move(right);
         left = move(binop);

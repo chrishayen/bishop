@@ -60,6 +60,7 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
 
     // List<T> variable declaration: List<int> nums = [1, 2, 3];
     if (check(state, TokenType::LIST)) {
+        int start_line = current(state).line;
         advance(state);
         consume(state, TokenType::LT);
 
@@ -77,6 +78,7 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
 
         auto decl = make_unique<VariableDecl>();
         decl->type = "List<" + element_type + ">";
+        decl->line = start_line;
         decl->name = consume(state, TokenType::IDENT).value;
         consume(state, TokenType::ASSIGN);
         decl->value = parse_expression(state);
@@ -86,8 +88,9 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
 
     // inferred variable, assignment, function call, method call, field assignment, or struct-typed variable
     if (check(state, TokenType::IDENT)) {
+        Token ident_tok = current(state);
         size_t saved_pos = state.pos;
-        string ident = current(state).value;
+        string ident = ident_tok.value;
         advance(state);
 
         if (check(state, TokenType::COLON_ASSIGN)) {
@@ -99,6 +102,7 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         if (is_struct_type(state, ident) && (check(state, TokenType::IDENT) || check(state, TokenType::OPTIONAL))) {
             auto decl = make_unique<VariableDecl>();
             decl->type = ident;
+            decl->line = ident_tok.line;
 
             if (check(state, TokenType::OPTIONAL)) {
                 decl->is_optional = true;
@@ -115,14 +119,15 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         // Check for qualified reference: module.func() or module.Type var = ...
         if (check(state, TokenType::DOT) && is_imported_module(state, ident)) {
             advance(state);
-            string member_name = consume(state, TokenType::IDENT).value;
+            Token member_tok = consume(state, TokenType::IDENT);
+            string member_name = member_tok.value;
             string qualified_name = ident + "." + member_name;
 
             // Qualified function call: module.func()
             if (check(state, TokenType::LPAREN)) {
                 auto call = make_unique<FunctionCall>();
                 call->name = qualified_name;
-                call->line = current(state).line;
+                call->line = member_tok.line;
 
                 consume(state, TokenType::LPAREN);
 
@@ -147,6 +152,7 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
             if (check(state, TokenType::IDENT) || check(state, TokenType::OPTIONAL)) {
                 auto decl = make_unique<VariableDecl>();
                 decl->type = qualified_name;
+                decl->line = ident_tok.line;
 
                 if (check(state, TokenType::OPTIONAL)) {
                     decl->is_optional = true;
@@ -168,13 +174,17 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         // field access: obj.field = value or obj.method()
         if (check(state, TokenType::DOT)) {
             advance(state);
-            string field_name = consume(state, TokenType::IDENT).value;
+            Token member_tok = consume(state, TokenType::IDENT);
+            string field_name = member_tok.value;
 
             // Method call as statement: obj.method(args);
             if (check(state, TokenType::LPAREN)) {
                 auto call = make_unique<MethodCall>();
-                call->object = make_unique<VariableRef>(ident);
+                auto obj = make_unique<VariableRef>(ident);
+                obj->line = ident_tok.line;
+                call->object = move(obj);
                 call->method_name = field_name;
+                call->line = member_tok.line;
 
                 consume(state, TokenType::LPAREN);
 
@@ -199,8 +209,11 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
             if (check(state, TokenType::ASSIGN)) {
                 consume(state, TokenType::ASSIGN);
                 auto assign = make_unique<FieldAssignment>();
-                assign->object = make_unique<VariableRef>(ident);
+                auto obj = make_unique<VariableRef>(ident);
+                obj->line = ident_tok.line;
+                assign->object = move(obj);
                 assign->field_name = field_name;
+                assign->line = member_tok.line;
                 assign->value = parse_expression(state);
                 consume(state, TokenType::SEMICOLON);
                 return assign;
@@ -212,6 +225,7 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
             state.pos = saved_pos;
             auto assign = make_unique<Assignment>();
             assign->name = consume(state, TokenType::IDENT).value;
+            assign->line = ident_tok.line;
             consume(state, TokenType::ASSIGN);
             assign->value = parse_expression(state);
             consume(state, TokenType::SEMICOLON);
