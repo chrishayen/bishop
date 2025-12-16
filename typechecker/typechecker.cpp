@@ -128,6 +128,13 @@ bool is_valid_type(const TypeCheckerState& state, const string& type) {
         return is_valid_type(state, element_type);
     }
 
+    if (type.rfind("List<", 0) == 0 && type.back() == '>') {
+        size_t start = 5;
+        size_t end = type.find('>', start);
+        string element_type = type.substr(start, end - start);
+        return is_valid_type(state, element_type);
+    }
+
     size_t dot_pos = type.find('.');
 
     if (dot_pos != string::npos) {

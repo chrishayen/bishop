@@ -145,6 +145,56 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return channel;
     }
 
+    // Handle list creation: List<int>()
+    if (check(state, TokenType::LIST)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        string element_type;
+
+        if (is_type_token(state)) {
+            element_type = token_to_type(current(state).type);
+            advance(state);
+        } else if (check(state, TokenType::IDENT)) {
+            element_type = current(state).value;
+            advance(state);
+        }
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+        consume(state, TokenType::RPAREN);
+
+        auto list = make_unique<ListCreate>();
+        list->element_type = element_type;
+        list->line = start_line;
+        return list;
+    }
+
+    // Handle list literal: [expr, expr, ...]
+    if (check(state, TokenType::LBRACKET)) {
+        int start_line = current(state).line;
+        advance(state);
+
+        auto list = make_unique<ListLiteral>();
+        list->line = start_line;
+
+        while (!check(state, TokenType::RBRACKET) && !check(state, TokenType::EOF_TOKEN)) {
+            auto elem = parse_expression(state);
+
+            if (elem) {
+                list->elements.push_back(move(elem));
+            }
+
+            if (check(state, TokenType::COMMA)) {
+                advance(state);
+            }
+        }
+
+        consume(state, TokenType::RBRACKET);
+        return list;
+    }
+
     if (check(state, TokenType::NUMBER)) {
         Token tok = current(state);
         advance(state);

@@ -38,6 +38,8 @@ std::string generate_with_imports(
     bool test_mode = false
 );
 std::string generate_module_namespace(CodeGenState& state, const std::string& name, const Module& module);
+
+// FFI emission (emit_ffi.cpp)
 std::string generate_extern_declarations(const std::unique_ptr<Program>& program);
 
 // Type utilities (emit_type.cpp)

@@ -145,6 +145,16 @@ struct ChannelCreate : ASTNode {
     string element_type;  ///< Type of elements the channel carries
 };
 
+/** @brief List creation: List<int>() */
+struct ListCreate : ASTNode {
+    string element_type;  ///< Type of elements the list holds
+};
+
+/** @brief List literal: [1, 2, 3] */
+struct ListLiteral : ASTNode {
+    vector<unique_ptr<ASTNode>> elements;  ///< List element expressions
+};
+
 /** @brief A single case in a select statement */
 struct SelectCase : ASTNode {
     string binding_name;              ///< Variable to bind result (empty for send)
@@ -170,6 +180,7 @@ struct MethodCall : ASTNode {
     unique_ptr<ASTNode> object;         ///< The object to call method on
     string method_name;                 ///< Method name
     vector<unique_ptr<ASTNode>> args;   ///< Arguments (excluding self)
+    mutable string object_type;         ///< Inferred type of object (set by type checker)
 };
 
 //------------------------------------------------------------------------------

@@ -31,17 +31,20 @@ add_library(nog_lib
     parser/parse_struct.cpp
     parser/parse_type.cpp
     parser/parse_import.cpp
+    parser/parse_ffi.cpp
     typechecker/typechecker.cpp
     typechecker/check_expression.cpp
     typechecker/check_statement.cpp
     typechecker/check_function.cpp
     typechecker/strings.cpp
+    typechecker/lists.cpp
     codegen/codegen.cpp
     codegen/emit_type.cpp
     codegen/emit_expression.cpp
     codegen/emit_statement.cpp
     codegen/emit_function.cpp
     codegen/emit_struct.cpp
+    codegen/emit_ffi.cpp
     project/project.cpp
     project/module.cpp
     stdlib/http.cpp

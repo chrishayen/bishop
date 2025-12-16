@@ -124,41 +124,6 @@ static bool has_fs_import(const map<string, const Module*>& imports) {
 }
 
 /**
- * Generates extern "C" declarations for FFI functions.
- */
-string generate_extern_declarations(const unique_ptr<Program>& program) {
-    if (program->externs.empty()) {
-        return "";
-    }
-
-    string out = "extern \"C\" {\n";
-
-    for (const auto& ext : program->externs) {
-        string ret = map_type(ext->return_type);
-        vector<string> params;
-
-        for (const auto& p : ext->params) {
-            params.push_back(map_type(p.type) + " " + p.name);
-        }
-
-        out += "\t" + ret + " " + ext->name + "(";
-
-        for (size_t i = 0; i < params.size(); i++) {
-            out += params[i];
-
-            if (i < params.size() - 1) {
-                out += ", ";
-            }
-        }
-
-        out += ");\n";
-    }
-
-    out += "}\n\n";
-    return out;
-}
-
-/**
  * Generates a C++ namespace for an imported module.
  */
 string generate_module_namespace(CodeGenState& state, const string& name, const Module& module) {
