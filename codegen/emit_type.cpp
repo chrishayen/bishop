@@ -31,6 +31,14 @@ string map_type(const string& t) {
     if (t == "void") return "void";
     if (t.empty()) return "void";
 
+    // Handle List<T> types: List<int> -> std::vector<int>
+    if (t.rfind("List<", 0) == 0 && t.back() == '>') {
+        size_t start = 5;
+        size_t end = t.find('>', start);
+        string element_type = t.substr(start, end - start);
+        return "std::vector<" + map_type(element_type) + ">";
+    }
+
     // Handle function types: fn(int, str) -> bool -> std::function<bool(int, std::string)>
     if (t.rfind("fn(", 0) == 0) {
         // Find the closing paren and extract param types

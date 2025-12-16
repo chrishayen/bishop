@@ -37,6 +37,7 @@ add_library(nog_lib
     typechecker/check_statement.cpp
     typechecker/check_function.cpp
     typechecker/strings.cpp
+    typechecker/lists.cpp
     codegen/codegen.cpp
     codegen/emit_type.cpp
     codegen/emit_expression.cpp

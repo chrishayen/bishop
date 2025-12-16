@@ -31,6 +31,7 @@ static unordered_map<string, TokenType> keywords = {
     {"import", TokenType::IMPORT},
     {"private", TokenType::PRIVATE},
     {"Channel", TokenType::CHANNEL},
+    {"List", TokenType::LIST},
     {"select", TokenType::SELECT},
     {"case", TokenType::CASE},
     {"extern", TokenType::EXTERN},
@@ -164,6 +165,12 @@ vector<Token> Lexer::tokenize() {
             advance();
         } else if (current() == '}') {
             tokens.push_back({TokenType::RBRACE, "}", start_line});
+            advance();
+        } else if (current() == '[') {
+            tokens.push_back({TokenType::LBRACKET, "[", start_line});
+            advance();
+        } else if (current() == ']') {
+            tokens.push_back({TokenType::RBRACKET, "]", start_line});
             advance();
         } else if (current() == ',') {
             tokens.push_back({TokenType::COMMA, ",", start_line});

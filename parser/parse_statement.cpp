@@ -53,6 +53,32 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return parse_variable_decl(state);
     }
 
+    // List<T> variable declaration: List<int> nums = [1, 2, 3];
+    if (check(state, TokenType::LIST)) {
+        advance(state);
+        consume(state, TokenType::LT);
+
+        string element_type;
+
+        if (is_type_token(state)) {
+            element_type = token_to_type(current(state).type);
+            advance(state);
+        } else if (check(state, TokenType::IDENT)) {
+            element_type = current(state).value;
+            advance(state);
+        }
+
+        consume(state, TokenType::GT);
+
+        auto decl = make_unique<VariableDecl>();
+        decl->type = "List<" + element_type + ">";
+        decl->name = consume(state, TokenType::IDENT).value;
+        consume(state, TokenType::ASSIGN);
+        decl->value = parse_expression(state);
+        consume(state, TokenType::SEMICOLON);
+        return decl;
+    }
+
     // inferred variable, assignment, function call, method call, field assignment, or struct-typed variable
     if (check(state, TokenType::IDENT)) {
         size_t saved_pos = state.pos;

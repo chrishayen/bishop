@@ -157,6 +157,27 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return "asio::experimental::channel<void(asio::error_code, " + cpp_type + ")>(co_await asio::this_coro::executor, 1)";
     }
 
+    if (auto* list = dynamic_cast<const ListCreate*>(&node)) {
+        // List<T>() -> std::vector<T>{}
+        string cpp_type = map_type(list->element_type);
+        return "std::vector<" + cpp_type + ">{}";
+    }
+
+    if (auto* list = dynamic_cast<const ListLiteral*>(&node)) {
+        // [1, 2, 3] -> std::vector{1, 2, 3} (uses CTAD)
+        string elements;
+
+        for (size_t i = 0; i < list->elements.size(); i++) {
+            if (i > 0) {
+                elements += ", ";
+            }
+
+            elements += emit(state, *list->elements[i]);
+        }
+
+        return "std::vector{" + elements + "}";
+    }
+
     if (auto* qref = dynamic_cast<const QualifiedRef*>(&node)) {
         // Qualified reference: module.name -> module::name
         return qref->module_name + "::" + qref->name;
@@ -254,7 +275,61 @@ string emit(CodeGenState& state, const ASTNode& node) {
             return emit(state, *call->object) + ".async_receive(asio::as_tuple(asio::use_awaitable))";
         }
 
-        return method_call(emit(state, *call->object), call->method_name, args);
+        string obj_str = emit(state, *call->object);
+
+        // Handle List methods - map to std::vector equivalents
+        // Only apply when object_type indicates a List
+        if (call->object_type.rfind("List<", 0) == 0) {
+            if (call->method_name == "length") {
+                return obj_str + ".size()";
+            }
+
+            if (call->method_name == "is_empty") {
+                return obj_str + ".empty()";
+            }
+
+            if (call->method_name == "append") {
+                return obj_str + ".push_back(" + args[0] + ")";
+            }
+
+            if (call->method_name == "pop") {
+                return obj_str + ".pop_back()";
+            }
+
+            if (call->method_name == "get") {
+                return obj_str + ".at(" + args[0] + ")";
+            }
+
+            if (call->method_name == "set") {
+                return obj_str + "[" + args[0] + "] = " + args[1];
+            }
+
+            if (call->method_name == "clear") {
+                return obj_str + ".clear()";
+            }
+
+            if (call->method_name == "first") {
+                return obj_str + ".front()";
+            }
+
+            if (call->method_name == "last") {
+                return obj_str + ".back()";
+            }
+
+            if (call->method_name == "insert") {
+                return obj_str + ".insert(" + obj_str + ".begin() + " + args[0] + ", " + args[1] + ")";
+            }
+
+            if (call->method_name == "remove") {
+                return obj_str + ".erase(" + obj_str + ".begin() + " + args[0] + ")";
+            }
+
+            if (call->method_name == "contains") {
+                return "(std::find(" + obj_str + ".begin(), " + obj_str + ".end(), " + args[0] + ") != " + obj_str + ".end())";
+            }
+        }
+
+        return method_call(obj_str, call->method_name, args);
     }
 
     if (auto* fa = dynamic_cast<const FieldAssignment*>(&node)) {
