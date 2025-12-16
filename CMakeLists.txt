@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR})
 
 find_package(fmt REQUIRED)
 find_package(tomlplusplus REQUIRED)
@@ -23,35 +23,35 @@ FetchContent_MakeAvailable(llhttp)
 
 # Nog compiler library
 add_library(nog_lib
-    src/lexer/lexer.cpp
-    src/parser/parser.cpp
-    src/parser/parse_expression.cpp
-    src/parser/parse_statement.cpp
-    src/parser/parse_function.cpp
-    src/parser/parse_struct.cpp
-    src/parser/parse_type.cpp
-    src/parser/parse_import.cpp
-    src/typechecker/typechecker.cpp
-    src/typechecker/check_expression.cpp
-    src/typechecker/check_statement.cpp
-    src/typechecker/check_function.cpp
-    src/typechecker/strings.cpp
-    src/codegen/codegen.cpp
-    src/codegen/emit_type.cpp
-    src/codegen/emit_expression.cpp
-    src/codegen/emit_statement.cpp
-    src/codegen/emit_function.cpp
-    src/codegen/emit_struct.cpp
-    src/project/project.cpp
-    src/project/module.cpp
-    src/stdlib/http.cpp
-    src/stdlib/fs.cpp
+    lexer/lexer.cpp
+    parser/parser.cpp
+    parser/parse_expression.cpp
+    parser/parse_statement.cpp
+    parser/parse_function.cpp
+    parser/parse_struct.cpp
+    parser/parse_type.cpp
+    parser/parse_import.cpp
+    typechecker/typechecker.cpp
+    typechecker/check_expression.cpp
+    typechecker/check_statement.cpp
+    typechecker/check_function.cpp
+    typechecker/strings.cpp
+    codegen/codegen.cpp
+    codegen/emit_type.cpp
+    codegen/emit_expression.cpp
+    codegen/emit_statement.cpp
+    codegen/emit_function.cpp
+    codegen/emit_struct.cpp
+    project/project.cpp
+    project/module.cpp
+    stdlib/http.cpp
+    stdlib/fs.cpp
 )
 target_link_libraries(nog_lib fmt::fmt tomlplusplus::tomlplusplus)
 target_include_directories(nog_lib PUBLIC ${llhttp_SOURCE_DIR}/include)
 
 # Nog compiler executable
-add_executable(nog src/main.cpp)
+add_executable(nog main.cpp)
 target_link_libraries(nog nog_lib)
 
 # Copy runtime headers and libraries to build directory for development
@@ -59,13 +59,13 @@ add_custom_target(nog_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/include/nog
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/lib
     COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/src/runtime/std/std.hpp
+        ${CMAKE_SOURCE_DIR}/runtime/std/std.hpp
         ${CMAKE_BINARY_DIR}/include/nog/std.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/src/runtime/http/http.hpp
+        ${CMAKE_SOURCE_DIR}/runtime/http/http.hpp
         ${CMAKE_BINARY_DIR}/include/nog/http.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/src/runtime/fs/fs.hpp
+        ${CMAKE_SOURCE_DIR}/runtime/fs/fs.hpp
         ${CMAKE_BINARY_DIR}/include/nog/fs.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
         ${llhttp_SOURCE_DIR}/include/llhttp.h
@@ -84,7 +84,7 @@ add_custom_command(TARGET nog_runtime_headers POST_BUILD
 
 # HTTP runtime library (compiled once, linked by user programs)
 add_library(nog_http_runtime STATIC
-    src/runtime/http/http.cpp
+    runtime/http/http.cpp
 )
 target_compile_features(nog_http_runtime PRIVATE cxx_std_23)
 target_include_directories(nog_http_runtime PRIVATE
