@@ -19,13 +19,19 @@ void check_if_stmt(TypeCheckerState& state, const IfStmt& if_stmt) {
         error(state, "if condition must be bool or optional type, got '" + cond_type.base_type + "'", if_stmt.line);
     }
 
+    // Then/else bodies are independent lexical scopes. Declarations in either
+    // branch must not be visible after the `if` statement.
+    push_scope(state);
     for (const auto& s : if_stmt.then_body) {
         check_statement(state, *s);
     }
+    pop_scope(state);
 
+    push_scope(state);
     for (const auto& s : if_stmt.else_body) {
         check_statement(state, *s);
     }
+    pop_scope(state);
 }
 
 } // namespace typechecker

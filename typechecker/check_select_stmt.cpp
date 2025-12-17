@@ -14,10 +14,15 @@ namespace typechecker {
  */
 void check_select_stmt(TypeCheckerState& state, const SelectStmt& select_stmt) {
     for (const auto& select_case : select_stmt.cases) {
+        // Each case introduces its own scope so bindings and declarations inside one
+        // case do not leak into other cases or after the select statement.
+        push_scope(state);
+
         TypeInfo channel_type = infer_type(state, *select_case->channel);
 
         if (channel_type.base_type.rfind("Channel<", 0) != 0) {
             error(state, "select case requires a channel, got '" + channel_type.base_type + "'", select_case->line);
+            pop_scope(state);
             continue;
         }
 
@@ -26,7 +31,7 @@ void check_select_stmt(TypeCheckerState& state, const SelectStmt& select_stmt) {
         string element_type = channel_type.base_type.substr(start, end - start);
 
         if (select_case->operation == "recv" && !select_case->binding_name.empty()) {
-            state.locals[select_case->binding_name] = {element_type, false, false};
+            declare_local(state, select_case->binding_name, {element_type, false, false}, select_case->line);
         }
 
         if (select_case->operation == "send" && select_case->send_value) {
@@ -41,6 +46,8 @@ void check_select_stmt(TypeCheckerState& state, const SelectStmt& select_stmt) {
         for (const auto& s : select_case->body) {
             check_statement(state, *s);
         }
+
+        pop_scope(state);
     }
 }
 

@@ -39,7 +39,8 @@ bool has_return(const vector<unique_ptr<ASTNode>>& stmts) {
  * validates parameter types, and checks the method body.
  */
 void check_method(TypeCheckerState& state, const MethodDef& method) {
-    state.locals.clear();
+    state.local_scopes.clear();
+    push_scope(state);  // method scope (parameters + body)
     state.current_struct = method.struct_name;
     state.in_async_context = method.is_async;
 
@@ -59,7 +60,7 @@ void check_method(TypeCheckerState& state, const MethodDef& method) {
             error(state, "unknown type '" + param.type + "' for parameter '" + param.name + "'", method.line);
         }
 
-        state.locals[param.name] = {param.type, false, false};
+        declare_local(state, param.name, {param.type, false, false}, method.line);
     }
 
     for (const auto& stmt : method.body) {
@@ -78,7 +79,8 @@ void check_method(TypeCheckerState& state, const MethodDef& method) {
  * Validates a function definition. Checks parameter types and validates the body.
  */
 void check_function(TypeCheckerState& state, const FunctionDef& func) {
-    state.locals.clear();
+    state.local_scopes.clear();
+    push_scope(state);  // function scope (parameters + body)
     state.current_struct.clear();
     state.in_async_context = func.is_async;
 
@@ -93,7 +95,7 @@ void check_function(TypeCheckerState& state, const FunctionDef& func) {
             error(state, "unknown type '" + param.type + "' for parameter '" + param.name + "'", func.line);
         }
 
-        state.locals[param.name] = {param.type, false, false};
+        declare_local(state, param.name, {param.type, false, false}, func.line);
     }
 
     for (const auto& stmt : func.body) {

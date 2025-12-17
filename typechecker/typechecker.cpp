@@ -12,6 +12,68 @@ using namespace std;
 
 namespace typechecker {
 
+// -----------------------------------------------------------------------------
+// Local scope helpers
+// -----------------------------------------------------------------------------
+
+void push_scope(TypeCheckerState& state) {
+    state.local_scopes.emplace_back();
+}
+
+void pop_scope(TypeCheckerState& state) {
+    if (!state.local_scopes.empty()) {
+        state.local_scopes.pop_back();
+    }
+}
+
+bool is_declared_in_current_scope(const TypeCheckerState& state, const string& name) {
+    if (state.local_scopes.empty()) {
+        return false;
+    }
+
+    const auto& current = state.local_scopes.back();
+    return current.find(name) != current.end();
+}
+
+void declare_local(TypeCheckerState& state, const string& name, const TypeInfo& type, int line) {
+    if (state.local_scopes.empty()) {
+        // All checking should start with an initial scope; this fallback keeps the
+        // checker resilient if a new entry point forgets to push one.
+        push_scope(state);
+    }
+
+    if (is_declared_in_current_scope(state, name)) {
+        error(state, "variable '" + name + "' is already defined in this scope", line);
+        return;
+    }
+
+    state.local_scopes.back()[name] = type;
+}
+
+TypeInfo* lookup_local(TypeCheckerState& state, const string& name) {
+    for (auto it = state.local_scopes.rbegin(); it != state.local_scopes.rend(); ++it) {
+        auto found = it->find(name);
+
+        if (found != it->end()) {
+            return &found->second;
+        }
+    }
+
+    return nullptr;
+}
+
+const TypeInfo* lookup_local(const TypeCheckerState& state, const string& name) {
+    for (auto it = state.local_scopes.rbegin(); it != state.local_scopes.rend(); ++it) {
+        auto found = it->find(name);
+
+        if (found != it->end()) {
+            return &found->second;
+        }
+    }
+
+    return nullptr;
+}
+
 /**
  * Main entry point for type checking. Collects all declarations into symbol
  * tables, then validates each function and method body.

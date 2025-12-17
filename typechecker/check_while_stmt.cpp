@@ -19,9 +19,13 @@ void check_while_stmt(TypeCheckerState& state, const WhileStmt& while_stmt) {
         error(state, "while condition must be bool, got '" + cond_type.base_type + "'", while_stmt.line);
     }
 
+    // The loop body is a lexical scope; declarations inside must not be visible
+    // after the while statement.
+    push_scope(state);
     for (const auto& s : while_stmt.body) {
         check_statement(state, *s);
     }
+    pop_scope(state);
 }
 
 } // namespace typechecker

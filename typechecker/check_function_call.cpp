@@ -55,8 +55,8 @@ TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call) 
         return {func->return_type, false, false};
     }
 
-    if (state.locals.find(call.name) != state.locals.end()) {
-        TypeInfo local_type = state.locals[call.name];
+    if (const TypeInfo* local = lookup_local(state, call.name)) {
+        TypeInfo local_type = *local;
 
         if (local_type.base_type.rfind("fn(", 0) == 0) {
             size_t arrow_pos = local_type.base_type.find(" -> ");

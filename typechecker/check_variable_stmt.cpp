@@ -29,9 +29,9 @@ void check_variable_decl_stmt(TypeCheckerState& state, const VariableDecl& decl)
         }
 
         if (!decl.type.empty()) {
-            state.locals[decl.name] = {decl.type, decl.is_optional, false};
+            declare_local(state, decl.name, {decl.type, decl.is_optional, false}, decl.line);
         } else {
-            state.locals[decl.name] = init_type;
+            declare_local(state, decl.name, init_type, decl.line);
         }
     }
 }
@@ -40,12 +40,14 @@ void check_variable_decl_stmt(TypeCheckerState& state, const VariableDecl& decl)
  * Type checks an assignment statement.
  */
 void check_assignment_stmt(TypeCheckerState& state, const Assignment& assign) {
-    if (state.locals.find(assign.name) == state.locals.end()) {
+    const TypeInfo* var = lookup_local(state, assign.name);
+
+    if (!var) {
         error(state, "assignment to undefined variable '" + assign.name + "'", assign.line);
         return;
     }
 
-    TypeInfo var_type = state.locals[assign.name];
+    TypeInfo var_type = *var;
     TypeInfo val_type = infer_type(state, *assign.value);
 
     if (!types_compatible(var_type, val_type)) {

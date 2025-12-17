@@ -49,7 +49,18 @@ struct TypeCheckerState {
     std::map<std::string, std::vector<const MethodDef*>> methods;
     std::map<std::string, const FunctionDef*> functions;
     std::map<std::string, const ExternFunctionDef*> extern_functions;
-    std::map<std::string, TypeInfo> locals;
+    /**
+     * Local variables are tracked with a lexical scope stack.
+     *
+     * - Each function/method body starts with a single scope containing parameters.
+     * - Control-flow constructs with `{ ... }` (if/else/while/for/select cases) push a scope
+     *   for the duration of their block, then pop it when leaving the block.
+     * - Lookups search from innermost to outermost scope.
+     *
+     * This prevents accepting programs that would fail to compile after codegen
+     * (e.g., using a variable declared inside an `if` block from outside that block).
+     */
+    std::vector<std::map<std::string, TypeInfo>> local_scopes;
     std::map<std::string, const Module*> imported_modules;
 
     // Current context
@@ -66,6 +77,20 @@ namespace typechecker {
 // Main entry point (typechecker.cpp)
 bool check(TypeCheckerState& state, const Program& program, const std::string& filename);
 void register_module(TypeCheckerState& state, const std::string& alias, const Module& module);
+
+// -----------------------------------------------------------------------------
+// Local scope helpers
+// -----------------------------------------------------------------------------
+//
+// The typechecker models Nog's `{ ... }` blocks as lexical scopes, matching the
+// generated C++ code. These helpers centralize scope operations so individual
+// check_* functions don't need to manually manage maps.
+void push_scope(TypeCheckerState& state);
+void pop_scope(TypeCheckerState& state);
+bool is_declared_in_current_scope(const TypeCheckerState& state, const std::string& name);
+void declare_local(TypeCheckerState& state, const std::string& name, const TypeInfo& type, int line);
+TypeInfo* lookup_local(TypeCheckerState& state, const std::string& name);
+const TypeInfo* lookup_local(const TypeCheckerState& state, const std::string& name);
 
 // Collection functions (typechecker.cpp)
 void collect_structs(TypeCheckerState& state, const Program& program);

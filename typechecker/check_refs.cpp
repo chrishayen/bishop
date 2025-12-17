@@ -13,8 +13,10 @@ namespace typechecker {
  * Infers the type of a variable reference.
  */
 TypeInfo check_variable_ref(TypeCheckerState& state, const VariableRef& var) {
-    if (state.locals.find(var.name) != state.locals.end()) {
-        return state.locals[var.name];
+    const TypeInfo* local = lookup_local(state, var.name);
+
+    if (local) {
+        return *local;
     }
 
     error(state, "undefined variable '" + var.name + "'", var.line);
