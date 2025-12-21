@@ -161,4 +161,13 @@ private:
     mutable std::mutex mutex_;
 };
 
+/**
+ * Sleeps for the specified number of milliseconds.
+ * Yields to other goroutines during sleep.
+ */
+inline void sleep(int ms) {
+    boost::asio::steady_timer timer(io_context(), std::chrono::milliseconds(ms));
+    timer.async_wait(yield());
+}
+
 }  // namespace nog::rt

@@ -137,6 +137,9 @@ TypeInfo check_binary_expr(TypeCheckerState& state, const BinaryExpr& bin);
 TypeInfo check_is_none(TypeCheckerState& state, const IsNone& expr);
 TypeInfo check_not_expr(TypeCheckerState& state, const NotExpr& not_expr);
 
+// Pointer expression type inference (check_binary.cpp)
+TypeInfo check_address_of(TypeCheckerState& state, const AddressOf& addr);
+
 // Concurrency (check_statement.cpp)
 void check_go_spawn(TypeCheckerState& state, const GoSpawn& spawn);
 

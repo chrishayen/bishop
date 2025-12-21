@@ -68,6 +68,10 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return "(" + emit(state, *expr->value) + ")";
     }
 
+    if (auto* addr = dynamic_cast<const AddressOf*>(&node)) {
+        return emit_address_of(state, *addr);
+    }
+
     if (auto* channel = dynamic_cast<const ChannelCreate*>(&node)) {
         return emit_channel_create(*channel);
     }

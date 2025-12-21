@@ -71,6 +71,10 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
         return infer_type(state, *paren->value);
     }
 
+    if (auto* addr = dynamic_cast<const AddressOf*>(&expr)) {
+        return check_address_of(state, *addr);
+    }
+
     if (auto* channel = dynamic_cast<const ChannelCreate*>(&expr)) {
         return check_channel_create(state, *channel);
     }

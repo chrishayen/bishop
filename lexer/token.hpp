@@ -229,6 +229,9 @@ enum class TokenType {
     // Logical
     NOT,
 
+    // Pointer
+    AMPERSAND,
+
     OPTIONAL,
     SEMICOLON,
 

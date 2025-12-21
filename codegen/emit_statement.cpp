@@ -34,6 +34,10 @@ string generate_statement(CodeGenState& state, const ASTNode& node) {
             return assert_eq(emit(state, *call->args[0]), emit(state, *call->args[1]), call->line) + ";";
         }
 
+        if (call->name == "sleep" && call->args.size() == 1) {
+            return "nog::rt::sleep(" + emit(state, *call->args[0]) + ");";
+        }
+
         // Check if this is an extern function call
         auto ext_it = state.extern_functions.find(call->name);
 

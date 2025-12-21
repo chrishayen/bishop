@@ -92,30 +92,38 @@ TypeInfo check_struct_method(TypeCheckerState& state, const MethodCall& mcall, c
 
 /**
  * Infers the type of a method call expression.
+ * Auto-dereferences pointer types (like Go).
  */
 TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall) {
     TypeInfo obj_type = infer_type(state, *mcall.object);
-    mcall.object_type = obj_type.base_type;  // Store for codegen
+    mcall.object_type = obj_type.base_type;  // Store for codegen (includes pointer suffix)
 
-    if (obj_type.base_type.rfind("Channel<", 0) == 0) {
+    // Auto-dereference pointers for method calls (like Go)
+    TypeInfo effective_type = obj_type;
+
+    if (!effective_type.base_type.empty() && effective_type.base_type.back() == '*') {
+        effective_type.base_type = effective_type.base_type.substr(0, effective_type.base_type.length() - 1);
+    }
+
+    if (effective_type.base_type.rfind("Channel<", 0) == 0) {
         size_t start = 8;
-        size_t end = obj_type.base_type.find('>', start);
-        string element_type = obj_type.base_type.substr(start, end - start);
+        size_t end = effective_type.base_type.find('>', start);
+        string element_type = effective_type.base_type.substr(start, end - start);
         return check_channel_method(state, mcall, element_type);
     }
 
-    if (obj_type.base_type.rfind("List<", 0) == 0) {
+    if (effective_type.base_type.rfind("List<", 0) == 0) {
         size_t start = 5;
-        size_t end = obj_type.base_type.find('>', start);
-        string element_type = obj_type.base_type.substr(start, end - start);
+        size_t end = effective_type.base_type.find('>', start);
+        string element_type = effective_type.base_type.substr(start, end - start);
         return check_list_method(state, mcall, element_type);
     }
 
-    if (obj_type.base_type == "str") {
+    if (effective_type.base_type == "str") {
         return check_str_method(state, mcall);
     }
 
-    return check_struct_method(state, mcall, obj_type);
+    return check_struct_method(state, mcall, effective_type);
 }
 
 } // namespace typechecker

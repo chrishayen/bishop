@@ -147,6 +147,11 @@ struct ParenExpr : ASTNode {
     unique_ptr<ASTNode> value;  ///< The grouped expression
 };
 
+/** @brief Address-of expression: &expr (struct pointers only) */
+struct AddressOf : ASTNode {
+    unique_ptr<ASTNode> value;  ///< The struct variable to take address of
+};
+
 //------------------------------------------------------------------------------
 // Channels - Concurrent communication primitives
 //------------------------------------------------------------------------------
@@ -200,7 +205,7 @@ struct MethodCall : ASTNode {
 
 /** @brief Variable declaration: int x = 5 or x := 5 or int? x = none */
 struct VariableDecl : ASTNode {
-    string type;                   ///< Type name (empty for type inference)
+    mutable string type;           ///< Type name (empty for type inference, may be updated by typechecker)
     string name;                   ///< Variable name
     unique_ptr<ASTNode> value;     ///< Initial value expression
     bool is_optional = false;      ///< True if declared with ? (e.g., int?)
@@ -217,6 +222,7 @@ struct FieldAssignment : ASTNode {
     unique_ptr<ASTNode> object;    ///< Object containing the field
     string field_name;             ///< Field to assign
     unique_ptr<ASTNode> value;     ///< New value expression
+    mutable string object_type;    ///< Inferred type of object (set by type checker)
 };
 
 /** @brief Return statement: return expr */
@@ -323,6 +329,7 @@ struct StructLiteral : ASTNode {
 struct FieldAccess : ASTNode {
     unique_ptr<ASTNode> object;   ///< Object to access field on
     string field_name;            ///< Field name
+    mutable string object_type;   ///< Inferred type of object (set by type checker)
 };
 
 //------------------------------------------------------------------------------

@@ -197,6 +197,13 @@ bool is_valid_type(const TypeCheckerState& state, const string& type) {
         return is_valid_type(state, element_type);
     }
 
+    // Pointer type: StructName* -> check that base is a valid struct
+    if (!type.empty() && type.back() == '*') {
+        string pointee = type.substr(0, type.length() - 1);
+        // Only struct pointers are allowed, not primitive pointers
+        return state.structs.find(pointee) != state.structs.end();
+    }
+
     size_t dot_pos = type.find('.');
 
     if (dot_pos != string::npos) {

@@ -54,4 +54,33 @@ TypeInfo check_not_expr(TypeCheckerState& state, const NotExpr& not_expr) {
     return {"bool", false, false};
 }
 
+/**
+ * Infers the type of an address-of expression: &expr
+ * Only allowed for struct types (not primitives).
+ * Returns a pointer type: StructName -> StructName*
+ */
+TypeInfo check_address_of(TypeCheckerState& state, const AddressOf& addr) {
+    if (!addr.value) {
+        return {"unknown", false, false};
+    }
+
+    TypeInfo inner_type = infer_type(state, *addr.value);
+
+    // Can only take address of lvalues (variables, field access)
+    if (!dynamic_cast<const VariableRef*>(addr.value.get()) &&
+        !dynamic_cast<const FieldAccess*>(addr.value.get())) {
+        error(state, "cannot take address of this expression", addr.line);
+        return {"unknown", false, false};
+    }
+
+    // Only allow pointers to struct types, not primitives
+    if (is_primitive_type(inner_type.base_type)) {
+        error(state, "cannot take address of primitive type '" + format_type(inner_type) +
+              "'; pointers are only allowed for struct types", addr.line);
+        return {"unknown", false, false};
+    }
+
+    return {inner_type.base_type + "*", false, false};
+}
+
 } // namespace typechecker

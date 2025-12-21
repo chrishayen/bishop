@@ -22,6 +22,20 @@ TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call) 
         return {"void", false, true};
     }
 
+    if (call.name == "sleep") {
+        if (call.args.size() != 1) {
+            error(state, "sleep expects 1 argument (milliseconds), got " + to_string(call.args.size()), call.line);
+        } else {
+            TypeInfo arg_type = infer_type(state, *call.args[0]);
+
+            if (arg_type.base_type != "int") {
+                error(state, "sleep expects int argument, got '" + format_type(arg_type) + "'", call.line);
+            }
+        }
+
+        return {"void", false, true};
+    }
+
     size_t dot_pos = call.name.find('.');
 
     if (dot_pos != string::npos) {

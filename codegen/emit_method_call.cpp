@@ -59,6 +59,11 @@ string emit_method_call(CodeGenState& state, const MethodCall& call) {
         return emit_list_method_call(state, call, obj_str, args);
     }
 
+    // Use -> for pointer types (auto-deref like Go)
+    if (!call.object_type.empty() && call.object_type.back() == '*') {
+        return fmt::format("{}->{}({})", obj_str, call.method_name, fmt::join(args, ", "));
+    }
+
     return method_call(obj_str, call.method_name, args);
 }
 

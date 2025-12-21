@@ -31,6 +31,16 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return not_expr;
     }
 
+    // Handle address-of expression: &expr
+    if (check(state, TokenType::AMPERSAND)) {
+        int start_line = current(state).line;
+        advance(state);
+        auto addr = make_unique<AddressOf>();
+        addr->value = parse_primary(state);
+        addr->line = start_line;
+        return addr;
+    }
+
     // Parenthesized expression: (expr)
     if (check(state, TokenType::LPAREN)) {
         Token lparen = consume(state, TokenType::LPAREN);

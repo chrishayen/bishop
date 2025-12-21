@@ -314,6 +314,9 @@ vector<Token> Lexer::tokenize() {
         } else if (current() == '@') {
             tokens.push_back({TokenType::AT, "@", start_line});
             advance();
+        } else if (current() == '&') {
+            tokens.push_back({TokenType::AMPERSAND, "&", start_line});
+            advance();
         } else if (current() == '"') {
             tokens.push_back(read_string());
         } else if (current() == '\'') {
