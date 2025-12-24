@@ -123,15 +123,9 @@ string generate_function(CodeGenState& state, const FunctionDef& fn) {
         string rt_type = fn.return_type.empty() ? "" : fn.return_type;
         out = function_def("_nog_main", params, rt_type, body);
 
-        // Generate int main() with fiber-asio scheduler
+        // Generate int main() using runtime wrapper
         out += "\nint main() {\n";
-        out += "\t// Initialize fiber-asio scheduler\n";
-        out += "\tnog::rt::io_ctx = std::make_shared<boost::asio::io_context>();\n";
-        out += "\tboost::fibers::use_scheduling_algorithm<\n";
-        out += "\t\tboost::fibers::asio::round_robin>(nog::rt::io_ctx);\n";
-        out += "\n";
-        out += "\t// Run main as a fiber and wait for completion\n";
-        out += "\tboost::fibers::fiber(_nog_main).join();\n";
+        out += "\tnog::rt::run(_nog_main);\n";
         out += "\treturn 0;\n";
         out += "}\n";
     } else {
@@ -178,6 +172,21 @@ string generate_method(CodeGenState& state, const MethodDef& method) {
 }
 
 /**
+ * Checks if the program uses channels (requires channel.hpp).
+ */
+static bool test_uses_channels(const Program& program) {
+    for (const auto& fn : program.functions) {
+        for (const auto& param : fn->params) {
+            if (param.type.rfind("Channel<", 0) == 0) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
  * Generates the test harness main() function.
  * Calls all test_* functions and returns failure count.
  */
@@ -189,7 +198,13 @@ string generate_test_harness(CodeGenState& state, const unique_ptr<Program>& pro
         state.extern_functions[ext->name] = ext.get();
     }
 
-    string out = "#include <nog/std.hpp>\n\n";
+    string out = "#include <nog/std.hpp>\n";
+
+    if (test_uses_channels(*program)) {
+        out += "#include <nog/channel.hpp>\n";
+    }
+
+    out += "\n";
 
     // Generate extern "C" declarations for FFI
     out += generate_extern_declarations(program);
@@ -222,25 +237,22 @@ string generate_test_harness(CodeGenState& state, const unique_ptr<Program>& pro
     }
 
     out += "\nint main() {\n";
-    out += "\t// Initialize fiber-asio scheduler for tests\n";
-    out += "\tnog::rt::io_ctx = std::make_shared<boost::asio::io_context>();\n";
-    out += "\tboost::fibers::use_scheduling_algorithm<\n";
-    out += "\t\tboost::fibers::asio::round_robin>(nog::rt::io_ctx);\n";
+    out += "\tnog::rt::init_runtime();\n";
     out += "\n";
 
     // Run each test in a fiber, join to wait for completion
     for (const auto& [name, is_fallible] : test_funcs) {
         if (is_fallible) {
             // Fallible test: check for errors
-            out += "\tboost::fibers::fiber([]() {\n";
+            out += "\tnog::rt::run_in_fiber([]() {\n";
             out += "\t\tauto result = " + name + "();\n";
             out += "\t\tif (result.is_error()) {\n";
             out += "\t\t\tstd::cerr << \"" + name + ": FAIL: \" << result.error()->message << std::endl;\n";
             out += "\t\t\t_failures++;\n";
             out += "\t\t}\n";
-            out += "\t}).join();\n";
+            out += "\t});\n";
         } else {
-            out += "\tboost::fibers::fiber(" + name + ").join();\n";
+            out += "\tnog::rt::run_in_fiber(" + name + ");\n";
         }
     }
 

@@ -102,6 +102,21 @@ static bool has_fs_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program uses channels (requires boost fiber).
+ */
+static bool uses_channels(const Program& program) {
+    for (const auto& fn : program.functions) {
+        for (const auto& param : fn->params) {
+            if (param.type.rfind("Channel<", 0) == 0) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
  * Generates a C++ namespace for an imported module.
  */
 string generate_module_namespace(CodeGenState& state, const string& name, const Module& module) {
@@ -149,8 +164,11 @@ string generate(CodeGenState& state, const unique_ptr<Program>& program, bool te
     }
 
     string out = "#include <nog/std.hpp>\n";
-    out += "#include <boost/asio.hpp>\n";
-    out += "#include <boost/asio/spawn.hpp>\n";
+
+    if (uses_channels(*program)) {
+        out += "#include <nog/channel.hpp>\n";
+    }
+
     out += "\n";
 
     out += generate_extern_declarations(program);
@@ -190,16 +208,20 @@ string generate_with_imports(
     string out;
 
     if (has_http_import(imports)) {
-        out += "#include <nog/http.hpp>\n\n";
+        out += "#include <nog/http.hpp>\n";
     } else {
         out += "#include <nog/std.hpp>\n";
-        out += "#include <boost/asio.hpp>\n";
-        out += "#include <boost/asio/spawn.hpp>\n\n";
     }
 
     if (has_fs_import(imports)) {
-        out += "#include <nog/fs.hpp>\n\n";
+        out += "#include <nog/fs.hpp>\n";
     }
+
+    if (uses_channels(*program)) {
+        out += "#include <nog/channel.hpp>\n";
+    }
+
+    out += "\n";
 
     out += generate_extern_declarations(program);
 
@@ -240,14 +262,11 @@ string generate_with_imports(
         }
 
         out += "\nint main() {\n";
-        out += "\t// Initialize fiber-asio scheduler for tests\n";
-        out += "\tnog::rt::io_ctx = std::make_shared<boost::asio::io_context>();\n";
-        out += "\tboost::fibers::use_scheduling_algorithm<\n";
-        out += "\t\tboost::fibers::asio::round_robin>(nog::rt::io_ctx);\n";
+        out += "\tnog::rt::init_runtime();\n";
         out += "\n";
 
         for (const auto& name : test_funcs) {
-            out += "\tboost::fibers::fiber(" + name + ").join();\n";
+            out += "\tnog::rt::run_in_fiber(" + name + ");\n";
         }
 
         out += "\treturn _failures;\n";

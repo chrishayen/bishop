@@ -176,6 +176,8 @@ enum class TokenType {
     OR,
     DEFAULT,
     MATCH,
+    WITH,
+    AS,
 
     // Annotations
     AT,

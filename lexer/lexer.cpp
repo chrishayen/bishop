@@ -42,6 +42,8 @@ static unordered_map<string, TokenType> keywords = {
     {"or", TokenType::OR},
     {"default", TokenType::DEFAULT},
     {"match", TokenType::MATCH},
+    {"with", TokenType::WITH},
+    {"as", TokenType::AS},
     {"int", TokenType::TYPE_INT},
     {"str", TokenType::TYPE_STR},
     {"bool", TokenType::TYPE_BOOL},

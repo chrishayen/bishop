@@ -118,6 +118,7 @@ void check_if_stmt(TypeCheckerState& state, const IfStmt& if_stmt);
 void check_while_stmt(TypeCheckerState& state, const WhileStmt& while_stmt);
 void check_for_stmt(TypeCheckerState& state, const ForStmt& for_stmt);
 void check_select_stmt(TypeCheckerState& state, const SelectStmt& select_stmt);
+void check_with_stmt(TypeCheckerState& state, const WithStmt& with_stmt);
 
 // Expression type inference (check_expression.cpp)
 TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr);

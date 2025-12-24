@@ -8,15 +8,31 @@
  *
  * Non-template implementations are in http.cpp (libnog_http.a).
  * This header is precompiled (http.hpp.gch) for faster compilation.
+ *
+ * Note: This header includes boost because HTTP functionality requires
+ * direct access to boost::asio sockets in template code.
  */
 
 #pragma once
 
-// Base standard library headers (includes nog::rt namespace with Channel, etc.)
+// Base standard library headers (includes nog::rt namespace)
 #include <nog/std.hpp>
+
+// Boost headers for HTTP server functionality
+#include <boost/fiber/all.hpp>
+#include <boost/asio.hpp>
+#include <nog/fiber_asio/yield.hpp>
 
 // Additional headers for HTTP
 #include <tuple>
+
+namespace nog::rt {
+/**
+ * Get the global io_context. Only available in HTTP programs.
+ * Defined in runtime.cpp.
+ */
+boost::asio::io_context& io_context();
+}  // namespace nog::rt
 
 // HTTP parser
 #include <llhttp.h>

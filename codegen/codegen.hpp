@@ -93,6 +93,7 @@ std::string emit_field_assignment(CodeGenState& state, const FieldAssignment& fa
 // Statement emission (emit_statement.cpp)
 std::string generate_statement(CodeGenState& state, const ASTNode& node);
 std::string generate_select(CodeGenState& state, const SelectStmt& stmt);
+std::string generate_with(CodeGenState& state, const WithStmt& stmt);
 std::string variable_decl(const std::string& type, const std::string& name, const std::string& value, bool is_optional = false);
 std::string return_stmt(const std::string& value);
 std::string assignment(const std::string& name, const std::string& value);

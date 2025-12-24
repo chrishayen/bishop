@@ -2,8 +2,8 @@
  * @file std.hpp
  * @brief Base standard library header for all Nog programs.
  *
- * This header is precompiled (std.hpp.gch) for faster compilation.
- * Contains all standard library headers used by generated Nog code.
+ * This header is lightweight - no boost includes.
+ * Boost-dependent features (Channel) are in separate headers.
  */
 
 #pragma once
@@ -22,89 +22,132 @@
 #include <mutex>
 #include <chrono>
 
-#include <boost/fiber/all.hpp>
-#include <boost/asio.hpp>
-
-// Fiber-Asio integration for unified go routine model
-#include <nog/fiber_asio/round_robin.hpp>
-
 // Error handling primitives
 #include <nog/error.hpp>
 
 namespace nog::rt {
 
-/**
- * Global io_context for fiber-asio integration.
- * Set by main() before spawning any fibers.
- */
-inline std::shared_ptr<boost::asio::io_context> io_ctx;
+// ============================================================================
+// Runtime Functions (implemented in runtime.cpp)
+// ============================================================================
 
 /**
- * Returns the global io_context for async I/O.
+ * Initialize the fiber-asio scheduler.
+ * Called automatically by run(), but can be called manually for tests.
  */
-inline boost::asio::io_context& io_context() {
-    if (!io_ctx) {
-        throw std::runtime_error("io_context not initialized");
-    }
-    return *io_ctx;
-}
+void init_runtime();
 
 /**
- * Typed channel for communication between fibers.
- * Wraps boost::fibers::buffered_channel with send/recv API.
- * Uses capacity of 1 to approximate unbuffered semantics while
- * providing try_pop() for select statement polling.
+ * Initialize and run the main function in a fiber context.
+ * Sets up the fiber-asio scheduler.
  */
-template<typename T>
-class Channel {
+void run(std::function<void()> main_fn);
+
+/**
+ * Run a function in a fiber and wait for completion.
+ * Assumes runtime is already initialized.
+ */
+void run_in_fiber(std::function<void()> fn);
+
+/**
+ * Spawn a new fiber (goroutine).
+ */
+void spawn(std::function<void()> fn);
+
+/**
+ * Sleep for the specified milliseconds, yielding to other fibers.
+ */
+void sleep_ms(int ms);
+
+/**
+ * Yield to other fibers.
+ */
+void yield();
+
+// ============================================================================
+// Arena Allocator (header-only, no boost dependency)
+// ============================================================================
+
+/**
+ * Simple arena (bump) allocator for per-function memory management.
+ */
+class Arena {
 public:
-    Channel() : ch_(2) {}  // capacity must be power of 2, min 2 for boost::fibers
+    static constexpr size_t DEFAULT_BLOCK_SIZE = 64 * 1024;
 
-    /**
-     * Send a value through the channel. Blocks until space available.
-     */
-    void send(const T& value) {
-        ch_.push(value);
-    }
+    Arena() = default;
+    ~Arena() { reset(); }
 
-    /**
-     * Receive a value from the channel. Blocks until available.
-     */
-    T recv() {
-        T value;
-        ch_.pop(value);
-        return value;
-    }
+    Arena(const Arena&) = delete;
+    Arena& operator=(const Arena&) = delete;
 
-    /**
-     * Try to receive a value without blocking. Returns pair<bool, T>.
-     */
-    std::pair<bool, T> try_recv() {
-        T value;
-        auto status = ch_.try_pop(value);
-        if (status == boost::fibers::channel_op_status::success) {
-            return {true, value};
+    void* alloc(size_t size, size_t alignment = alignof(std::max_align_t)) {
+        size_t aligned_offset = (offset_ + alignment - 1) & ~(alignment - 1);
+        size_t new_offset = aligned_offset + size;
+
+        if (blocks_.empty() || new_offset > current_block_size_) {
+            allocate_block(std::max(size, DEFAULT_BLOCK_SIZE));
+            aligned_offset = 0;
+            new_offset = size;
         }
-        return {false, T{}};
+
+        void* ptr = static_cast<char*>(blocks_.back()) + aligned_offset;
+        offset_ = new_offset;
+        return ptr;
     }
 
-    /**
-     * Close the channel.
-     */
-    void close() {
-        ch_.close();
+    void reset() {
+        for (void* block : blocks_) {
+            std::free(block);
+        }
+        blocks_.clear();
+        offset_ = 0;
+        current_block_size_ = 0;
     }
 
 private:
-    boost::fibers::buffered_channel<T> ch_;
+    void allocate_block(size_t size) {
+        void* block = std::malloc(size);
+        if (!block) throw std::bad_alloc();
+        blocks_.push_back(block);
+        current_block_size_ = size;
+        offset_ = 0;
+    }
+
+    std::vector<void*> blocks_;
+    size_t offset_ = 0;
+    size_t current_block_size_ = 0;
 };
 
-/**
- * Sleeps for the specified number of milliseconds.
- * Yields to other fibers during sleep.
- */
-inline void sleep(int ms) {
-    boost::this_fiber::sleep_for(std::chrono::milliseconds(ms));
+inline thread_local std::vector<Arena*> arena_stack;
+
+inline Arena* current_arena() {
+    if (arena_stack.empty()) return nullptr;
+    return arena_stack.back();
+}
+
+class FunctionArena {
+public:
+    FunctionArena() { arena_stack.push_back(&arena_); }
+    ~FunctionArena() { arena_stack.pop_back(); }
+    Arena& arena() { return arena_; }
+private:
+    Arena arena_;
+};
+
+template<typename T, typename... Args>
+T* arena_new(Args&&... args) {
+    Arena* arena = current_arena();
+    if (!arena) {
+        return new T(std::forward<Args>(args)...);
+    }
+    void* mem = arena->alloc(sizeof(T), alignof(T));
+    return new(mem) T(std::forward<Args>(args)...);
 }
 
 }  // namespace nog::rt
+
+// Legacy compatibility - inline wrapper for sleep
+namespace nog::rt {
+    inline void sleep(int ms) { sleep_ms(ms); }
+}

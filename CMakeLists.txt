@@ -82,6 +82,7 @@ add_library(nog_lib
     codegen/emit_while.cpp
     codegen/emit_for.cpp
     codegen/emit_select.cpp
+    codegen/emit_with.cpp
     codegen/emit_print.cpp
     codegen/emit_assert.cpp
     codegen/emit_variable.cpp
@@ -119,6 +120,9 @@ add_custom_target(nog_runtime_headers ALL
         ${CMAKE_SOURCE_DIR}/runtime/std/error.hpp
         ${CMAKE_BINARY_DIR}/include/nog/error.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/std/channel.hpp
+        ${CMAKE_BINARY_DIR}/include/nog/channel.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/http/http.hpp
         ${CMAKE_BINARY_DIR}/include/nog/http.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
@@ -148,17 +152,40 @@ add_custom_command(TARGET nog_runtime_headers POST_BUILD
     COMMENT "Copying llhttp library"
 )
 
+# Standard runtime library (Asio separate compilation for faster builds)
+add_library(nog_std_runtime STATIC
+    runtime/asio_impl.cpp
+    runtime/std/runtime.cpp
+)
+target_compile_features(nog_std_runtime PRIVATE cxx_std_23)
+target_compile_definitions(nog_std_runtime PRIVATE BOOST_ASIO_SEPARATE_COMPILATION)
+target_include_directories(nog_std_runtime PRIVATE
+    ${Boost_INCLUDE_DIRS}
+    ${CMAKE_BINARY_DIR}/include
+)
+target_link_libraries(nog_std_runtime Boost::context Boost::fiber)
+add_dependencies(nog_std_runtime nog_runtime_headers)
+
+# Copy nog_std library to lib/ after build
+add_custom_command(TARGET nog_std_runtime POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:nog_std_runtime>
+        ${CMAKE_BINARY_DIR}/lib/
+    COMMENT "Copying nog_std runtime library"
+)
+
 # HTTP runtime library (compiled once, linked by user programs)
 add_library(nog_http_runtime STATIC
     runtime/http/http.cpp
 )
 target_compile_features(nog_http_runtime PRIVATE cxx_std_23)
+target_compile_definitions(nog_http_runtime PRIVATE BOOST_ASIO_SEPARATE_COMPILATION)
 target_include_directories(nog_http_runtime PRIVATE
     ${Boost_INCLUDE_DIRS}
     ${CMAKE_BINARY_DIR}/include
     ${llhttp_SOURCE_DIR}/include
 )
-target_link_libraries(nog_http_runtime llhttp_static Boost::context Boost::fiber)
+target_link_libraries(nog_http_runtime nog_std_runtime llhttp_static Boost::context Boost::fiber)
 add_dependencies(nog_http_runtime nog_runtime_headers)
 
 # Copy nog_http library to lib/ after build

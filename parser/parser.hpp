@@ -86,6 +86,7 @@ std::unique_ptr<IfStmt> parse_if(ParserState& state);
 std::unique_ptr<WhileStmt> parse_while(ParserState& state);
 std::unique_ptr<ForStmt> parse_for(ParserState& state);
 std::unique_ptr<SelectStmt> parse_select(ParserState& state);
+std::unique_ptr<WithStmt> parse_with(ParserState& state);
 
 // Expression parsing (parse_expression.cpp)
 std::unique_ptr<ASTNode> parse_expression(ParserState& state);

@@ -277,6 +277,13 @@ struct OrExpr : ASTNode {
     unique_ptr<ASTNode> handler;   ///< One of: OrReturn, OrFail, OrBlock, OrMatch
 };
 
+/** @brief With statement for resource management: with expr as name { body } */
+struct WithStmt : ASTNode {
+    unique_ptr<ASTNode> resource;            ///< Resource expression (e.g., fs.open("file"))
+    string binding_name;                     ///< Variable name for the resource
+    vector<unique_ptr<ASTNode>> body;        ///< Body statements
+};
+
 /** @brief If statement with optional else: if cond { } else { } */
 struct IfStmt : ASTNode {
     unique_ptr<ASTNode> condition;           ///< Condition expression

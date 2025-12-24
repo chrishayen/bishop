@@ -143,6 +143,10 @@ string generate_statement(CodeGenState& state, const ASTNode& node) {
         return emit_go_spawn(state, *go_spawn) + ";";
     }
 
+    if (auto* with_stmt = dynamic_cast<const WithStmt*>(&node)) {
+        return generate_with(state, *with_stmt);
+    }
+
     if (auto* call = dynamic_cast<const MethodCall*>(&node)) {
         return emit(state, node) + ";";
     }

@@ -51,6 +51,11 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return parse_select(state);
     }
 
+    // with statement
+    if (check(state, TokenType::WITH)) {
+        return parse_with(state);
+    }
+
     // go statement: go func();
     if (check(state, TokenType::GO)) {
         return parse_go_spawn(state);
@@ -291,6 +296,49 @@ unique_ptr<GoSpawn> parse_go_spawn(ParserState& state) {
     spawn->call = parse_expression(state);
     consume(state, TokenType::SEMICOLON);
     return spawn;
+}
+
+/**
+ * @nog_syntax with
+ * @category Resources
+ * @order 1
+ * @description Resource management block. Calls close() on the resource when exiting.
+ * @syntax with expr as name { body }
+ * @example
+ * with fs.open("file.txt") as file {
+ *     content := file.read();
+ * }  // file.close() called automatically
+ */
+unique_ptr<WithStmt> parse_with(ParserState& state) {
+    int start_line = current(state).line;
+    consume(state, TokenType::WITH);
+
+    auto stmt = make_unique<WithStmt>();
+    stmt->line = start_line;
+
+    // Parse the resource expression
+    stmt->resource = parse_expression(state);
+
+    // Expect 'as'
+    consume(state, TokenType::AS);
+
+    // Get the binding name
+    stmt->binding_name = consume(state, TokenType::IDENT).value;
+
+    // Parse the body block
+    consume(state, TokenType::LBRACE);
+
+    while (!check(state, TokenType::RBRACE) && !check(state, TokenType::EOF_TOKEN)) {
+        auto body_stmt = parse_statement(state);
+
+        if (body_stmt) {
+            stmt->body.push_back(move(body_stmt));
+        }
+    }
+
+    consume(state, TokenType::RBRACE);
+
+    return stmt;
 }
 
 } // namespace parser

@@ -14,6 +14,10 @@
 #include <filesystem>
 #include <cstdlib>
 #include <set>
+#include <thread>
+#include <future>
+#include <mutex>
+#include <atomic>
 #include "lexer/lexer.hpp"
 #include "parser/parser.hpp"
 #include "codegen/codegen.hpp"
@@ -69,21 +73,37 @@ pair<fs::path, fs::path> get_runtime_paths() {
 }
 
 /**
- * Builds the g++ compile command with appropriate flags.
- * Adds runtime libraries based on which modules are used.
+ * Builds the g++ compile command (source to object file).
+ * Uses ccache for caching compiled objects.
  *
  * Precompiled headers: GCC automatically uses .gch files when found
  * alongside the .hpp file in the include path.
  */
-string build_compile_cmd(const TranspileResult& result, const string& output, const string& input) {
-    string cmd = "g++ -std=c++23 -o " + output + " " + input;
-
-    // Always add include path for std.hpp PCH
+string build_compile_cmd(const string& obj_output, const string& input) {
     auto [lib_path, include_path] = get_runtime_paths();
+    string cmd = "CCACHE_SLOPPINESS=pch_defines,time_macros CCACHE_DEPEND=1 ccache g++ -std=c++23 -pipe -c -MD -o " + obj_output + " " + input;
     cmd += " -I" + include_path.string();
+    cmd += " 2>&1";
+    return cmd;
+}
+
+/**
+ * Builds the g++ link command (object file to executable).
+ * Adds runtime libraries based on which modules are used.
+ *
+ * When static_link is true, links boost statically for portable binaries.
+ * When false, uses dynamic linking for faster dev builds.
+ */
+string build_link_cmd(const TranspileResult& result, const string& exe_output,
+                      const string& obj_input, bool static_link = false) {
+    auto [lib_path, include_path] = get_runtime_paths();
+    string cmd = "g++ -pipe -o " + exe_output + " " + obj_input;
+
+    // Always add library path and link nog_std_runtime (contains fiber runtime)
+    cmd += " -L" + lib_path.string();
+    cmd += " -lnog_std_runtime";
 
     if (result.uses_http) {
-        cmd += " -L" + lib_path.string();
         cmd += " -lnog_http_runtime";
         cmd += " -lllhttp";
     }
@@ -95,8 +115,14 @@ string build_compile_cmd(const TranspileResult& result, const string& output, co
         }
     }
 
-    // Always link boost_fiber and boost_context for fiber-based concurrency
-    cmd += " -lboost_fiber -lboost_context -lpthread";
+    // Link boost_fiber and boost_context for fiber-based concurrency
+    if (static_link) {
+        // Static linking for portable standalone binaries
+        cmd += " -l:libboost_fiber.a -l:libboost_context.a -lpthread";
+    } else {
+        // Dynamic linking for faster dev builds
+        cmd += " -lboost_fiber -lboost_context -lpthread";
+    }
 
     cmd += " 2>&1";
     return cmd;
@@ -222,10 +248,128 @@ bool is_error_test(const fs::path& path) {
 }
 
 /**
+ * Result of running a single test.
+ */
+struct TestResult {
+    fs::path file;
+    bool passed;
+    string message;
+};
+
+/**
+ * Runs a single positive test (expects success).
+ * Thread-safe: uses unique temp files based on test_id.
+ */
+TestResult run_positive_test(const fs::path& test_file, int test_id) {
+    TestResult result{test_file, false, ""};
+
+    string source = read_file(test_file.string());
+
+    if (source.empty()) {
+        result.message = "could not read file";
+        return result;
+    }
+
+    TranspileResult transpile_result = transpile(source, test_file.string(), true);
+
+    if (transpile_result.cpp_code.empty()) {
+        result.message = "type errors";
+        return result;
+    }
+
+    string tmp_cpp = "/tmp/nog_test_" + to_string(test_id) + ".cpp";
+    string tmp_obj = "/tmp/nog_test_" + to_string(test_id) + ".o";
+    string tmp_bin = "/tmp/nog_test_" + to_string(test_id);
+
+    ofstream out(tmp_cpp);
+    out << transpile_result.cpp_code;
+    out.close();
+
+    string compile_cmd = build_compile_cmd(tmp_obj, tmp_cpp);
+
+    if (system(compile_cmd.c_str()) != 0) {
+        result.message = "compile failed";
+        return result;
+    }
+
+    string link_cmd = build_link_cmd(transpile_result, tmp_bin, tmp_obj);
+
+    if (system(link_cmd.c_str()) != 0) {
+        result.message = "link failed";
+        return result;
+    }
+
+    string run_cmd = tmp_bin + " 2>&1";
+    int test_status = system(run_cmd.c_str());
+
+    if (test_status != 0) {
+        result.message = "test failed";
+        return result;
+    }
+
+    result.passed = true;
+    return result;
+}
+
+/// Mutex to protect cerr redirection in negative tests
+static mutex cerr_mutex;
+
+/**
+ * Runs a single negative test (expects failure with specific error).
+ * Thread-safe: uses mutex to protect cerr redirection.
+ */
+TestResult run_negative_test(const fs::path& test_file) {
+    TestResult result{test_file, false, ""};
+
+    string source = read_file(test_file.string());
+
+    if (source.empty()) {
+        result.message = "could not read file";
+        return result;
+    }
+
+    string error_output;
+    {
+        // Protect cerr redirection with mutex
+        lock_guard<mutex> lock(cerr_mutex);
+        stringstream error_capture;
+        streambuf* old_cerr = cerr.rdbuf(error_capture.rdbuf());
+
+        TranspileResult transpile_result = transpile(source, test_file.string(), false);
+
+        cerr.rdbuf(old_cerr);
+        error_output = error_capture.str();
+
+        if (!transpile_result.cpp_code.empty()) {
+            result.message = "expected error, but compiled";
+            return result;
+        }
+    }
+
+    // Extract expected error from filename (replace underscores with spaces)
+    string expected_error = test_file.stem().string();
+
+    for (char& c : expected_error) {
+        if (c == '_') {
+            c = ' ';
+        }
+    }
+
+    if (error_output.find(expected_error) == string::npos) {
+        result.message = "expected '" + expected_error + "', got: " + error_output;
+        return result;
+    }
+
+    result.passed = true;
+    return result;
+}
+
+/**
  * Runs tests on all .n files in a directory (or a single file).
  * Each test file is transpiled, compiled with g++, and executed.
  * Test functions (test_*) use assert_eq for assertions.
  * Files in tests/errors/ are expected to fail with specific error messages.
+ * Uses parallel execution for faster test runs.
  * Returns 0 if all tests pass, 1 if any fail.
  */
 int run_tests(const string& path) {
@@ -258,80 +402,48 @@ int run_tests(const string& path) {
         return 1;
     }
 
+    // Launch positive tests in parallel
+    vector<future<TestResult>> positive_futures;
+
+    for (size_t i = 0; i < test_files.size(); i++) {
+        positive_futures.push_back(
+            async(launch::async, run_positive_test, test_files[i], static_cast<int>(i))
+        );
+    }
+
+    // Launch negative tests in parallel
+    vector<future<TestResult>> negative_futures;
+
+    for (const auto& test_file : error_test_files) {
+        negative_futures.push_back(
+            async(launch::async, run_negative_test, test_file)
+        );
+    }
+
+    // Collect and print results
     int total_failures = 0;
 
-    // Run positive tests (expect compilation to succeed)
-    for (const auto& test_file : test_files) {
-        string source = read_file(test_file.string());
-        if (source.empty()) continue;
+    for (auto& fut : positive_futures) {
+        TestResult result = fut.get();
 
-        TranspileResult result = transpile(source, test_file.string(), true);
-
-        if (result.cpp_code.empty()) {
-            cout << "\033[31mFAIL\033[0m " << test_file.string() << " (type errors)" << endl;
-            total_failures++;
-            continue;
-        }
-
-        string tmp_cpp = "/tmp/nog_test.cpp";
-        string tmp_bin = "/tmp/nog_test";
-
-        ofstream out(tmp_cpp);
-        out << result.cpp_code;
-        out.close();
-
-        string compile_cmd = build_compile_cmd(result, tmp_bin, tmp_cpp);
-        int compile_result = system(compile_cmd.c_str());
-
-        if (compile_result != 0) {
-            cerr << "Compile failed for " << test_file << endl;
-            total_failures++;
-            continue;
-        }
-
-        int test_result = system(tmp_bin.c_str());
-
-        if (test_result != 0) {
-            cout << "\033[31mFAIL\033[0m " << test_file.string() << endl;
-            total_failures++;
+        if (result.passed) {
+            cout << "\033[32mPASS\033[0m " << result.file.string() << endl;
         } else {
-            cout << "\033[32mPASS\033[0m " << test_file.string() << endl;
+            cout << "\033[31mFAIL\033[0m " << result.file.string()
+                 << " (" << result.message << ")" << endl;
+            total_failures++;
         }
     }
 
-    // Run negative tests (expect compilation to fail with specific error)
-    for (const auto& test_file : error_test_files) {
-        string source = read_file(test_file.string());
-        if (source.empty()) continue;
+    for (auto& fut : negative_futures) {
+        TestResult result = fut.get();
 
-        // Capture stderr to check error message
-        stringstream error_capture;
-        streambuf* old_cerr = cerr.rdbuf(error_capture.rdbuf());
-
-        TranspileResult result = transpile(source, test_file.string(), false);
-
-        cerr.rdbuf(old_cerr);
-        string error_output = error_capture.str();
-
-        // Extract expected error from filename (replace underscores with spaces)
-        string expected_error = test_file.stem().string();
-
-        for (char& c : expected_error) {
-            if (c == '_') {
-                c = ' ';
-            }
-        }
-
-        if (!result.cpp_code.empty()) {
-            cout << "\033[31mFAIL\033[0m " << test_file.string()
-                 << " (expected error, but compiled)" << endl;
-            total_failures++;
-        } else if (error_output.find(expected_error) == string::npos) {
-            cout << "\033[31mFAIL\033[0m " << test_file.string()
-                 << " (expected '" << expected_error << "', got: " << error_output << ")" << endl;
-            total_failures++;
+        if (result.passed) {
+            cout << "\033[32mPASS\033[0m " << result.file.string() << endl;
         } else {
-            cout << "\033[32mPASS\033[0m " << test_file.string() << endl;
+            cout << "\033[31mFAIL\033[0m " << result.file.string()
+                 << " (" << result.message << ")" << endl;
+            total_failures++;
         }
     }
 
@@ -421,6 +533,7 @@ int run_file(const string& path) {
 
     // Write to temp file
     string cpp_file = "/tmp/nog_run.cpp";
+    string obj_file = "/tmp/nog_run.o";
     string exe_file = "/tmp/nog_run";
 
     ofstream out(cpp_file);
@@ -433,12 +546,19 @@ int run_file(const string& path) {
     out << result.cpp_code;
     out.close();
 
-    // Compile
-    string compile_cmd = build_compile_cmd(result, exe_file, cpp_file);
-    int compile_result = system(compile_cmd.c_str());
+    // Compile (cached)
+    string compile_cmd = build_compile_cmd(obj_file, cpp_file);
 
-    if (compile_result != 0) {
+    if (system(compile_cmd.c_str()) != 0) {
         cerr << "Compile failed" << endl;
+        return 1;
+    }
+
+    // Link
+    string link_cmd = build_link_cmd(result, exe_file, obj_file);
+
+    if (system(link_cmd.c_str()) != 0) {
+        cerr << "Link failed" << endl;
         return 1;
     }
 
@@ -502,6 +622,7 @@ int build_file(const string& path) {
     }
 
     string cpp_file = "/tmp/nog_build.cpp";
+    string obj_file = "/tmp/nog_build.o";
     ofstream out(cpp_file);
 
     if (!out) {
@@ -512,16 +633,19 @@ int build_file(const string& path) {
     out << result.cpp_code;
     out.close();
 
-    // Build compile command
-    string compile_cmd = build_compile_cmd(result, exe_name, cpp_file);
-
-    // Remove 2>&1 suffix for build output visibility
-    if (compile_cmd.size() > 5 && compile_cmd.substr(compile_cmd.size() - 5) == " 2>&1") {
-        compile_cmd = compile_cmd.substr(0, compile_cmd.size() - 5);
-    }
+    // Compile (cached)
+    string compile_cmd = build_compile_cmd(obj_file, cpp_file);
 
     if (system(compile_cmd.c_str()) != 0) {
         cerr << "Compile failed" << endl;
+        return 1;
+    }
+
+    // Link with static boost for standalone binary
+    string link_cmd = build_link_cmd(result, exe_name, obj_file, true);
+
+    if (system(link_cmd.c_str()) != 0) {
+        cerr << "Link failed" << endl;
         return 1;
     }
 

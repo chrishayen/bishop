@@ -9,7 +9,7 @@ configure:
 	@cd $(BUILD_DIR) && cmake ..
 
 build: configure
-	@cmake --build $(BUILD_DIR)
+	@cmake --build $(BUILD_DIR) --parallel
 
 clean:
 	@rm -rf $(BUILD_DIR)
@@ -28,6 +28,7 @@ install: build
 	@mkdir -p ~/.local/include/nog
 	@mkdir -p ~/.local/include/nog/fiber_asio
 	@cp $(BUILD_DIR)/nog ~/.local/bin/
+	@cp $(BUILD_DIR)/lib/libnog_std_runtime.a ~/.local/lib/nog/
 	@cp $(BUILD_DIR)/lib/libnog_http_runtime.a ~/.local/lib/nog/
 	@cp $(BUILD_DIR)/lib/libllhttp.a ~/.local/lib/nog/
 	@cp $(BUILD_DIR)/include/nog/std.hpp ~/.local/include/nog/

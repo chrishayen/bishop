@@ -35,6 +35,8 @@ void check_statement(TypeCheckerState& state, const ASTNode& stmt) {
         check_select_stmt(state, *select_stmt);
     } else if (auto* go_spawn = dynamic_cast<const GoSpawn*>(&stmt)) {
         check_go_spawn(state, *go_spawn);
+    } else if (auto* with_stmt = dynamic_cast<const WithStmt*>(&stmt)) {
+        check_with_stmt(state, *with_stmt);
     } else if (auto* call = dynamic_cast<const FunctionCall*>(&stmt)) {
         infer_type(state, *call);
     } else if (auto* mcall = dynamic_cast<const MethodCall*>(&stmt)) {
@@ -57,6 +59,34 @@ void check_fail_stmt(TypeCheckerState& state, const FailStmt& fail) {
 void check_go_spawn(TypeCheckerState& state, const GoSpawn& spawn) {
     // Just type check the function call
     infer_type(state, *spawn.call);
+}
+
+/**
+ * Type checks a with statement for resource management.
+ * Infers the resource type, binds it to the name, and checks the body.
+ */
+void check_with_stmt(TypeCheckerState& state, const WithStmt& with_stmt) {
+    // Infer the type of the resource expression
+    TypeInfo resource_type = infer_type(state, *with_stmt.resource);
+
+    if (resource_type.base_type.empty()) {
+        error(state, "cannot determine type of resource expression", with_stmt.line);
+        return;
+    }
+
+    // Push a new scope for the with block body
+    push_scope(state);
+
+    // Add the binding to the current scope
+    declare_local(state, with_stmt.binding_name, resource_type, with_stmt.line);
+
+    // Type check all body statements
+    for (const auto& stmt : with_stmt.body) {
+        check_statement(state, *stmt);
+    }
+
+    // Pop the scope
+    pop_scope(state);
 }
 
 } // namespace typechecker
