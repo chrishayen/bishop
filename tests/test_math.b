@@ -609,3 +609,66 @@ fn test_pow_one_base() {
     assert_eq(true, result > 0.99);
     assert_eq(true, result < 1.01);
 }
+
+// ============================================================
+// Integration test from issue #32 example
+// ============================================================
+
+fn test_issue_32_example() {
+    // Constants
+    pi := math.PI;
+    e := math.E;
+    assert_eq(true, pi > 3.14);
+    assert_eq(true, e > 2.71);
+
+    // Basic ops
+    x := math.abs(-5.0);
+    assert_eq(true, x > 4.9);
+    assert_eq(true, x < 5.1);
+
+    y := math.min(3.0, 7.0);
+    assert_eq(true, y > 2.9);
+    assert_eq(true, y < 3.1);
+
+    z := math.max(3.0, 7.0);
+    assert_eq(true, z > 6.9);
+    assert_eq(true, z < 7.1);
+
+    c := math.clamp(15.0, 0.0, 10.0);
+    assert_eq(true, c > 9.9);
+    assert_eq(true, c < 10.1);
+
+    // Rounding
+    f := math.floor(3.7);
+    assert_eq(true, f > 2.9);
+    assert_eq(true, f < 3.1);
+
+    r := math.round(3.5);
+    assert_eq(true, r > 3.9);
+    assert_eq(true, r < 4.1);
+
+    // Power/roots
+    p := math.pow(2.0, 10.0);
+    assert_eq(true, p > 1023.9);
+    assert_eq(true, p < 1024.1);
+
+    s := math.sqrt(16.0);
+    assert_eq(true, s > 3.9);
+    assert_eq(true, s < 4.1);
+
+    // Trig
+    sin_val := math.sin(math.PI / 2.0);
+    assert_eq(true, sin_val > 0.99);
+    assert_eq(true, sin_val < 1.01);
+
+    // Utilities
+    g := math.gcd(12, 8);
+    assert_eq(4, g);
+
+    l := math.lcm(4, 6);
+    assert_eq(12, l);
+
+    // NaN detection
+    nan := 0.0 / 0.0;
+    assert_eq(true, math.is_nan(nan));
+}
