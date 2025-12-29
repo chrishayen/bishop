@@ -165,12 +165,40 @@ string emit_or_expr(CodeGenState& state, const OrExpr& expr) {
 
 /**
  * Emit a default expression.
+ *
+ * For Pair and Tuple get() methods, generates proper bounds-checking code
+ * that uses the fallback value for out-of-bounds access.
  */
 string emit_default_expr(CodeGenState& state, const DefaultExpr& expr) {
-    string value = emit(state, *expr.expr);
     string fallback = emit(state, *expr.fallback);
 
-    // Use ternary for falsy check
+    // Check if this is a method call on Pair or Tuple
+    if (auto* mcall = dynamic_cast<const MethodCall*>(expr.expr.get())) {
+        if (mcall->method_name == "get") {
+            string obj_type = mcall->object_type;
+
+            // Handle Pair<T>.get(idx) default fallback
+            if (obj_type.rfind("Pair<", 0) == 0) {
+                string obj_str = emit(state, *mcall->object);
+                string idx = emit(state, *mcall->args[0]);
+                // Return first for 0, second for 1, fallback otherwise
+                return fmt::format("(({}) == 0 ? {}.first : (({}) == 1 ? {}.second : {}))",
+                                   idx, obj_str, idx, obj_str, fallback);
+            }
+
+            // Handle Tuple<T>.get(idx) default fallback
+            if (obj_type.rfind("Tuple<", 0) == 0) {
+                string obj_str = emit(state, *mcall->object);
+                string idx = emit(state, *mcall->args[0]);
+                // Return element at idx if in bounds, fallback otherwise
+                return fmt::format("(static_cast<size_t>({}) < {}.size() && ({}) >= 0 ? {}[{}] : {})",
+                                   idx, obj_str, idx, obj_str, idx, fallback);
+            }
+        }
+    }
+
+    // Default behavior: use ternary for falsy check
+    string value = emit(state, *expr.expr);
     return fmt::format("({} ? {} : {})", value, value, fallback);
 }
 

@@ -130,6 +130,20 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
         return expr_type;
     }
 
+    if (auto* def_expr = dynamic_cast<const DefaultExpr*>(&expr)) {
+        // Type check both the expression and fallback
+        TypeInfo expr_type = infer_type(state, *def_expr->expr);
+        TypeInfo fallback_type = infer_type(state, *def_expr->fallback);
+
+        // Verify types are compatible
+        if (!types_compatible(expr_type, fallback_type)) {
+            error(state, "default fallback type '" + format_type(fallback_type) +
+                  "' does not match expression type '" + format_type(expr_type) + "'", def_expr->line);
+        }
+
+        return expr_type;
+    }
+
     return {"unknown", false, false};
 }
 
