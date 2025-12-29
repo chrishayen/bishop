@@ -12,12 +12,17 @@ namespace codegen {
 
 /**
  * Escapes special characters in a string for C++ string literals.
+ *
+ * The lexer has already processed escape sequences (e.g., \n -> newline char),
+ * so this function converts actual characters to their C++ escape sequences.
  */
 string escape_string(const string& value) {
     string result;
     result.reserve(value.size() * 2);
 
-    for (char c : value) {
+    for (size_t i = 0; i < value.size(); i++) {
+        char c = value[i];
+
         switch (c) {
             case '"':  result += "\\\""; break;
             case '\\': result += "\\\\"; break;
