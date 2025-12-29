@@ -47,6 +47,12 @@ TypeInfo check_field_access(TypeCheckerState& state, const FieldAccess& access) 
     // Handle Pair<T> field access (first, second)
     if (struct_type.rfind("Pair<", 0) == 0) {
         string element_type = extract_element_type(struct_type, "Pair<");
+
+        if (element_type.empty()) {
+            error(state, "malformed Pair type '" + struct_type + "'", access.line);
+            return {"unknown", false, false};
+        }
+
         return check_pair_field(state, access, element_type);
     }
 

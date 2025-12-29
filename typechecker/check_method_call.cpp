@@ -107,21 +107,45 @@ TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall) {
 
     if (effective_type.base_type.rfind("Channel<", 0) == 0) {
         string element_type = extract_element_type(effective_type.base_type, "Channel<");
+
+        if (element_type.empty()) {
+            error(state, "malformed Channel type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
         return check_channel_method(state, mcall, element_type);
     }
 
     if (effective_type.base_type.rfind("List<", 0) == 0) {
         string element_type = extract_element_type(effective_type.base_type, "List<");
+
+        if (element_type.empty()) {
+            error(state, "malformed List type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
         return check_list_method(state, mcall, element_type);
     }
 
     if (effective_type.base_type.rfind("Pair<", 0) == 0) {
         string element_type = extract_element_type(effective_type.base_type, "Pair<");
+
+        if (element_type.empty()) {
+            error(state, "malformed Pair type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
         return check_pair_method(state, mcall, element_type);
     }
 
     if (effective_type.base_type.rfind("Tuple<", 0) == 0) {
         string element_type = extract_element_type(effective_type.base_type, "Tuple<");
+
+        if (element_type.empty()) {
+            error(state, "malformed Tuple type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
         return check_tuple_method(state, mcall, element_type);
     }
 

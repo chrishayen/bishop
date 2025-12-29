@@ -6,6 +6,7 @@
  */
 
 #include "codegen.hpp"
+#include <cassert>
 
 using namespace std;
 
@@ -68,18 +69,21 @@ string map_type(const string& t) {
     // Handle Channel<T> types: Channel<int> -> bishop::rt::Channel<int>&
     if (t.rfind("Channel<", 0) == 0 && t.back() == '>') {
         string element_type = extract_element_type(t, "Channel<");
+        assert(!element_type.empty() && "malformed Channel type passed typechecker");
         return "bishop::rt::Channel<" + map_type(element_type) + ">&";
     }
 
     // Handle List<T> types: List<int> -> std::vector<int>
     if (t.rfind("List<", 0) == 0 && t.back() == '>') {
         string element_type = extract_element_type(t, "List<");
+        assert(!element_type.empty() && "malformed List type passed typechecker");
         return "std::vector<" + map_type(element_type) + ">";
     }
 
     // Handle Pair<T> types: Pair<int> -> std::pair<int, int>
     if (t.rfind("Pair<", 0) == 0 && t.back() == '>') {
         string element_type = extract_element_type(t, "Pair<");
+        assert(!element_type.empty() && "malformed Pair type passed typechecker");
         string cpp_type = map_type(element_type);
         return "std::pair<" + cpp_type + ", " + cpp_type + ">";
     }
@@ -88,6 +92,7 @@ string map_type(const string& t) {
     // We use vector for homogeneous tuples since all elements are the same type
     if (t.rfind("Tuple<", 0) == 0 && t.back() == '>') {
         string element_type = extract_element_type(t, "Tuple<");
+        assert(!element_type.empty() && "malformed Tuple type passed typechecker");
         return "std::vector<" + map_type(element_type) + ">";
     }
 
