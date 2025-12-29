@@ -76,6 +76,31 @@ name := "Hello"; // inferred as str
 pi := 3.14;      // inferred as f64
 ```
 
+### Constants
+
+Use `const` to declare immutable values:
+
+```bishop
+const int MAX_SIZE = 100;
+const str APP_NAME = "MyApp";
+const f64 PI = 3.14159;
+```
+
+Constants with type inference:
+
+```bishop
+const MAX := 100;           // inferred as int
+const NAME := "Bishop";     // inferred as str
+const RATE := 0.05;         // inferred as f64
+```
+
+Constants cannot be reassigned:
+
+```bishop
+const int X = 42;
+X = 100;  // ERROR: cannot assign to const variable 'X'
+```
+
 ## Functions
 
 ### Basic Function
@@ -928,4 +953,4 @@ sleep(100);       // sleep for 100 milliseconds
 
 ## Keywords
 
-`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`
+`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`

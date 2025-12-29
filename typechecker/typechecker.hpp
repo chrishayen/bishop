@@ -31,10 +31,12 @@ struct TypeInfo {
     bool is_optional = false;
     bool is_void = false;
     bool is_fallible = false;
+    bool is_const = false;
 
     bool operator==(const TypeInfo& other) const {
         return base_type == other.base_type && is_optional == other.is_optional &&
-               is_void == other.is_void && is_fallible == other.is_fallible;
+               is_void == other.is_void && is_fallible == other.is_fallible &&
+               is_const == other.is_const;
     }
 
     bool operator!=(const TypeInfo& other) const {

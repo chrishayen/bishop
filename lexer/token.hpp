@@ -178,6 +178,7 @@ enum class TokenType {
     MATCH,
     WITH,
     AS,
+    CONST,
 
     // Annotations
     AT,
