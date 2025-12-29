@@ -99,6 +99,7 @@ add_library(bishop_lib
     project/module.cpp
     stdlib/http.cpp
     stdlib/fs.cpp
+    stdlib/net.cpp
 )
 target_link_libraries(bishop_lib fmt::fmt tomlplusplus::tomlplusplus)
 target_include_directories(bishop_lib PUBLIC ${llhttp_SOURCE_DIR}/include)
@@ -128,6 +129,9 @@ add_custom_target(bishop_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/fs/fs.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/fs.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/net/net.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/net.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/fiber_asio/round_robin.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/fiber_asio/round_robin.hpp
@@ -224,9 +228,24 @@ add_custom_command(
     COMMENT "Precompiling http.hpp"
 )
 
+# Precompile net.hpp for faster compilation of networking programs
+# net.hpp includes std.hpp and boost asio
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/include/bishop/net.hpp.gch
+    COMMAND ${CMAKE_CXX_COMPILER} -std=c++23
+            -I${Boost_INCLUDE_DIRS}
+            -I${CMAKE_BINARY_DIR}/include
+            -x c++-header
+            ${CMAKE_BINARY_DIR}/include/bishop/net.hpp
+            -o ${CMAKE_BINARY_DIR}/include/bishop/net.hpp.gch
+    DEPENDS bishop_runtime_headers ${CMAKE_BINARY_DIR}/include/bishop/std.hpp.gch
+    COMMENT "Precompiling net.hpp"
+)
+
 add_custom_target(precompile_headers ALL
     DEPENDS ${CMAKE_BINARY_DIR}/include/bishop/std.hpp.gch
             ${CMAKE_BINARY_DIR}/include/bishop/http.hpp.gch
+            ${CMAKE_BINARY_DIR}/include/bishop/net.hpp.gch
 )
 
 # Documentation generator tool
