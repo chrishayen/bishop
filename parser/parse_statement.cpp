@@ -94,6 +94,62 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return decl;
     }
 
+    // Pair<T> variable declaration: Pair<int> p = Pair<int>(1, 2);
+    if (check(state, TokenType::PAIR)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        string element_type;
+
+        if (is_type_token(state)) {
+            element_type = token_to_type(current(state).type);
+            advance(state);
+        } else if (check(state, TokenType::IDENT)) {
+            element_type = current(state).value;
+            advance(state);
+        }
+
+        consume(state, TokenType::GT);
+
+        auto decl = make_unique<VariableDecl>();
+        decl->type = "Pair<" + element_type + ">";
+        decl->line = start_line;
+        decl->name = consume(state, TokenType::IDENT).value;
+        consume(state, TokenType::ASSIGN);
+        decl->value = parse_expression(state);
+        consume(state, TokenType::SEMICOLON);
+        return decl;
+    }
+
+    // Tuple<T> variable declaration: Tuple<int> t = Tuple<int>(1, 2, 3);
+    if (check(state, TokenType::TUPLE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        string element_type;
+
+        if (is_type_token(state)) {
+            element_type = token_to_type(current(state).type);
+            advance(state);
+        } else if (check(state, TokenType::IDENT)) {
+            element_type = current(state).value;
+            advance(state);
+        }
+
+        consume(state, TokenType::GT);
+
+        auto decl = make_unique<VariableDecl>();
+        decl->type = "Tuple<" + element_type + ">";
+        decl->line = start_line;
+        decl->name = consume(state, TokenType::IDENT).value;
+        consume(state, TokenType::ASSIGN);
+        decl->value = parse_expression(state);
+        consume(state, TokenType::SEMICOLON);
+        return decl;
+    }
+
     // inferred variable, assignment, function call, method call, field assignment, or struct-typed variable
     if (check(state, TokenType::IDENT)) {
         Token ident_tok = current(state);
