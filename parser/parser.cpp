@@ -71,6 +71,11 @@ unique_ptr<Program> parse(ParserState& state) {
     // Pre-scan to collect all function and struct names for forward references
     prescan_definitions(state);
 
+    // Skip any doc comments at the start of file
+    while (check(state, TokenType::DOC_COMMENT)) {
+        advance(state);
+    }
+
     // Parse imports first (must be at top of file)
     while (check(state, TokenType::IMPORT)) {
         program->imports.push_back(parse_import(state));
