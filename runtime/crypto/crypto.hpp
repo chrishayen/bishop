@@ -181,7 +181,7 @@ inline bishop::rt::Result<std::string> base64_decode(const std::string& encoded)
     size_t in_len = encoded.size();
 
     if (in_len % 4 != 0) {
-        return bishop::rt::make_error("invalid base64: length not multiple of 4");
+        return bishop::rt::make_error<std::string>("invalid base64: length not multiple of 4");
     }
 
     size_t out_len = in_len / 4 * 3;
@@ -207,7 +207,7 @@ inline bishop::rt::Result<std::string> base64_decode(const std::string& encoded)
         int val = base64_char_value(c);
 
         if (val < 0) {
-            return bishop::rt::make_error("invalid base64: illegal character");
+            return bishop::rt::make_error<std::string>("invalid base64: illegal character");
         }
 
         char_array_4[i++] = static_cast<unsigned char>(val);
@@ -270,7 +270,7 @@ inline bishop::rt::Result<std::string> hex_decode(const std::string& hex) {
     }
 
     if (hex.size() % 2 != 0) {
-        return bishop::rt::make_error("invalid hex: odd length");
+        return bishop::rt::make_error<std::string>("invalid hex: odd length");
     }
 
     std::string result;
@@ -281,7 +281,7 @@ inline bishop::rt::Result<std::string> hex_decode(const std::string& hex) {
         int low = hex_char_value(hex[i + 1]);
 
         if (high < 0 || low < 0) {
-            return bishop::rt::make_error("invalid hex: illegal character");
+            return bishop::rt::make_error<std::string>("invalid hex: illegal character");
         }
 
         result += static_cast<char>((high << 4) | low);
