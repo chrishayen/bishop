@@ -87,3 +87,57 @@ fn test_str_concat_variables() {
     c := a + b;
     assert_eq(c, "foobar");
 }
+
+fn test_single_quoted_string() {
+    s := 'hello';
+    assert_eq(s, "hello");
+}
+
+fn test_single_quoted_string_with_double_quotes() {
+    s := '{"name": "Alice"}';
+    assert_eq(s.contains("name"), true);
+}
+
+fn test_single_quoted_string_concat() {
+    a := 'foo';
+    b := 'bar';
+    c := a + b;
+    assert_eq(c, "foobar");
+}
+
+fn test_single_quoted_string_methods() {
+    s := 'hello world';
+    assert_eq(s.length(), 11);
+    assert_eq(s.contains("world"), true);
+}
+
+fn test_single_and_double_quoted_mixed() {
+    a := "hello";
+    b := ' world';
+    c := a + b;
+    assert_eq(c, "hello world");
+}
+
+fn test_single_quoted_empty() {
+    s := '';
+    assert_eq(s.empty(), true);
+}
+
+fn test_double_quoted_string_with_single_quotes() {
+    s := "can't";
+    assert_eq(s.contains("'"), true);
+    assert_eq(s.length(), 5);
+}
+
+fn test_single_char_single_quoted_is_string() {
+    s := 'a';
+    assert_eq(s, "a");
+    assert_eq(s.length(), 1);
+}
+
+fn test_str_at_returns_string() {
+    s := "hello";
+    c := s.at(0);
+    assert_eq(c, "h");
+    assert_eq(c.length(), 1);
+}

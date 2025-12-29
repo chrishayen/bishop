@@ -19,7 +19,7 @@ namespace parser {
 bool is_type_token(const ParserState& state) {
     TokenType t = current(state).type;
     return t == TokenType::TYPE_INT || t == TokenType::TYPE_STR ||
-           t == TokenType::TYPE_BOOL || t == TokenType::TYPE_CHAR ||
+           t == TokenType::TYPE_BOOL ||
            t == TokenType::TYPE_F32 || t == TokenType::TYPE_F64 ||
            t == TokenType::TYPE_U32 || t == TokenType::TYPE_U64 ||
            t == TokenType::TYPE_CINT || t == TokenType::TYPE_CSTR ||
@@ -34,7 +34,6 @@ string token_to_type(TokenType type) {
         case TokenType::TYPE_INT: return "int";
         case TokenType::TYPE_STR: return "str";
         case TokenType::TYPE_BOOL: return "bool";
-        case TokenType::TYPE_CHAR: return "char";
         case TokenType::TYPE_F32: return "f32";
         case TokenType::TYPE_F64: return "f64";
         case TokenType::TYPE_U32: return "u32";

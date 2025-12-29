@@ -232,12 +232,6 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return lit;
     }
 
-    if (check(state, TokenType::CHAR_LITERAL)) {
-        Token tok = current(state);
-        advance(state);
-        return make_unique<CharLiteral>(tok.value[0], tok.line);
-    }
-
     if (check(state, TokenType::TRUE)) {
         int start_line = current(state).line;
         advance(state);

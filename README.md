@@ -32,7 +32,6 @@ Bishop source files use the `.b` extension.
 | `int`  | Integer                  |
 | `str`  | String                   |
 | `bool` | Boolean (`true`/`false`) |
-| `char` | Single character         |
 | `f32`  | 32-bit float             |
 | `f64`  | 64-bit float             |
 | `u32`  | Unsigned 32-bit integer  |
@@ -62,7 +61,6 @@ if value { }  // truthy check for non-none
 int x = 42;
 str name = "Chris";
 bool flag = true;
-char c = 'a';
 f64 pi = 3.14159;
 ```
 
@@ -330,6 +328,27 @@ s := "hello" + " " + "world";
 
 ## Strings
 
+### String Literals
+
+Strings can be defined using either double quotes or single quotes:
+
+```bishop
+str greeting = "Hello, World!";
+str name = 'Alice';
+```
+
+Single-quoted strings are useful when the string contains double quotes:
+
+```bishop
+// JSON with embedded quotes - no escaping needed
+json := '{"name": "Alice", "age": 30}';
+
+// Equivalent using double quotes (requires escaping)
+json := "{\"name\": \"Alice\", \"age\": 30}";
+```
+
+Both quote styles produce the same `str` type.
+
 ### String Methods
 
 ```bishop
@@ -341,7 +360,7 @@ s.contains("world");     // -> bool: true
 s.starts_with("hello");  // -> bool: true
 s.ends_with("world");    // -> bool: true
 s.substr(0, 5);          // -> str: "hello"
-s.at(0);                 // -> char: 'h'
+s.at(0);                 // -> str: "h"
 s.find("world");         // -> int: index of substring
 ```
 

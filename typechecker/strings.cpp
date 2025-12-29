@@ -85,12 +85,12 @@
 /**
  * @nog_method at
  * @type str
- * @description Returns the character at the specified index.
+ * @description Returns the character at the specified index as a single-character string.
  * @param index int - The index (0-based)
- * @returns char - The character at that position
+ * @returns str - A single-character string at that position
  * @example
  * s := "hello";
- * c := s.at(0);  // 'h'
+ * c := s.at(0);  // "h"
  */
 
 #include "strings.hpp"
@@ -112,7 +112,7 @@ std::optional<StrMethodInfo> get_str_method_info(const std::string& method_name)
         {"ends_with", {{"str"}, "bool"}},
         {"find", {{"str"}, "int"}},
         {"substr", {{"int", "int"}, "str"}},
-        {"at", {{"int"}, "char"}},
+        {"at", {{"int"}, "str"}},
     };
 
     auto it = str_methods.find(method_name);

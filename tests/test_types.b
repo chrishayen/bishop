@@ -75,21 +75,3 @@ fn test_f32_basic() {
     f32 y = 3.14;
     assert_eq(x, y);
 }
-
-fn test_char_basic() {
-    char c = 'a';
-    char d = 'a';
-    assert_eq(c, d);
-}
-
-fn test_char_different() {
-    char x = 'x';
-    char y = 'z';
-    result := 0;
-
-    if x != y {
-        result = 1;
-    }
-
-    assert_eq(result, 1);
-}

@@ -90,12 +90,6 @@ struct BoolLiteral : ASTNode {
 /** @brief The none literal for optional types */
 struct NoneLiteral : ASTNode {};
 
-/** @brief Character literal: 'a' */
-struct CharLiteral : ASTNode {
-    char value;
-    CharLiteral(char v, int l) : value(v) { this->line = l; }
-};
-
 /** @brief Reference to a variable by name */
 struct VariableRef : ASTNode {
     string name;

@@ -52,7 +52,6 @@ static unordered_map<string, TokenType> keywords = {
     {"int", TokenType::TYPE_INT},
     {"str", TokenType::TYPE_STR},
     {"bool", TokenType::TYPE_BOOL},
-    {"char", TokenType::TYPE_CHAR},
     {"f32", TokenType::TYPE_F32},
     {"f64", TokenType::TYPE_F64},
     {"u32", TokenType::TYPE_U32},
@@ -116,26 +115,25 @@ Token Lexer::read_string() {
 }
 
 /**
- * Reads a single-quoted character literal. Assumes current char is '\''.
- * Format: 'c' where c is a single character.
+ * Reads a single-quoted string literal. Assumes current char is '\''.
+ * All single-quoted literals produce STRING tokens (same as double-quoted).
  */
-Token Lexer::read_char() {
+Token Lexer::read_single_quoted() {
     int start_line = line;
     advance();  // skip opening quote
+    string value;
 
-    if (current() == '\0' || current() == '\'') {
-        throw runtime_error("Empty character literal at line " + to_string(line));
+    while (current() != '\'' && current() != '\0') {
+        value += current();
+        advance();
     }
 
-    string value(1, current());
-    advance();  // consume the character
-
-    if (current() != '\'') {
-        throw runtime_error("Unterminated character literal at line " + to_string(line));
+    if (current() == '\0') {
+        throw runtime_error("Unterminated string literal at line " + to_string(start_line));
     }
 
     advance();  // skip closing quote
-    return {TokenType::CHAR_LITERAL, value, start_line};
+    return {TokenType::STRING, value, start_line};
 }
 
 /**
@@ -332,7 +330,7 @@ vector<Token> Lexer::tokenize() {
         } else if (current() == '"') {
             tokens.push_back(read_string());
         } else if (current() == '\'') {
-            tokens.push_back(read_char());
+            tokens.push_back(read_single_quoted());
         } else if (isdigit(current())) {
             tokens.push_back(read_number());
         } else if (isalpha(current()) || current() == '_') {

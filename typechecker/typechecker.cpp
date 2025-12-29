@@ -194,7 +194,7 @@ void collect_constants(TypeCheckerState& state, const Program& program) {
  */
 bool is_primitive_type(const string& type) {
     return type == "int" || type == "str" || type == "bool" ||
-           type == "char" || type == "f32" || type == "f64" ||
+           type == "f32" || type == "f64" ||
            type == "u32" || type == "u64" ||
            type == "cint" || type == "cstr" || type == "void";
 }
