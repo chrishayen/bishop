@@ -85,14 +85,27 @@ fn test_file_handle_open_close() or err {
     _r := fs.remove("test_handle.txt") or fail err;
 }
 
-fn test_file_handle_with_statement() or err {
-    _w := fs.write_file("test_with_handle.txt", "Line 1\nLine 2\nLine 3") or fail err;
+fn test_file_handle_read_all() or err {
+    _w := fs.write_file("test_readall.txt", "Line 1\nLine 2\nLine 3") or fail err;
 
-    f := fs.open("test_with_handle.txt", "r") or fail err;
+    f := fs.open("test_readall.txt", "r") or fail err;
     content := f.read_all() or fail err;
     assert_eq(true, content.contains("Line 1"));
     assert_eq(true, content.contains("Line 2"));
     f.close();
+
+    _r := fs.remove("test_readall.txt") or fail err;
+}
+
+fn test_file_handle_with_statement() or err {
+    _w := fs.write_file("test_with_handle.txt", "Hello With") or fail err;
+
+    f := fs.open("test_with_handle.txt", "r") or fail err;
+
+    with f as file {
+        content := file.read_all() or fail err;
+        assert_eq(true, content.contains("Hello With"));
+    }
 
     _r := fs.remove("test_with_handle.txt") or fail err;
 }

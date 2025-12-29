@@ -951,10 +951,13 @@ fs.is_file("path");                // -> bool (true if path is a regular file)
 #### File Handle (with statement)
 
 ```bishop
-with fs.open("data.txt", "r") as f {
-    content := f.read_all() or fail err;
+// Open file and use with statement for automatic cleanup
+f := fs.open("data.txt", "r") or fail err;
+
+with f as file {
+    content := file.read_all() or fail err;
     print(content);
-}  // file automatically closed
+}  // file.close() called automatically
 
 // Modes: "r" (read), "w" (write), "a" (append), "rw" (read+write)
 ```
