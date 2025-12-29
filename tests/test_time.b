@@ -179,6 +179,140 @@ fn test_time_parse_invalid_fails() or err {
 }
 
 // ============================================================
+// Tests for Duration comparison operators
+// ============================================================
+
+fn test_duration_equality() {
+    d1 := time.seconds(60);
+    d2 := time.minutes(1);
+    d3 := time.seconds(30);
+
+    assert_eq(true, d1 == d2);
+    assert_eq(false, d1 == d3);
+    assert_eq(true, d1 != d3);
+    assert_eq(false, d1 != d2);
+}
+
+fn test_duration_less_than() {
+    d1 := time.seconds(30);
+    d2 := time.minutes(1);
+
+    assert_eq(true, d1 < d2);
+    assert_eq(false, d2 < d1);
+    assert_eq(false, d1 < d1);
+}
+
+fn test_duration_less_than_or_equal() {
+    d1 := time.seconds(30);
+    d2 := time.minutes(1);
+    d3 := time.seconds(60);
+
+    assert_eq(true, d1 <= d2);
+    assert_eq(true, d2 <= d3);
+    assert_eq(false, d2 <= d1);
+}
+
+fn test_duration_greater_than() {
+    d1 := time.hours(1);
+    d2 := time.minutes(30);
+
+    assert_eq(true, d1 > d2);
+    assert_eq(false, d2 > d1);
+    assert_eq(false, d1 > d1);
+}
+
+fn test_duration_greater_than_or_equal() {
+    d1 := time.hours(1);
+    d2 := time.minutes(60);
+    d3 := time.minutes(30);
+
+    assert_eq(true, d1 >= d2);
+    assert_eq(true, d1 >= d3);
+    assert_eq(false, d3 >= d1);
+}
+
+// ============================================================
+// Tests for Timestamp comparison operators
+// ============================================================
+
+fn test_timestamp_equality() {
+    now := time.now();
+    future := now + time.seconds(1);
+
+    assert_eq(false, now == future);
+    assert_eq(true, now != future);
+}
+
+fn test_timestamp_less_than() {
+    now := time.now();
+    future := now + time.hours(1);
+
+    assert_eq(true, now < future);
+    assert_eq(false, future < now);
+}
+
+fn test_timestamp_greater_than() {
+    now := time.now();
+    past := now - time.hours(1);
+
+    assert_eq(true, now > past);
+    assert_eq(false, past > now);
+}
+
+fn test_timestamp_less_than_or_equal() {
+    now := time.now();
+    future := now + time.hours(1);
+
+    assert_eq(true, now <= future);
+    assert_eq(true, now <= now);
+    assert_eq(false, future <= now);
+}
+
+fn test_timestamp_greater_than_or_equal() {
+    now := time.now();
+    past := now - time.hours(1);
+
+    assert_eq(true, now >= past);
+    assert_eq(true, now >= now);
+    assert_eq(false, past >= now);
+}
+
+// ============================================================
+// Tests for edge cases
+// ============================================================
+
+fn test_duration_zero() {
+    d := time.millis(0);
+    assert_eq(0, d.as_millis());
+    assert_eq(0, d.as_seconds());
+    assert_eq(0, d.as_minutes());
+    assert_eq(0, d.as_hours());
+    assert_eq(0, d.as_days());
+}
+
+fn test_duration_negative() {
+    d := time.seconds(-60);
+    assert_eq(-60, d.as_seconds());
+    assert_eq(-60000, d.as_millis());
+}
+
+fn test_duration_negative_comparison() {
+    d1 := time.seconds(-60);
+    d2 := time.seconds(0);
+    d3 := time.seconds(60);
+
+    assert_eq(true, d1 < d2);
+    assert_eq(true, d1 < d3);
+    assert_eq(true, d2 < d3);
+}
+
+fn test_duration_large_values() {
+    d := time.days(365);
+    assert_eq(365, d.as_days());
+    assert_eq(8760, d.as_hours());
+}
+
+// ============================================================
 // Tests for measuring elapsed time
 // ============================================================
 
