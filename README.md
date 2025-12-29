@@ -630,13 +630,15 @@ import crypto;
 
 #### Hashing Functions
 
-All hash functions return lowercase hex strings:
+All hash functions return `str or err` with lowercase hex strings.
+
+**Note:** MD5 and SHA1 are cryptographically weak. Do not use for security purposes (password hashing, digital signatures). Use SHA256 or stronger.
 
 ```bishop
-crypto.md5("hello");     // -> "5d41402abc4b2a76b9719d911017c592"
-crypto.sha1("hello");    // -> "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d"
-crypto.sha256("hello");  // -> "2cf24dba5fb0a30e26e83b2ac5b9e29e..."
-crypto.sha512("hello");  // -> "9b71d224bd62f3785d96d46ad3ea3d73..."
+hash := crypto.md5("hello") or return;     // -> "5d41402abc4b2a76b9719d911017c592"
+hash := crypto.sha1("hello") or return;    // -> "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d"
+hash := crypto.sha256("hello") or return;  // -> "2cf24dba5fb0a30e26e83b2ac5b9e29e..."
+hash := crypto.sha512("hello") or return;  // -> "9b71d224bd62f3785d96d46ad3ea3d73..."
 ```
 
 #### HMAC
@@ -659,26 +661,26 @@ decoded := crypto.base64_decode("SGVsbG8h") or return;
 #### Hex Encoding/Decoding
 
 ```bishop
-hex := crypto.hex_encode("hello");       // -> "68656c6c6f"
-decoded := crypto.hex_decode("68656c6c6f");  // -> "hello"
+hex := crypto.hex_encode("hello");               // -> "68656c6c6f"
+decoded := crypto.hex_decode("68656c6c6f") or return;  // -> "hello"
 ```
 
 #### UUID Generation
 
 ```bishop
 // Random UUID v4
-id := crypto.uuid();
+id := crypto.uuid() or return;
 // e.g., "550e8400-e29b-41d4-a716-446655440000"
 
 // Deterministic UUID v5 (namespace + name based)
-id := crypto.uuid_v5("namespace", "name");
+id := crypto.uuid_v5("namespace", "name") or return;
 // Same inputs always produce same UUID
 ```
 
 #### Random Bytes
 
 ```bishop
-bytes := crypto.random_bytes(32);  // -> List<u8> with 32 random bytes
+bytes := crypto.random_bytes(32) or return;  // -> List<u8> with 32 random bytes
 ```
 
 ### Example: Static File Server

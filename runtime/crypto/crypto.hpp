@@ -36,12 +36,13 @@ inline std::string bytes_to_hex(const unsigned char* data, size_t len) {
 
 /**
  * Generic hash function using EVP interface.
+ * Returns Result with hex string or error.
  */
-inline std::string hash_evp(const std::string& data, const EVP_MD* md) {
+inline bishop::rt::Result<std::string> hash_evp(const std::string& data, const EVP_MD* md) {
     EVP_MD_CTX* ctx = EVP_MD_CTX_new();
 
     if (!ctx) {
-        return "";
+        return bishop::rt::make_error<std::string>("failed to create hash context");
     }
 
     unsigned char hash[EVP_MAX_MD_SIZE];
@@ -51,7 +52,7 @@ inline std::string hash_evp(const std::string& data, const EVP_MD* md) {
         EVP_DigestUpdate(ctx, data.c_str(), data.size()) != 1 ||
         EVP_DigestFinal_ex(ctx, hash, &hash_len) != 1) {
         EVP_MD_CTX_free(ctx);
-        return "";
+        return bishop::rt::make_error<std::string>("hash computation failed");
     }
 
     EVP_MD_CTX_free(ctx);
@@ -60,33 +61,39 @@ inline std::string hash_evp(const std::string& data, const EVP_MD* md) {
 
 /**
  * Computes MD5 hash of a string.
- * Returns lowercase hex string.
+ * Returns Result with lowercase hex string or error.
+ *
+ * WARNING: MD5 is cryptographically broken. Do not use for security purposes
+ * such as password hashing or digital signatures. Use SHA256 or stronger.
  */
-inline std::string md5(const std::string& data) {
+inline bishop::rt::Result<std::string> md5(const std::string& data) {
     return hash_evp(data, EVP_md5());
 }
 
 /**
  * Computes SHA1 hash of a string.
- * Returns lowercase hex string.
+ * Returns Result with lowercase hex string or error.
+ *
+ * WARNING: SHA1 is cryptographically weak and deprecated for security purposes.
+ * Do not use for password hashing or digital signatures. Use SHA256 or stronger.
  */
-inline std::string sha1(const std::string& data) {
+inline bishop::rt::Result<std::string> sha1(const std::string& data) {
     return hash_evp(data, EVP_sha1());
 }
 
 /**
  * Computes SHA256 hash of a string.
- * Returns lowercase hex string.
+ * Returns Result with lowercase hex string or error.
  */
-inline std::string sha256(const std::string& data) {
+inline bishop::rt::Result<std::string> sha256(const std::string& data) {
     return hash_evp(data, EVP_sha256());
 }
 
 /**
  * Computes SHA512 hash of a string.
- * Returns lowercase hex string.
+ * Returns Result with lowercase hex string or error.
  */
-inline std::string sha512(const std::string& data) {
+inline bishop::rt::Result<std::string> sha512(const std::string& data) {
     return hash_evp(data, EVP_sha512());
 }
 
@@ -225,14 +232,15 @@ inline std::string hex_encode(const std::string& data) {
 
 /**
  * Decodes a hex string.
+ * Returns Result with decoded string or error.
  */
-inline std::string hex_decode(const std::string& data) {
+inline bishop::rt::Result<std::string> hex_decode(const std::string& data) {
     if (data.empty()) {
-        return "";
+        return std::string("");
     }
 
     if (data.size() % 2 != 0) {
-        return "";
+        return bishop::rt::make_error<std::string>("invalid hex length: must be even");
     }
 
     std::string result;
@@ -249,7 +257,7 @@ inline std::string hex_decode(const std::string& data) {
         } else if (data[i] >= 'A' && data[i] <= 'F') {
             high = data[i] - 'A' + 10;
         } else {
-            return "";
+            return bishop::rt::make_error<std::string>("invalid hex character");
         }
 
         if (data[i + 1] >= '0' && data[i + 1] <= '9') {
@@ -259,7 +267,7 @@ inline std::string hex_decode(const std::string& data) {
         } else if (data[i + 1] >= 'A' && data[i + 1] <= 'F') {
             low = data[i + 1] - 'A' + 10;
         } else {
-            return "";
+            return bishop::rt::make_error<std::string>("invalid hex character");
         }
 
         result += static_cast<char>((high << 4) | low);
@@ -272,12 +280,13 @@ inline std::string hex_decode(const std::string& data) {
  * Generates a random UUID v4.
  * Format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
  * where y is 8, 9, a, or b.
+ * Returns Result with UUID string or error.
  */
-inline std::string uuid() {
+inline bishop::rt::Result<std::string> uuid() {
     unsigned char bytes[16];
 
     if (RAND_bytes(bytes, 16) != 1) {
-        return "";
+        return bishop::rt::make_error<std::string>("random number generation failed");
     }
 
     // Set version to 4 (random)
@@ -302,8 +311,9 @@ inline std::string uuid() {
 /**
  * Generates a UUID v5 (namespace + name based on SHA1).
  * Deterministic: same namespace and name always produce same UUID.
+ * Returns Result with UUID string or error.
  */
-inline std::string uuid_v5(const std::string& ns, const std::string& name) {
+inline bishop::rt::Result<std::string> uuid_v5(const std::string& ns, const std::string& name) {
     // Combine namespace and name
     std::string combined = ns + name;
 
@@ -311,7 +321,7 @@ inline std::string uuid_v5(const std::string& ns, const std::string& name) {
     EVP_MD_CTX* ctx = EVP_MD_CTX_new();
 
     if (!ctx) {
-        return "";
+        return bishop::rt::make_error<std::string>("failed to create hash context");
     }
 
     unsigned char hash[EVP_MAX_MD_SIZE];
@@ -321,7 +331,7 @@ inline std::string uuid_v5(const std::string& ns, const std::string& name) {
         EVP_DigestUpdate(ctx, combined.c_str(), combined.size()) != 1 ||
         EVP_DigestFinal_ex(ctx, hash, &hash_len) != 1) {
         EVP_MD_CTX_free(ctx);
-        return "";
+        return bishop::rt::make_error<std::string>("hash computation failed");
     }
 
     EVP_MD_CTX_free(ctx);
@@ -347,9 +357,9 @@ inline std::string uuid_v5(const std::string& ns, const std::string& name) {
 
 /**
  * Generates random bytes.
- * Returns a vector of unsigned 8-bit integers.
+ * Returns Result with vector of unsigned 8-bit integers or error.
  */
-inline std::vector<uint8_t> random_bytes(int count) {
+inline bishop::rt::Result<std::vector<uint8_t>> random_bytes(int count) {
     if (count <= 0) {
         return std::vector<uint8_t>();
     }
@@ -357,7 +367,7 @@ inline std::vector<uint8_t> random_bytes(int count) {
     std::vector<uint8_t> result(static_cast<size_t>(count));
 
     if (RAND_bytes(result.data(), count) != 1) {
-        return std::vector<uint8_t>();
+        return bishop::rt::make_error<std::vector<uint8_t>>("random number generation failed");
     }
 
     return result;
