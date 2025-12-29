@@ -123,10 +123,21 @@ using namespace std;
 namespace nog::stdlib {
 
 /**
+ * List of built-in stdlib modules.
+ */
+const vector<string> BUILTIN_MODULES = {"http", "fs", "process"};
+
+/**
  * Checks if a module name is a built-in stdlib module.
  */
 bool is_builtin_module(const string& name) {
-    return name == "http" || name == "fs" || name == "process";
+    for (const auto& builtin : BUILTIN_MODULES) {
+        if (name == builtin) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /**
