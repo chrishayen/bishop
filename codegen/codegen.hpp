@@ -65,6 +65,7 @@ std::string emit_qualified_ref(const QualifiedRef& ref);
 std::string binary_expr(const std::string& left, const std::string& op, const std::string& right);
 std::string is_none(const std::string& value);
 std::string emit_not_expr(CodeGenState& state, const NotExpr& expr);
+std::string emit_negate_expr(CodeGenState& state, const NegateExpr& expr);
 std::string emit_address_of(CodeGenState& state, const AddressOf& addr);
 
 // Go spawn (emit_go_spawn.cpp)
@@ -77,6 +78,9 @@ std::string emit_channel_create(const ChannelCreate& channel);
 std::string emit_list_create(const ListCreate& list);
 std::string emit_list_literal(CodeGenState& state, const ListLiteral& list);
 std::string emit_list_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
+
+// String methods (emit_string.cpp)
+std::string emit_str_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
 
 // Pair (emit_pair.cpp)
 std::string emit_pair_create(CodeGenState& state, const PairCreate& pair);
