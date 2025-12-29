@@ -1,7 +1,7 @@
-Bishop Programming Language
+Deez Programming Language
 ===========================
 
-Bishop is a modern programming language that transpiles to C++. It provides
+Deez is a modern programming language that transpiles to C++. It provides
 elegant, Pythonic syntax while leveraging C++ performance and memory management.
 
 Key Features
@@ -58,7 +58,7 @@ Error Handling
 File Extension
 --------------
 
-Bishop source files use the .b extension.
+Deez source files use the .b extension.
 
 Building
 --------
