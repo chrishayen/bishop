@@ -498,14 +498,25 @@ inline bishop::rt::Result<TcpStream> connect(const std::string& host, int port) 
         auto socket = std::make_shared<boost::asio::ip::tcp::socket>(bishop::rt::io_context());
 
         boost::asio::ip::tcp::resolver resolver(bishop::rt::io_context());
-        auto endpoints = resolver.resolve(host, std::to_string(port));
+        boost::system::error_code resolve_ec;
+        auto endpoints = resolver.async_resolve(
+            host,
+            std::to_string(port),
+            boost::fibers::asio::yield[resolve_ec]
+        );
 
-        boost::system::error_code ec;
-        boost::asio::async_connect(*socket, endpoints, boost::fibers::asio::yield[ec]);
-
-        if (ec) {
+        if (resolve_ec) {
             return bishop::rt::Result<TcpStream>::error(
-                bishop::rt::Error("Connection failed: " + ec.message())
+                bishop::rt::Error("DNS resolution failed: " + resolve_ec.message())
+            );
+        }
+
+        boost::system::error_code connect_ec;
+        boost::asio::async_connect(*socket, endpoints, boost::fibers::asio::yield[connect_ec]);
+
+        if (connect_ec) {
+            return bishop::rt::Result<TcpStream>::error(
+                bishop::rt::Error("Connection failed: " + connect_ec.message())
             );
         }
 
