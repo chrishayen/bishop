@@ -32,7 +32,7 @@ Quick Example
 Types
 -----
 
-Primitives: int, str, bool, char, f32, f64, u32, u64
+Primitives: int, str, bool, char, f32, f64, u32, u64, bingbong
 Optionals:  int?, str? (can be 'none')
 Collections: List<T>
 
