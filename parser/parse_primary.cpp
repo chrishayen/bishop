@@ -31,6 +31,16 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return not_expr;
     }
 
+    // Handle unary minus expression: -expr
+    if (check(state, TokenType::MINUS)) {
+        int start_line = current(state).line;
+        advance(state);
+        auto negate_expr = make_unique<NegateExpr>();
+        negate_expr->value = parse_primary(state);
+        negate_expr->line = start_line;
+        return negate_expr;
+    }
+
     // Handle address-of expression: &expr
     if (check(state, TokenType::AMPERSAND)) {
         int start_line = current(state).line;

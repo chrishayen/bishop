@@ -60,7 +60,9 @@ TypeInfo check_not_expr(TypeCheckerState& state, const NotExpr& not_expr) {
 TypeInfo check_negate_expr(TypeCheckerState& state, const NegateExpr& negate_expr) {
     TypeInfo inner_type = infer_type(state, *negate_expr.value);
 
-    if (inner_type.base_type != "int" && inner_type.base_type != "f64") {
+    if (inner_type.base_type != "int" && inner_type.base_type != "f32" &&
+        inner_type.base_type != "f64" && inner_type.base_type != "u32" &&
+        inner_type.base_type != "u64") {
         error(state, "'-' operator requires numeric type, got '" + format_type(inner_type) + "'", negate_expr.line);
     }
 
