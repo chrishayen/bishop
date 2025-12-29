@@ -1,5 +1,5 @@
 fn pair_return(int a, int b) -> Pair<int> {
-    return Pair<int>(a / b, a);
+    return Pair<int>(a, a % b);
 }
 
 fn test_minimal() {
