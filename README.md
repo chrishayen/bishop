@@ -279,6 +279,27 @@ s := "hello" + " " + "world";
 
 ## Strings
 
+### String Literals
+
+Strings can be defined using either double quotes or single quotes:
+
+```bishop
+str greeting = "Hello, World!";
+str name = 'Alice';
+```
+
+Single-quoted strings are useful when the string contains double quotes:
+
+```bishop
+// JSON with embedded quotes - no escaping needed
+json := '{"name": "Alice", "age": 30}';
+
+// Equivalent using double quotes (requires escaping)
+json := "{\"name\": \"Alice\", \"age\": 30}";
+```
+
+Both quote styles produce the same `str` type.
+
 ### String Methods
 
 ```bishop
