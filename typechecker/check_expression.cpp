@@ -35,10 +35,6 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
         return check_none_literal(state, *none);
     }
 
-    if (auto* ch = dynamic_cast<const CharLiteral*>(&expr)) {
-        return check_char_literal(state, *ch);
-    }
-
     if (auto* var = dynamic_cast<const VariableRef*>(&expr)) {
         return check_variable_ref(state, *var);
     }
@@ -91,6 +87,14 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
         return check_list_literal(state, *list);
     }
 
+    if (auto* pair = dynamic_cast<const PairCreate*>(&expr)) {
+        return check_pair_create(state, *pair);
+    }
+
+    if (auto* tuple = dynamic_cast<const TupleCreate*>(&expr)) {
+        return check_tuple_create(state, *tuple);
+    }
+
     if (auto* call = dynamic_cast<const FunctionCall*>(&expr)) {
         return check_function_call(state, *call);
     }
@@ -123,6 +127,20 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
 
         // The result type is the unwrapped (non-fallible) type
         expr_type.is_fallible = false;
+        return expr_type;
+    }
+
+    if (auto* def_expr = dynamic_cast<const DefaultExpr*>(&expr)) {
+        // Type check both the expression and fallback
+        TypeInfo expr_type = infer_type(state, *def_expr->expr);
+        TypeInfo fallback_type = infer_type(state, *def_expr->fallback);
+
+        // Verify types are compatible
+        if (!types_compatible(expr_type, fallback_type)) {
+            error(state, "default fallback type '" + format_type(fallback_type) +
+                  "' does not match expression type '" + format_type(expr_type) + "'", def_expr->line);
+        }
+
         return expr_type;
     }
 

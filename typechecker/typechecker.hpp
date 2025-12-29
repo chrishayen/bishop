@@ -133,7 +133,6 @@ TypeInfo check_float_literal(TypeCheckerState& state, const FloatLiteral& lit);
 TypeInfo check_string_literal(TypeCheckerState& state, const StringLiteral& lit);
 TypeInfo check_bool_literal(TypeCheckerState& state, const BoolLiteral& lit);
 TypeInfo check_none_literal(TypeCheckerState& state, const NoneLiteral& lit);
-TypeInfo check_char_literal(TypeCheckerState& state, const CharLiteral& lit);
 
 // Reference type inference (check_refs.cpp)
 TypeInfo check_variable_ref(TypeCheckerState& state, const VariableRef& var);
@@ -161,11 +160,21 @@ TypeInfo check_list_create(TypeCheckerState& state, const ListCreate& list);
 TypeInfo check_list_literal(TypeCheckerState& state, const ListLiteral& list);
 TypeInfo check_list_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
 
+// Pair type inference (check_pair.cpp)
+TypeInfo check_pair_create(TypeCheckerState& state, const PairCreate& pair);
+TypeInfo check_pair_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+TypeInfo check_pair_field(TypeCheckerState& state, const FieldAccess& access, const std::string& element_type);
+
+// Tuple type inference (check_tuple.cpp)
+TypeInfo check_tuple_create(TypeCheckerState& state, const TupleCreate& tuple);
+TypeInfo check_tuple_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+
 // Function call type inference (check_function_call.cpp)
 TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call);
 
 // Method call type inference (check_method_call.cpp)
 TypeInfo check_str_method(TypeCheckerState& state, const MethodCall& mcall);
+TypeInfo check_char_method(TypeCheckerState& state, const MethodCall& mcall);
 TypeInfo check_struct_method(TypeCheckerState& state, const MethodCall& mcall, const TypeInfo& obj_type);
 TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall);
 

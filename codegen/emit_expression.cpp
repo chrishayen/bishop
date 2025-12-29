@@ -40,10 +40,6 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return none_literal();
     }
 
-    if (auto* lit = dynamic_cast<const CharLiteral*>(&node)) {
-        return char_literal(lit->value);
-    }
-
     if (auto* ref = dynamic_cast<const VariableRef*>(&node)) {
         return variable_ref(ref->name);
     }
@@ -65,7 +61,7 @@ string emit(CodeGenState& state, const ASTNode& node) {
     }
 
     if (auto* expr = dynamic_cast<const NegateExpr*>(&node)) {
-        return "(-" + emit(state, *expr->value) + ")";
+        return emit_negate_expr(state, *expr);
     }
 
     if (auto* expr = dynamic_cast<const ParenExpr*>(&node)) {
@@ -86,6 +82,14 @@ string emit(CodeGenState& state, const ASTNode& node) {
 
     if (auto* list = dynamic_cast<const ListLiteral*>(&node)) {
         return emit_list_literal(state, *list);
+    }
+
+    if (auto* pair = dynamic_cast<const PairCreate*>(&node)) {
+        return emit_pair_create(state, *pair);
+    }
+
+    if (auto* tuple = dynamic_cast<const TupleCreate*>(&node)) {
+        return emit_tuple_create(state, *tuple);
     }
 
     if (auto* qref = dynamic_cast<const QualifiedRef*>(&node)) {

@@ -19,7 +19,7 @@ namespace parser {
 bool is_type_token(const ParserState& state) {
     TokenType t = current(state).type;
     return t == TokenType::TYPE_INT || t == TokenType::TYPE_STR ||
-           t == TokenType::TYPE_BOOL || t == TokenType::TYPE_CHAR ||
+           t == TokenType::TYPE_BOOL ||
            t == TokenType::TYPE_F32 || t == TokenType::TYPE_F64 ||
            t == TokenType::TYPE_U32 || t == TokenType::TYPE_U64 ||
            t == TokenType::TYPE_CINT || t == TokenType::TYPE_CSTR ||
@@ -34,7 +34,6 @@ string token_to_type(TokenType type) {
         case TokenType::TYPE_INT: return "int";
         case TokenType::TYPE_STR: return "str";
         case TokenType::TYPE_BOOL: return "bool";
-        case TokenType::TYPE_CHAR: return "char";
         case TokenType::TYPE_F32: return "f32";
         case TokenType::TYPE_F64: return "f64";
         case TokenType::TYPE_U32: return "u32";
@@ -107,6 +106,24 @@ string parse_base_type(ParserState& state) {
         string element_type = parse_type(state);
         consume(state, TokenType::GT);
         return "List<" + element_type + ">";
+    }
+
+    // Pair<T> type
+    if (check(state, TokenType::PAIR)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Pair<" + element_type + ">";
+    }
+
+    // Tuple<T> type
+    if (check(state, TokenType::TUPLE)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Tuple<" + element_type + ">";
     }
 
     // Custom type (struct name), qualified type (module.Type), or generic (Type<T>)

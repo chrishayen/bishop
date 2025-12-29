@@ -34,6 +34,8 @@ static unordered_map<string, TokenType> keywords = {
     {"private", TokenType::PRIVATE},
     {"Channel", TokenType::CHANNEL},
     {"List", TokenType::LIST},
+    {"Pair", TokenType::PAIR},
+    {"Tuple", TokenType::TUPLE},
     {"select", TokenType::SELECT},
     {"case", TokenType::CASE},
     {"extern", TokenType::EXTERN},
@@ -50,7 +52,6 @@ static unordered_map<string, TokenType> keywords = {
     {"int", TokenType::TYPE_INT},
     {"str", TokenType::TYPE_STR},
     {"bool", TokenType::TYPE_BOOL},
-    {"char", TokenType::TYPE_CHAR},
     {"f32", TokenType::TYPE_F32},
     {"f64", TokenType::TYPE_F64},
     {"u32", TokenType::TYPE_U32},
@@ -98,6 +99,7 @@ void Lexer::skip_whitespace() {
 /**
  * Reads a double-quoted string literal. Assumes current char is '"'.
  * Consumes characters until the closing quote or end of input.
+ * Handles escape sequences: \n, \t, \r, \\, \"
  */
 Token Lexer::read_string() {
     int start_line = line;
@@ -105,8 +107,24 @@ Token Lexer::read_string() {
     string value;
 
     while (current() != '"' && current() != '\0') {
-        value += current();
-        advance();
+        if (current() == '\\') {
+            advance();  // skip backslash
+            char escaped = current();
+
+            switch (escaped) {
+                case 'n': value += '\n'; break;
+                case 't': value += '\t'; break;
+                case 'r': value += '\r'; break;
+                case '\\': value += '\\'; break;
+                case '"': value += '"'; break;
+                default: value += escaped; break;
+            }
+
+            advance();
+        } else {
+            value += current();
+            advance();
+        }
     }
 
     advance();  // skip closing quote
@@ -114,26 +132,42 @@ Token Lexer::read_string() {
 }
 
 /**
- * Reads a single-quoted character literal. Assumes current char is '\''.
- * Format: 'c' where c is a single character.
+ * Reads a single-quoted string literal. Assumes current char is '\''.
+ * All single-quoted literals produce STRING tokens (same as double-quoted).
+ * Handles escape sequences: \n, \t, \r, \\, \'
  */
-Token Lexer::read_char() {
+Token Lexer::read_single_quoted() {
     int start_line = line;
     advance();  // skip opening quote
+    string value;
 
-    if (current() == '\0' || current() == '\'') {
-        throw runtime_error("Empty character literal at line " + to_string(line));
+    while (current() != '\'' && current() != '\0') {
+        if (current() == '\\') {
+            advance();  // skip backslash
+            char escaped = current();
+
+            switch (escaped) {
+                case 'n': value += '\n'; break;
+                case 't': value += '\t'; break;
+                case 'r': value += '\r'; break;
+                case '\\': value += '\\'; break;
+                case '\'': value += '\''; break;
+                default: value += escaped; break;
+            }
+
+            advance();
+        } else {
+            value += current();
+            advance();
+        }
     }
 
-    string value(1, current());
-    advance();  // consume the character
-
-    if (current() != '\'') {
-        throw runtime_error("Unterminated character literal at line " + to_string(line));
+    if (current() == '\0') {
+        throw runtime_error("Unterminated string literal at line " + to_string(start_line));
     }
 
     advance();  // skip closing quote
-    return {TokenType::CHAR_LITERAL, value, start_line};
+    return {TokenType::STRING, value, start_line};
 }
 
 /**
@@ -330,7 +364,7 @@ vector<Token> Lexer::tokenize() {
         } else if (current() == '"') {
             tokens.push_back(read_string());
         } else if (current() == '\'') {
-            tokens.push_back(read_char());
+            tokens.push_back(read_single_quoted());
         } else if (isdigit(current())) {
             tokens.push_back(read_number());
         } else if (isalpha(current()) || current() == '_') {

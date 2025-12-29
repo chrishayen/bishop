@@ -12,6 +12,7 @@ namespace typechecker {
 
 /**
  * Type checks a method call on a string.
+ * Handles optional parameters for padding methods.
  */
 TypeInfo check_str_method(TypeCheckerState& state, const MethodCall& mcall) {
     auto method_info = nog::get_str_method_info(mcall.method_name);
@@ -23,6 +24,44 @@ TypeInfo check_str_method(TypeCheckerState& state, const MethodCall& mcall) {
 
     const auto& [param_types, return_type] = *method_info;
 
+    // Handle padding methods with optional char parameter
+    bool is_padding_method = (mcall.method_name == "pad_left" ||
+                              mcall.method_name == "pad_right" ||
+                              mcall.method_name == "center");
+
+    if (is_padding_method) {
+        // Accept 1 or 2 arguments for padding methods
+        if (mcall.args.size() < 1 || mcall.args.size() > 2) {
+            error(state, "method '" + mcall.method_name + "' expects 1 or 2 arguments, got " +
+                  to_string(mcall.args.size()), mcall.line);
+        }
+
+        // Check first argument is int
+        if (mcall.args.size() >= 1) {
+            TypeInfo arg_type = infer_type(state, *mcall.args[0]);
+            TypeInfo expected = {"int", false, false};
+
+            if (!types_compatible(expected, arg_type)) {
+                error(state, "argument 1 of method '" + mcall.method_name +
+                      "' expects 'int', got '" + format_type(arg_type) + "'", mcall.line);
+            }
+        }
+
+        // Check optional second argument is str (single character string)
+        if (mcall.args.size() == 2) {
+            TypeInfo arg_type = infer_type(state, *mcall.args[1]);
+            TypeInfo expected = {"str", false, false};
+
+            if (!types_compatible(expected, arg_type)) {
+                error(state, "argument 2 of method '" + mcall.method_name +
+                      "' expects 'str', got '" + format_type(arg_type) + "'", mcall.line);
+            }
+        }
+
+        return {return_type, false, false};
+    }
+
+    // Standard parameter checking for other methods
     if (mcall.args.size() != param_types.size()) {
         error(state, "method '" + mcall.method_name + "' expects " +
               to_string(param_types.size()) + " arguments, got " +
@@ -117,6 +156,20 @@ TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall) {
         size_t end = effective_type.base_type.find('>', start);
         string element_type = effective_type.base_type.substr(start, end - start);
         return check_list_method(state, mcall, element_type);
+    }
+
+    if (effective_type.base_type.rfind("Pair<", 0) == 0) {
+        size_t start = 5;
+        size_t end = effective_type.base_type.find('>', start);
+        string element_type = effective_type.base_type.substr(start, end - start);
+        return check_pair_method(state, mcall, element_type);
+    }
+
+    if (effective_type.base_type.rfind("Tuple<", 0) == 0) {
+        size_t start = 6;
+        size_t end = effective_type.base_type.find('>', start);
+        string element_type = effective_type.base_type.substr(start, end - start);
+        return check_tuple_method(state, mcall, element_type);
     }
 
     if (effective_type.base_type == "str") {

@@ -32,6 +32,13 @@ string emit_not_expr(CodeGenState& state, const NotExpr& expr) {
 }
 
 /**
+ * Emits a negate expression: -value.
+ */
+string emit_negate_expr(CodeGenState& state, const NegateExpr& expr) {
+    return "-" + emit(state, *expr.value);
+}
+
+/**
  * Emits an address-of expression: &expr.
  */
 string emit_address_of(CodeGenState& state, const AddressOf& addr) {

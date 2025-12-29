@@ -32,7 +32,6 @@ Bishop source files use the `.b` extension.
 | `int`  | Integer                  |
 | `str`  | String                   |
 | `bool` | Boolean (`true`/`false`) |
-| `char` | Single character         |
 | `f32`  | 32-bit float             |
 | `f64`  | 64-bit float             |
 | `u32`  | Unsigned 32-bit integer  |
@@ -62,7 +61,6 @@ if value { }  // truthy check for non-none
 int x = 42;
 str name = "Chris";
 bool flag = true;
-char c = 'a';
 f64 pi = 3.14159;
 ```
 
@@ -330,19 +328,77 @@ s := "hello" + " " + "world";
 
 ## Strings
 
+### String Literals
+
+Strings can be defined using either double quotes or single quotes:
+
+```bishop
+str greeting = "Hello, World!";
+str name = 'Alice';
+```
+
+Single-quoted strings are useful when the string contains double quotes:
+
+```bishop
+// JSON with embedded quotes - no escaping needed
+json := '{"name": "Alice", "age": 30}';
+
+// Equivalent using double quotes (requires escaping)
+json := "{\"name\": \"Alice\", \"age\": 30}";
+```
+
+Both quote styles produce the same `str` type.
+
 ### String Methods
 
 ```bishop
 s := "hello world";
 
+// Query methods
 s.length();              // -> int: 11
 s.empty();               // -> bool: false
 s.contains("world");     // -> bool: true
 s.starts_with("hello");  // -> bool: true
 s.ends_with("world");    // -> bool: true
 s.substr(0, 5);          // -> str: "hello"
-s.at(0);                 // -> char: 'h'
+s.at(0);                 // -> str: "h"
 s.find("world");         // -> int: index of substring
+
+// Case transformation
+s.upper();               // -> str: "HELLO WORLD"
+s.lower();               // -> str: "hello world"
+s.capitalize();          // -> str: "Hello world"
+s.title();               // -> str: "Hello World"
+
+// Trimming
+padded := "  hello  ";
+padded.trim();           // -> str: "hello"
+padded.trim_left();      // -> str: "hello  "
+padded.trim_right();     // -> str: "  hello"
+
+// Replace
+s.replace("world", "there");      // -> str: "hello there" (first only)
+s.replace_all("l", "L");          // -> str: "heLLo worLd" (all)
+
+// Reverse and repeat
+s.reverse();             // -> str: "dlrow olleh"
+"ab".repeat(3);          // -> str: "ababab"
+
+// Split
+s.split(" ");            // -> List<str>: ["hello", "world"]
+"a\nb\nc".split_lines(); // -> List<str>: ["a", "b", "c"]
+
+// Padding
+"hi".pad_left(5);        // -> str: "   hi"
+"hi".pad_left(5, "0");   // -> str: "000hi"
+"hi".pad_right(5);       // -> str: "hi   "
+"hi".pad_right(5, ".");  // -> str: "hi..."
+"hi".center(6);          // -> str: "  hi  "
+"hi".center(6, "-");     // -> str: "--hi--"
+
+// Conversions
+"42".to_int();           // -> int: 42
+"3.14".to_float();       // -> f64: 3.14
 ```
 
 ## Lists
@@ -390,6 +446,95 @@ nums.set(1, 99);         // replace element at index
 nums.clear();            // remove all elements
 nums.insert(1, 15);      // insert element at index
 nums.remove(1);          // remove element at index
+
+// String list methods (List<str> only)
+parts := ["hello", "world"];
+parts.join(" ");         // -> str: "hello world"
+parts.join("-");         // -> str: "hello-world"
+```
+
+## Pairs
+
+Pairs hold exactly two values of the same type.
+
+### Pair Creation
+
+```bishop
+p := Pair<int>(1, 2);
+names := Pair<str>("hello", "world");
+```
+
+### Pair Field Access
+
+```bishop
+p := Pair<int>(10, 20);
+x := p.first;   // 10
+y := p.second;  // 20
+```
+
+### Pair get() with default
+
+```bishop
+p := Pair<int>(10, 20);
+x := p.get(0) default 0;   // 10 (first element)
+y := p.get(1) default 0;   // 20 (second element)
+z := p.get(2) default 99;  // 99 (out of bounds, uses default)
+```
+
+### Pair as Return Type
+
+```bishop
+fn divide(int a, int b) -> Pair<int> {
+    quotient := a / b;
+    remainder := a - quotient * b;
+    return Pair<int>(quotient, remainder);
+}
+
+result := divide(17, 5);
+quotient := result.first;   // 3
+remainder := result.second; // 2
+```
+
+## Tuples
+
+Tuples hold 2-5 values of the same type.
+
+### Tuple Creation
+
+```bishop
+t2 := Tuple<int>(1, 2);
+t3 := Tuple<str>("a", "b", "c");
+t5 := Tuple<int>(1, 2, 3, 4, 5);
+```
+
+### Tuple Access with get()
+
+```bishop
+t := Tuple<int>(10, 20, 30);
+x := t.get(0) default 0;   // 10
+y := t.get(1) default 0;   // 20
+z := t.get(2) default 0;   // 30
+out := t.get(10) default 99;  // 99 (out of bounds)
+```
+
+### Tuple with Variable Index
+
+```bishop
+t := Tuple<str>("a", "b", "c");
+idx := 2;
+val := t.get(idx) default "fallback";  // "c"
+```
+
+### Tuple in Loops
+
+```bishop
+t := Tuple<int>(1, 2, 3, 4, 5);
+sum := 0;
+
+for i in 0..5 {
+    sum = sum + (t.get(i) default 0);
+}
+// sum is 15
 ```
 
 ## Error Handling
@@ -961,18 +1106,28 @@ print(result.output);
 #### Environment Variables
 
 ```bishop
-// Get environment variable (returns empty string if not found)
-home := process.env("HOME");
+// Get environment variable (fails if not found)
+home := process.env("HOME") or fail err;
 
-// Set environment variable
-process.set_env("MY_VAR", "value");
+// Get environment variable with default fallback
+token := process.env("API_TOKEN") or "default_value";
+
+// Require environment variable with graceful failure
+token := process.env("GH_TOKEN") or {
+    print("Error: GH_TOKEN environment variable is not set");
+    return;
+};
+
+// Set environment variable (fails if name is empty or system error)
+process.set_env("MY_VAR", "value") or fail err;
 ```
 
 #### Working Directory
 
 ```bishop
-// Get current working directory
-print(process.cwd());
+// Get current working directory (fails if directory was deleted or permission denied)
+dir := process.cwd() or fail err;
+print(dir);
 
 // Change working directory
 process.chdir("/new/dir") or {
@@ -1086,4 +1241,4 @@ sleep(100);       // sleep for 100 milliseconds
 
 ## Keywords
 
-`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`
+`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `Pair`, `Tuple`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`

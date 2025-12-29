@@ -56,7 +56,6 @@ TypeInfo check_not_expr(TypeCheckerState& state, const NotExpr& not_expr) {
 
 /**
  * Infers the type of a negate expression: -expr
- * Returns the same numeric type as the inner expression.
  */
 TypeInfo check_negate_expr(TypeCheckerState& state, const NegateExpr& negate_expr) {
     TypeInfo inner_type = infer_type(state, *negate_expr.value);

@@ -87,6 +87,21 @@ string emit_list_method_call(CodeGenState& state, const MethodCall& call, const 
         return "(std::find(" + obj_str + ".begin(), " + obj_str + ".end(), " + args[0] + ") != " + obj_str + ".end())";
     }
 
+    // join() - only for List<str>
+    if (call.method_name == "join") {
+        return fmt::format(
+            "[](const std::vector<std::string>& v, const std::string& sep) {{ "
+            "std::string result; "
+            "for (size_t i = 0; i < v.size(); ++i) {{ "
+            "if (i > 0) result += sep; "
+            "result += v[i]; "
+            "}} "
+            "return result; "
+            "}}({}, {})",
+            obj_str, args[0]
+        );
+    }
+
     // Unknown list method - fall back to generic method call
     return method_call(obj_str, call.method_name, args);
 }

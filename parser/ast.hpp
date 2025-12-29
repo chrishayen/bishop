@@ -90,12 +90,6 @@ struct BoolLiteral : ASTNode {
 /** @brief The none literal for optional types */
 struct NoneLiteral : ASTNode {};
 
-/** @brief Character literal: 'a' */
-struct CharLiteral : ASTNode {
-    char value;
-    CharLiteral(char v, int l) : value(v) { this->line = l; }
-};
-
 /** @brief Reference to a variable by name */
 struct VariableRef : ASTNode {
     string name;
@@ -137,7 +131,7 @@ struct NotExpr : ASTNode {
     unique_ptr<ASTNode> value;  ///< The expression to negate
 };
 
-/** @brief Unary minus expression: -expr */
+/** @brief Numeric negation expression: -expr */
 struct NegateExpr : ASTNode {
     unique_ptr<ASTNode> value;  ///< The expression to negate
 };
@@ -174,6 +168,19 @@ struct ListCreate : ASTNode {
 /** @brief List literal: [1, 2, 3] */
 struct ListLiteral : ASTNode {
     vector<unique_ptr<ASTNode>> elements;  ///< List element expressions
+};
+
+/** @brief Pair creation: Pair<T>(a, b) */
+struct PairCreate : ASTNode {
+    string element_type;               ///< Type of elements (homogeneous)
+    unique_ptr<ASTNode> first;         ///< First element expression
+    unique_ptr<ASTNode> second;        ///< Second element expression
+};
+
+/** @brief Tuple creation: Tuple<T>(v1, v2, ...) up to 5 elements */
+struct TupleCreate : ASTNode {
+    string element_type;                    ///< Type of elements (homogeneous)
+    vector<unique_ptr<ASTNode>> elements;   ///< Element expressions (2-5 elements)
 };
 
 /** @brief A single case in a select statement */

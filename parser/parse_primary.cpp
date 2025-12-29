@@ -51,6 +51,16 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return addr;
     }
 
+    // Handle unary negation: -expr
+    if (check(state, TokenType::MINUS)) {
+        int start_line = current(state).line;
+        advance(state);
+        auto negate = make_unique<NegateExpr>();
+        negate->value = parse_primary(state);
+        negate->line = start_line;
+        return negate;
+    }
+
     // Parenthesized expression: (expr)
     if (check(state, TokenType::LPAREN)) {
         Token lparen = consume(state, TokenType::LPAREN);
@@ -119,6 +129,81 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return list;
     }
 
+    // Handle pair creation: Pair<int>(a, b)
+    if (check(state, TokenType::PAIR)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        string element_type;
+
+        if (is_type_token(state)) {
+            element_type = token_to_type(current(state).type);
+            advance(state);
+        } else if (check(state, TokenType::IDENT)) {
+            element_type = current(state).value;
+            advance(state);
+        }
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+
+        auto pair = make_unique<PairCreate>();
+        pair->element_type = element_type;
+        pair->line = start_line;
+
+        // Parse first element
+        pair->first = parse_expression(state);
+
+        consume(state, TokenType::COMMA);
+
+        // Parse second element
+        pair->second = parse_expression(state);
+
+        consume(state, TokenType::RPAREN);
+        return pair;
+    }
+
+    // Handle tuple creation: Tuple<int>(v1, v2, ...) up to 5 elements
+    if (check(state, TokenType::TUPLE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        string element_type;
+
+        if (is_type_token(state)) {
+            element_type = token_to_type(current(state).type);
+            advance(state);
+        } else if (check(state, TokenType::IDENT)) {
+            element_type = current(state).value;
+            advance(state);
+        }
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+
+        auto tuple = make_unique<TupleCreate>();
+        tuple->element_type = element_type;
+        tuple->line = start_line;
+
+        // Parse elements (2-5 elements)
+        while (!check(state, TokenType::RPAREN) && !check(state, TokenType::EOF_TOKEN)) {
+            auto elem = parse_expression(state);
+
+            if (elem) {
+                tuple->elements.push_back(move(elem));
+            }
+
+            if (check(state, TokenType::COMMA)) {
+                advance(state);
+            }
+        }
+
+        consume(state, TokenType::RPAREN);
+        return tuple;
+    }
+
     // Handle list literal: [expr, expr, ...]
     if (check(state, TokenType::LBRACKET)) {
         int start_line = current(state).line;
@@ -165,12 +250,6 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         auto lit = make_unique<StringLiteral>(tok.value);
         lit->line = tok.line;
         return lit;
-    }
-
-    if (check(state, TokenType::CHAR_LITERAL)) {
-        Token tok = current(state);
-        advance(state);
-        return make_unique<CharLiteral>(tok.value[0], tok.line);
     }
 
     if (check(state, TokenType::TRUE)) {

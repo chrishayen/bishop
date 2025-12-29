@@ -194,7 +194,7 @@ void collect_constants(TypeCheckerState& state, const Program& program) {
  */
 bool is_primitive_type(const string& type) {
     return type == "int" || type == "str" || type == "bool" ||
-           type == "char" || type == "f32" || type == "f64" ||
+           type == "f32" || type == "f64" ||
            type == "u32" || type == "u64" ||
            type == "cint" || type == "cstr" || type == "void";
 }
@@ -225,6 +225,20 @@ bool is_valid_type(const TypeCheckerState& state, const string& type) {
 
     if (type.rfind("List<", 0) == 0 && type.back() == '>') {
         size_t start = 5;
+        size_t end = type.find('>', start);
+        string element_type = type.substr(start, end - start);
+        return is_valid_type(state, element_type);
+    }
+
+    if (type.rfind("Pair<", 0) == 0 && type.back() == '>') {
+        size_t start = 5;
+        size_t end = type.find('>', start);
+        string element_type = type.substr(start, end - start);
+        return is_valid_type(state, element_type);
+    }
+
+    if (type.rfind("Tuple<", 0) == 0 && type.back() == '>') {
+        size_t start = 6;
         size_t end = type.find('>', start);
         string element_type = type.substr(start, end - start);
         return is_valid_type(state, element_type);

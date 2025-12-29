@@ -44,6 +44,14 @@ TypeInfo check_field_access(TypeCheckerState& state, const FieldAccess& access) 
         struct_type = struct_type.substr(0, struct_type.length() - 1);
     }
 
+    // Handle Pair<T> field access (first, second)
+    if (struct_type.rfind("Pair<", 0) == 0) {
+        size_t start = 5;
+        size_t end = struct_type.find('>', start);
+        string element_type = struct_type.substr(start, end - start);
+        return check_pair_field(state, access, element_type);
+    }
+
     const StructDef* sdef = get_struct(state, struct_type);
 
     if (!sdef) {

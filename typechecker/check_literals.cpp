@@ -54,13 +54,4 @@ TypeInfo check_none_literal(TypeCheckerState& state, const NoneLiteral& lit) {
     return {"none", true, false};
 }
 
-/**
- * Infers the type of a char literal.
- */
-TypeInfo check_char_literal(TypeCheckerState& state, const CharLiteral& lit) {
-    (void)state;
-    (void)lit;
-    return {"char", false, false};
-}
-
 } // namespace typechecker
