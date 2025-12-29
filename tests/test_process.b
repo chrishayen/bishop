@@ -93,15 +93,18 @@ fn test_set_env_and_read() or err {
 }
 
 fn test_set_env_override() or err {
-    _ := process.set_env("BISHOP_TEST_VAR2", "original") or fail err;
-    _ := process.set_env("BISHOP_TEST_VAR2", "updated") or fail err;
+    _a := process.set_env("BISHOP_TEST_VAR2", "original") or fail err;
+    _b := process.set_env("BISHOP_TEST_VAR2", "updated") or fail err;
     value := process.env("BISHOP_TEST_VAR2") or fail err;
     assert_eq("updated", value);
 }
 
 fn test_env_with_or_handler() or err {
-    value := process.env("NONEXISTENT_VAR_ABC") or "default_value";
-    assert_eq("default_value", value);
+    value := process.env("NONEXISTENT_VAR_ABC") or {
+        return;
+    };
+
+    assert_eq(true, false);
 }
 
 fn test_set_env_empty_name_fails() or err {
@@ -137,7 +140,7 @@ fn test_chdir_failure() or err {
 }
 
 fn test_cwd_with_or_handler() or err {
-    dir := process.cwd() or "/fallback";
+    dir := process.cwd() or fail err;
     assert_eq(true, dir.length() > 0);
 }
 
