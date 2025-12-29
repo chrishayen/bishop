@@ -46,9 +46,9 @@ fn test_const_inferred_float() {
     assert_eq(E, 2.71828);
 }
 
-fn test_const_char_explicit() {
-    const char LETTER = 'A';
-    assert_eq(LETTER, 'A');
+fn test_const_single_char_string() {
+    const str LETTER = 'A';
+    assert_eq(LETTER, "A");
 }
 
 fn test_const_with_expression() {
