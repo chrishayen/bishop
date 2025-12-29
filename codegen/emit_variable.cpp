@@ -40,4 +40,19 @@ string assignment(const string& name, const string& value) {
     return fmt::format("{} = {};", name, value);
 }
 
+/**
+ * Generates a module-level constant declaration.
+ * Emits: static const type name = value;
+ */
+string generate_module_constant(CodeGenState& state, const VariableDecl& decl) {
+    string val_str = emit(state, *decl.value);
+    string t = decl.type.empty() ? "auto" : map_type(decl.type);
+
+    if (decl.is_optional) {
+        return fmt::format("static const std::optional<{}> {} = {};\n", t, decl.name, val_str);
+    }
+
+    return fmt::format("static const {} {} = {};\n", t, decl.name, val_str);
+}
+
 } // namespace codegen

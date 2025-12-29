@@ -123,6 +123,9 @@ std::string struct_literal(const std::string& name, const std::vector<std::pair<
 std::string field_access(const std::string& object, const std::string& field);
 std::string field_assignment(const std::string& object, const std::string& field, const std::string& value);
 
+// Module-level constant emission (emit_variable.cpp)
+std::string generate_module_constant(CodeGenState& state, const VariableDecl& decl);
+
 // Error emission (emit_error.cpp)
 std::string generate_error(CodeGenState& state, const ErrorDef& def);
 std::string error_literal(const std::string& name, const std::string& message, const std::vector<std::pair<std::string, std::string>>& field_values);

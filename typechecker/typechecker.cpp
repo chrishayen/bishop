@@ -86,6 +86,7 @@ bool check(TypeCheckerState& state, const Program& program, const string& fname)
     collect_methods(state, program);
     collect_functions(state, program);
     collect_extern_functions(state, program);
+    collect_constants(state, program);
 
     for (const auto& method : program.methods) {
         check_method(state, *method);
@@ -153,6 +154,38 @@ void collect_functions(TypeCheckerState& state, const Program& program) {
 void collect_extern_functions(TypeCheckerState& state, const Program& program) {
     for (const auto& e : program.externs) {
         state.extern_functions[e->name] = e.get();
+    }
+}
+
+/**
+ * Collects all module-level const declarations into the module_constants symbol table.
+ * Also validates that each const initializer has a valid type.
+ */
+void collect_constants(TypeCheckerState& state, const Program& program) {
+    for (const auto& c : program.constants) {
+        if (state.module_constants.find(c->name) != state.module_constants.end()) {
+            error(state, "duplicate module-level const '" + c->name + "'", c->line);
+            continue;
+        }
+
+        if (c->value) {
+            TypeInfo init_type = infer_type(state, *c->value);
+
+            if (!c->type.empty()) {
+                TypeInfo expected = {c->type, c->is_optional, false};
+
+                if (!types_compatible(expected, init_type)) {
+                    error(state, "cannot assign '" + format_type(init_type) + "' to const of type '" + format_type(expected) + "'", c->line);
+                }
+
+                TypeInfo type_info = {c->type, c->is_optional, false, false, true};
+                state.module_constants[c->name] = type_info;
+            } else {
+                TypeInfo type_info = init_type;
+                type_info.is_const = true;
+                state.module_constants[c->name] = type_info;
+            }
+        }
     }
 }
 
@@ -386,6 +419,43 @@ const MethodDef* get_qualified_method(const TypeCheckerState& state, const strin
     for (const auto* m : it->second->get_public_methods(struct_name)) {
         if (m->name == method_name) {
             return m;
+        }
+    }
+
+    return nullptr;
+}
+
+/**
+ * Looks up a module-level constant by name.
+ */
+const TypeInfo* get_module_constant(const TypeCheckerState& state, const string& name) {
+    auto it = state.module_constants.find(name);
+
+    if (it != state.module_constants.end()) {
+        return &it->second;
+    }
+
+    return nullptr;
+}
+
+/**
+ * Looks up a constant in an imported module by module alias and constant name.
+ */
+const TypeInfo* get_qualified_constant(const TypeCheckerState& state, const string& module, const string& name) {
+    auto it = state.imported_modules.find(module);
+
+    if (it == state.imported_modules.end()) {
+        return nullptr;
+    }
+
+    for (const auto& c : it->second->ast->constants) {
+        if (c->name == name) {
+            // Build a TypeInfo for the constant
+            // This is a simplification - we rely on type inference
+            static TypeInfo cached;
+            cached.base_type = c->type;
+            cached.is_const = true;
+            return &cached;
         }
     }
 

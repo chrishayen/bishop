@@ -409,4 +409,5 @@ struct Program : ASTNode {
     vector<unique_ptr<FunctionDef>> functions;        ///< All function definitions
     vector<unique_ptr<MethodDef>> methods;            ///< All method definitions
     vector<unique_ptr<ExternFunctionDef>> externs;    ///< All extern function declarations
+    vector<unique_ptr<VariableDecl>> constants;       ///< Module-level const declarations
 };

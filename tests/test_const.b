@@ -1,5 +1,11 @@
 // Tests for const keyword
 
+// Module-level constants
+const int MODULE_MAX_SIZE = 100;
+const str MODULE_NAME = "Bishop";
+const MODULE_VERSION := "1.0.0";
+const f64 MODULE_PI = 3.14159;
+
 fn test_const_int_explicit() {
     const int MAX_SIZE = 100;
     assert_eq(MAX_SIZE, 100);
@@ -87,6 +93,50 @@ fn test_const_in_loop() {
 
     for i in 0..LIMIT {
         sum = sum + i;
+    }
+
+    assert_eq(sum, 10);
+}
+
+// Tests for module-level constants
+fn test_module_level_const_int() {
+    assert_eq(MODULE_MAX_SIZE, 100);
+}
+
+fn test_module_level_const_str() {
+    assert_eq(MODULE_NAME, "Bishop");
+}
+
+fn test_module_level_const_inferred() {
+    assert_eq(MODULE_VERSION, "1.0.0");
+}
+
+fn test_module_level_const_f64() {
+    assert_eq(MODULE_PI, 3.14159);
+}
+
+fn test_module_const_in_expression() {
+    result := MODULE_MAX_SIZE * 2;
+    assert_eq(result, 200);
+}
+
+fn test_module_const_in_condition() {
+    x := 50;
+
+    if x < MODULE_MAX_SIZE {
+        assert_eq(true, true);
+    } else {
+        assert_eq(true, false);
+    }
+}
+
+fn test_module_const_in_loop() {
+    sum := 0;
+
+    for i in 0..MODULE_MAX_SIZE {
+        if i < 5 {
+            sum = sum + i;
+        }
     }
 
     assert_eq(sum, 10);

@@ -161,6 +161,15 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
         out += generate_struct(state, *s) + "\n\n";
     }
 
+    // Emit module-level constants
+    for (const auto& c : module.ast->constants) {
+        out += generate_module_constant(state, *c);
+    }
+
+    if (!module.ast->constants.empty()) {
+        out += "\n";
+    }
+
     for (const auto* f : module.get_public_functions()) {
         out += generate_function(state, *f);
     }
@@ -203,6 +212,15 @@ string generate(CodeGenState& state, const unique_ptr<Program>& program, bool te
 
     for (const auto& e : program->errors) {
         out += generate_error(state, *e) + "\n";
+    }
+
+    // Emit module-level constants
+    for (const auto& c : program->constants) {
+        out += generate_module_constant(state, *c);
+    }
+
+    if (!program->constants.empty()) {
+        out += "\n";
     }
 
     for (const auto& fn : program->functions) {
@@ -276,6 +294,15 @@ string generate_with_imports(
 
     for (const auto& e : program->errors) {
         out += generate_error(state, *e) + "\n";
+    }
+
+    // Emit module-level constants
+    for (const auto& c : program->constants) {
+        out += generate_module_constant(state, *c);
+    }
+
+    if (!program->constants.empty()) {
+        out += "\n";
     }
 
     for (const auto& fn : program->functions) {

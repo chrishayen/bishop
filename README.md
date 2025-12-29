@@ -101,6 +101,32 @@ const int X = 42;
 X = 100;  // ERROR: cannot assign to const variable 'X'
 ```
 
+### Module-Level Constants
+
+Constants can be declared at the module level (outside of functions):
+
+```bishop
+// config.b
+const int MAX_CONNECTIONS = 100;
+const str VERSION = "1.0.0";
+
+fn get_max_connections() -> int {
+    return MAX_CONNECTIONS;  // access module-level const
+}
+```
+
+Module-level constants can be accessed from other modules using qualified names:
+
+```bishop
+// main.b
+import config;
+
+fn main() {
+    print(config.MAX_CONNECTIONS);  // 100
+    print(config.VERSION);          // "1.0.0"
+}
+```
+
 ## Functions
 
 ### Basic Function
