@@ -1186,12 +1186,12 @@ rare := random.bool_prob(0.1);
 ```bishop
 items := ["a", "b", "c", "d", "e"];
 
-// Random element from string list
-pick := random.choice(items);
+// Random element from string list (fails on empty list)
+pick := random.choice(items) or return;
 
-// Random element from int list
+// Random element from int list (fails on empty list)
 nums := [10, 20, 30];
-num := random.choice_int(nums);
+num := random.choice_int(nums) or return;
 
 // Shuffle in place
 random.shuffle(items);
@@ -1219,8 +1219,8 @@ print(random.int(1, 100));  // always same sequence with seed 42
 | `float_range(min, max) -> f64` | Random float in [min, max) |
 | `bool() -> bool` | Random boolean (50/50) |
 | `bool_prob(p) -> bool` | Random boolean with probability p |
-| `choice(list) -> str` | Random element from string list |
-| `choice_int(list) -> int` | Random element from int list |
+| `choice(list) -> str or err` | Random element from string list |
+| `choice_int(list) -> int or err` | Random element from int list |
 | `shuffle(list)` | Shuffle string list in place |
 | `shuffle_int(list)` | Shuffle int list in place |
 | `sample(list, n) -> List<str>` | Sample n elements from string list |

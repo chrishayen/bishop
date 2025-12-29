@@ -65,10 +65,10 @@
  * @module random
  * @description Selects a random element from a string list.
  * @param list List<str> - The list to choose from
- * @returns str - A random element from the list
+ * @returns str or err - A random element from the list, or error if list is empty
  * @example
  * items := ["a", "b", "c"];
- * pick := random.choice(items);
+ * pick := random.choice(items) or return;
  */
 
 /**
@@ -76,10 +76,10 @@
  * @module random
  * @description Selects a random element from an integer list.
  * @param list List<int> - The list to choose from
- * @returns int - A random element from the list
+ * @returns int or err - A random element from the list, or error if list is empty
  * @example
  * nums := [10, 20, 30];
- * pick := random.choice_int(nums);
+ * pick := random.choice_int(nums) or return;
  */
 
 /**
@@ -189,20 +189,22 @@ unique_ptr<Program> create_random_module() {
     bool_prob_fn->return_type = "bool";
     program->functions.push_back(move(bool_prob_fn));
 
-    // fn choice(List<str> list) -> str
+    // fn choice(List<str> list) -> str or err
     auto choice_fn = make_unique<FunctionDef>();
     choice_fn->name = "choice";
     choice_fn->visibility = Visibility::Public;
     choice_fn->params.push_back({"List<str>", "list"});
     choice_fn->return_type = "str";
+    choice_fn->error_type = "err";
     program->functions.push_back(move(choice_fn));
 
-    // fn choice_int(List<int> list) -> int
+    // fn choice_int(List<int> list) -> int or err
     auto choice_int_fn = make_unique<FunctionDef>();
     choice_int_fn->name = "choice_int";
     choice_int_fn->visibility = Visibility::Public;
     choice_int_fn->params.push_back({"List<int>", "list"});
     choice_int_fn->return_type = "int";
+    choice_int_fn->error_type = "err";
     program->functions.push_back(move(choice_int_fn));
 
     // fn shuffle(List<str> list) - void, mutates in place

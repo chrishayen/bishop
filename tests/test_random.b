@@ -155,7 +155,7 @@ fn test_choice_returns_element_from_list() {
     i := 0;
 
     while i < 100 {
-        pick := random.choice(items);
+        pick := random.choice(items) or return;
         assert_eq(true, items.contains(pick));
         i = i + 1;
     }
@@ -163,8 +163,20 @@ fn test_choice_returns_element_from_list() {
 
 fn test_choice_single_element() {
     items := ["only"];
-    pick := random.choice(items);
+    pick := random.choice(items) or return;
     assert_eq("only", pick);
+}
+
+fn test_choice_empty_list_fails() {
+    items := List<str>();
+    passed := false;
+
+    result := random.choice(items) or {
+        passed = true;
+        return;
+    };
+
+    assert_eq(passed, true);
 }
 
 fn test_choice_int_list() {
@@ -172,10 +184,22 @@ fn test_choice_int_list() {
     i := 0;
 
     while i < 100 {
-        pick := random.choice_int(items);
+        pick := random.choice_int(items) or return;
         assert_eq(true, items.contains(pick));
         i = i + 1;
     }
+}
+
+fn test_choice_int_empty_list_fails() {
+    items := List<int>();
+    passed := false;
+
+    result := random.choice_int(items) or {
+        passed = true;
+        return;
+    };
+
+    assert_eq(passed, true);
 }
 
 // ============================================================
@@ -237,6 +261,37 @@ fn test_sample_int_list() {
     items := [1, 2, 3, 4, 5];
     sampled := random.sample_int(items, 2);
     assert_eq(2, sampled.length());
+}
+
+fn test_sample_count_exceeds_list_size() {
+    items := ["a", "b", "c"];
+    sampled := random.sample(items, 10);
+    // Should clamp to list size
+    assert_eq(3, sampled.length());
+}
+
+fn test_sample_zero_count() {
+    items := ["a", "b", "c"];
+    sampled := random.sample(items, 0);
+    assert_eq(0, sampled.length());
+}
+
+fn test_sample_negative_count() {
+    items := ["a", "b", "c"];
+    sampled := random.sample(items, -5);
+    assert_eq(0, sampled.length());
+}
+
+fn test_sample_empty_list() {
+    items := List<str>();
+    sampled := random.sample(items, 3);
+    assert_eq(0, sampled.length());
+}
+
+fn test_sample_int_count_exceeds_list_size() {
+    items := [1, 2, 3];
+    sampled := random.sample_int(items, 10);
+    assert_eq(3, sampled.length());
 }
 
 // ============================================================

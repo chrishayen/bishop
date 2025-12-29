@@ -10,6 +10,7 @@
 #pragma once
 
 #include <bishop/std.hpp>
+#include <bishop/error.hpp>
 #include <random>
 #include <algorithm>
 #include <vector>
@@ -36,7 +37,6 @@ inline int int_(int min, int max) {
     std::uniform_int_distribution<int> dist(min, max);
     return dist(engine());
 }
-
 
 /**
  * Generates a random floating-point number in [0.0, 1.0).
@@ -88,11 +88,11 @@ inline bool bool_prob(double probability) {
 /**
  * Selects a random element from a string list.
  * @param list The list to choose from
- * @return A random element from the list
+ * @return A random element from the list, or error if list is empty
  */
-inline std::string choice(const std::vector<std::string>& list) {
+inline bishop::rt::Result<std::string> choice(const std::vector<std::string>& list) {
     if (list.empty()) {
-        return "";
+        return bishop::rt::make_error<std::string>("cannot choose from empty list");
     }
 
     std::uniform_int_distribution<size_t> dist(0, list.size() - 1);
@@ -102,11 +102,11 @@ inline std::string choice(const std::vector<std::string>& list) {
 /**
  * Selects a random element from an integer list.
  * @param list The list to choose from
- * @return A random element from the list
+ * @return A random element from the list, or error if list is empty
  */
-inline int choice_int(const std::vector<int>& list) {
+inline bishop::rt::Result<int> choice_int(const std::vector<int>& list) {
     if (list.empty()) {
-        return 0;
+        return bishop::rt::make_error<int>("cannot choose from empty list");
     }
 
     std::uniform_int_distribution<size_t> dist(0, list.size() - 1);
