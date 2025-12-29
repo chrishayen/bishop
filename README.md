@@ -632,8 +632,6 @@ import crypto;
 
 All hash functions return `str or err` with lowercase hex strings.
 
-**Note:** MD5 and SHA1 are cryptographically weak. Do not use for security purposes (password hashing, digital signatures). Use SHA256 or stronger.
-
 ```bishop
 hash := crypto.md5("hello") or return;     // -> "5d41402abc4b2a76b9719d911017c592"
 hash := crypto.sha1("hello") or return;    // -> "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d"

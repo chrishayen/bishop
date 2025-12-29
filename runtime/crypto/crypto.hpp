@@ -62,9 +62,6 @@ inline bishop::rt::Result<std::string> hash_evp(const std::string& data, const E
 /**
  * Computes MD5 hash of a string.
  * Returns Result with lowercase hex string or error.
- *
- * WARNING: MD5 is cryptographically broken. Do not use for security purposes
- * such as password hashing or digital signatures. Use SHA256 or stronger.
  */
 inline bishop::rt::Result<std::string> md5(const std::string& data) {
     return hash_evp(data, EVP_md5());
@@ -73,9 +70,6 @@ inline bishop::rt::Result<std::string> md5(const std::string& data) {
 /**
  * Computes SHA1 hash of a string.
  * Returns Result with lowercase hex string or error.
- *
- * WARNING: SHA1 is cryptographically weak and deprecated for security purposes.
- * Do not use for password hashing or digital signatures. Use SHA256 or stronger.
  */
 inline bishop::rt::Result<std::string> sha1(const std::string& data) {
     return hash_evp(data, EVP_sha1());

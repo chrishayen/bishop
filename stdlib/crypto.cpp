@@ -10,8 +10,6 @@
  * @nog_fn md5
  * @module crypto
  * @description Computes MD5 hash of a string.
- * WARNING: MD5 is cryptographically broken. Do not use for security purposes
- * such as password hashing or digital signatures. Use SHA256 or stronger.
  * @param data str - Data to hash
  * @returns str or err - Lowercase hex string of the hash, or error
  * @example
@@ -24,8 +22,6 @@
  * @nog_fn sha1
  * @module crypto
  * @description Computes SHA1 hash of a string.
- * WARNING: SHA1 is cryptographically weak and deprecated for security purposes.
- * Do not use for password hashing or digital signatures. Use SHA256 or stronger.
  * @param data str - Data to hash
  * @returns str or err - Lowercase hex string of the hash, or error
  * @example
