@@ -276,6 +276,16 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return lit;
     }
 
+    // Handle 'err' keyword as a variable reference in expression context
+    // This allows access to the error variable in or blocks: print(err.message)
+    if (check(state, TokenType::ERR)) {
+        Token tok = current(state);
+        advance(state);
+        auto ref = make_unique<VariableRef>("err");
+        ref->line = tok.line;
+        return ref;
+    }
+
     if (check(state, TokenType::IDENT)) {
         Token tok = current(state);
         advance(state);

@@ -349,6 +349,26 @@ json := "{\"name\": \"Alice\", \"age\": 30}";
 
 Both quote styles produce the same `str` type.
 
+### Raw String Literals
+
+Raw strings are prefixed with `r` and do not process escape sequences. Backslashes are kept as literal characters, making them ideal for regex patterns and file paths:
+
+```bishop
+// Raw double-quoted
+pattern := r"\d+\.\d+";     // Contains literal backslash-d, backslash-dot
+path := r"C:\Users\name";   // Windows path with literal backslashes
+
+// Raw single-quoted
+regex := r'\w+@\w+\.\w+';   // Email pattern
+```
+
+Raw strings are especially useful with the regex module:
+
+```bishop
+import regex;
+re := regex.compile(r"(\d{4})-(\d{2})-(\d{2})") or return;  // Date pattern
+```
+
 ### String Methods
 
 ```bishop

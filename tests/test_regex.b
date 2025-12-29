@@ -361,7 +361,7 @@ fn test_date_extraction() {
 }
 
 fn test_url_parsing() {
-    re := regex.compile(r"(https?)://([^/]+)(/.*)?") or return;
+    re := regex.compile(r"(https?)://([^/]+)(/[^\s]*)?") or return;
     m := re.find("Visit https://example.com/path for more");
     assert_eq(m.found(), true);
     assert_eq(m.group(1), "https");

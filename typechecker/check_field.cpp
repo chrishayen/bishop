@@ -52,6 +52,20 @@ TypeInfo check_field_access(TypeCheckerState& state, const FieldAccess& access) 
         return check_pair_field(state, access, element_type);
     }
 
+    // Handle err type field access (message, cause, root_cause)
+    if (struct_type == "err") {
+        if (access.field_name == "message") {
+            return {"str", false, false};
+        }
+
+        if (access.field_name == "cause" || access.field_name == "root_cause") {
+            return {"err", true, false};  // err? (optional)
+        }
+
+        error(state, "error type has no field '" + access.field_name + "' (valid fields: message, cause, root_cause)", access.line);
+        return {"unknown", false, false};
+    }
+
     const StructDef* sdef = get_struct(state, struct_type);
 
     if (!sdef) {

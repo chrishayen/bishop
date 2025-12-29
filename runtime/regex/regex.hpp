@@ -211,6 +211,7 @@ inline bishop::rt::Result<Regex> compile(const std::string& pattern) {
 /**
  * Split a string by a regex pattern.
  * Returns Result with vector of strings or error if pattern is invalid.
+ * Handles trailing delimiters (e.g., "a,b," splits to ["a", "b", ""]).
  */
 inline bishop::rt::Result<std::vector<std::string>> split(const std::string& pattern, const std::string& text) {
     try {
@@ -222,13 +223,22 @@ inline bishop::rt::Result<std::vector<std::string>> split(const std::string& pat
             return result;
         }
 
-        std::sregex_token_iterator iter(text.begin(), text.end(), re, -1);
-        std::sregex_token_iterator end;
+        // Use regex_search to manually iterate and handle trailing delimiters
+        std::string::const_iterator search_start = text.cbegin();
+        std::smatch match;
+        size_t last_end = 0;
 
-        while (iter != end) {
-            result.push_back(*iter);
-            ++iter;
+        while (std::regex_search(search_start, text.cend(), match, re)) {
+            // Add the text before this match
+            size_t match_start = last_end + static_cast<size_t>(match.position(0));
+            result.push_back(text.substr(last_end, match_start - last_end));
+
+            last_end = match_start + match[0].length();
+            search_start = match.suffix().first;
         }
+
+        // Add any remaining text after the last match (including empty trailing string)
+        result.push_back(text.substr(last_end));
 
         if (result.empty()) {
             result.push_back(text);
