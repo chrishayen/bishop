@@ -113,11 +113,11 @@ fn test_cwd_returns_path() {
 
 fn test_chdir_success() or err {
     original := process.cwd();
-    process.chdir("/tmp") or fail err;
+    _ := process.chdir("/tmp") or fail err;
     new_dir := process.cwd();
     assert_eq("/tmp", new_dir);
 
-    process.chdir(original) or fail err;
+    _ := process.chdir(original) or fail err;
 }
 
 fn test_chdir_failure() or err {
