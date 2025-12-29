@@ -12,6 +12,41 @@ using namespace std;
 namespace codegen {
 
 /**
+ * Extracts the element type from a generic type string using proper bracket matching.
+ *
+ * For example:
+ *   - extract_element_type("List<int>", "List<") returns "int"
+ *   - extract_element_type("Pair<List<int>>", "Pair<") returns "List<int>"
+ *   - extract_element_type("Channel<Pair<str>>", "Channel<") returns "Pair<str>"
+ *
+ * @param generic_type The full generic type string (e.g., "Pair<List<int>>")
+ * @param prefix The expected prefix including the opening bracket (e.g., "Pair<")
+ * @return The element type, or empty string if the type doesn't match the prefix
+ */
+string extract_element_type(const string& generic_type, const string& prefix) {
+    if (generic_type.rfind(prefix, 0) != 0 || generic_type.back() != '>') {
+        return "";
+    }
+
+    size_t start = prefix.length();
+    int depth = 1;
+
+    for (size_t i = start; i < generic_type.size(); i++) {
+        if (generic_type[i] == '<') {
+            depth++;
+        } else if (generic_type[i] == '>') {
+            depth--;
+
+            if (depth == 0) {
+                return generic_type.substr(start, i - start);
+            }
+        }
+    }
+
+    return "";
+}
+
+/**
  * Maps a Bishop type name to its C++ equivalent.
  * Returns the input unchanged if it's a user-defined type (struct).
  * Handles qualified types (module.Type -> module::Type).
@@ -32,25 +67,19 @@ string map_type(const string& t) {
 
     // Handle Channel<T> types: Channel<int> -> bishop::rt::Channel<int>&
     if (t.rfind("Channel<", 0) == 0 && t.back() == '>') {
-        size_t start = 8;
-        size_t end = t.find('>', start);
-        string element_type = t.substr(start, end - start);
+        string element_type = extract_element_type(t, "Channel<");
         return "bishop::rt::Channel<" + map_type(element_type) + ">&";
     }
 
     // Handle List<T> types: List<int> -> std::vector<int>
     if (t.rfind("List<", 0) == 0 && t.back() == '>') {
-        size_t start = 5;
-        size_t end = t.find('>', start);
-        string element_type = t.substr(start, end - start);
+        string element_type = extract_element_type(t, "List<");
         return "std::vector<" + map_type(element_type) + ">";
     }
 
     // Handle Pair<T> types: Pair<int> -> std::pair<int, int>
     if (t.rfind("Pair<", 0) == 0 && t.back() == '>') {
-        size_t start = 5;
-        size_t end = t.find('>', start);
-        string element_type = t.substr(start, end - start);
+        string element_type = extract_element_type(t, "Pair<");
         string cpp_type = map_type(element_type);
         return "std::pair<" + cpp_type + ", " + cpp_type + ">";
     }
@@ -58,9 +87,7 @@ string map_type(const string& t) {
     // Handle Tuple<T> types: Tuple<int> -> std::vector<int>
     // We use vector for homogeneous tuples since all elements are the same type
     if (t.rfind("Tuple<", 0) == 0 && t.back() == '>') {
-        size_t start = 6;
-        size_t end = t.find('>', start);
-        string element_type = t.substr(start, end - start);
+        string element_type = extract_element_type(t, "Tuple<");
         return "std::vector<" + map_type(element_type) + ">";
     }
 

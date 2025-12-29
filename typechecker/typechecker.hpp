@@ -185,6 +185,7 @@ TypeInfo check_struct_literal(TypeCheckerState& state, const StructLiteral& lit)
 // Type utilities (typechecker.cpp)
 bool is_primitive_type(const std::string& type);
 bool is_valid_type(const TypeCheckerState& state, const std::string& type);
+std::string extract_element_type(const std::string& generic_type, const std::string& prefix);
 bool types_compatible(const TypeInfo& expected, const TypeInfo& actual);
 std::string format_type(const TypeInfo& type);
 const StructDef* get_struct(const TypeCheckerState& state, const std::string& name);

@@ -106,30 +106,22 @@ TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall) {
     }
 
     if (effective_type.base_type.rfind("Channel<", 0) == 0) {
-        size_t start = 8;
-        size_t end = effective_type.base_type.find('>', start);
-        string element_type = effective_type.base_type.substr(start, end - start);
+        string element_type = extract_element_type(effective_type.base_type, "Channel<");
         return check_channel_method(state, mcall, element_type);
     }
 
     if (effective_type.base_type.rfind("List<", 0) == 0) {
-        size_t start = 5;
-        size_t end = effective_type.base_type.find('>', start);
-        string element_type = effective_type.base_type.substr(start, end - start);
+        string element_type = extract_element_type(effective_type.base_type, "List<");
         return check_list_method(state, mcall, element_type);
     }
 
     if (effective_type.base_type.rfind("Pair<", 0) == 0) {
-        size_t start = 5;
-        size_t end = effective_type.base_type.find('>', start);
-        string element_type = effective_type.base_type.substr(start, end - start);
+        string element_type = extract_element_type(effective_type.base_type, "Pair<");
         return check_pair_method(state, mcall, element_type);
     }
 
     if (effective_type.base_type.rfind("Tuple<", 0) == 0) {
-        size_t start = 6;
-        size_t end = effective_type.base_type.find('>', start);
-        string element_type = effective_type.base_type.substr(start, end - start);
+        string element_type = extract_element_type(effective_type.base_type, "Tuple<");
         return check_tuple_method(state, mcall, element_type);
     }
 

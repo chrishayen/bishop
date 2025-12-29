@@ -200,6 +200,41 @@ bool is_primitive_type(const string& type) {
 }
 
 /**
+ * Extracts the element type from a generic type string using proper bracket matching.
+ *
+ * For example:
+ *   - extract_element_type("List<int>", "List<") returns "int"
+ *   - extract_element_type("Pair<List<int>>", "Pair<") returns "List<int>"
+ *   - extract_element_type("Channel<Pair<str>>", "Channel<") returns "Pair<str>"
+ *
+ * @param generic_type The full generic type string (e.g., "Pair<List<int>>")
+ * @param prefix The expected prefix including the opening bracket (e.g., "Pair<")
+ * @return The element type, or empty string if the type doesn't match the prefix
+ */
+string extract_element_type(const string& generic_type, const string& prefix) {
+    if (generic_type.rfind(prefix, 0) != 0 || generic_type.back() != '>') {
+        return "";
+    }
+
+    size_t start = prefix.length();
+    int depth = 1;
+
+    for (size_t i = start; i < generic_type.size(); i++) {
+        if (generic_type[i] == '<') {
+            depth++;
+        } else if (generic_type[i] == '>') {
+            depth--;
+
+            if (depth == 0) {
+                return generic_type.substr(start, i - start);
+            }
+        }
+    }
+
+    return "";
+}
+
+/**
  * Checks if a type is valid (either a primitive, a known struct, channel,
  * function type, or a qualified module type).
  */
@@ -217,30 +252,42 @@ bool is_valid_type(const TypeCheckerState& state, const string& type) {
     }
 
     if (type.rfind("Channel<", 0) == 0 && type.back() == '>') {
-        size_t start = 8;
-        size_t end = type.find('>', start);
-        string element_type = type.substr(start, end - start);
+        string element_type = extract_element_type(type, "Channel<");
+
+        if (element_type.empty()) {
+            return false;
+        }
+
         return is_valid_type(state, element_type);
     }
 
     if (type.rfind("List<", 0) == 0 && type.back() == '>') {
-        size_t start = 5;
-        size_t end = type.find('>', start);
-        string element_type = type.substr(start, end - start);
+        string element_type = extract_element_type(type, "List<");
+
+        if (element_type.empty()) {
+            return false;
+        }
+
         return is_valid_type(state, element_type);
     }
 
     if (type.rfind("Pair<", 0) == 0 && type.back() == '>') {
-        size_t start = 5;
-        size_t end = type.find('>', start);
-        string element_type = type.substr(start, end - start);
+        string element_type = extract_element_type(type, "Pair<");
+
+        if (element_type.empty()) {
+            return false;
+        }
+
         return is_valid_type(state, element_type);
     }
 
     if (type.rfind("Tuple<", 0) == 0 && type.back() == '>') {
-        size_t start = 6;
-        size_t end = type.find('>', start);
-        string element_type = type.substr(start, end - start);
+        string element_type = extract_element_type(type, "Tuple<");
+
+        if (element_type.empty()) {
+            return false;
+        }
+
         return is_valid_type(state, element_type);
     }
 

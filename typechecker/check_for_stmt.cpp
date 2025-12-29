@@ -40,10 +40,7 @@ void check_for_stmt(TypeCheckerState& state, const ForStmt& for_stmt) {
         if (iter_type.base_type.rfind("List<", 0) != 0) {
             error(state, "for-each requires a List, got '" + format_type(iter_type) + "'", for_stmt.line);
         } else {
-            size_t start = 5;
-            size_t end = iter_type.base_type.find('>', start);
-            string element_type = iter_type.base_type.substr(start, end - start);
-
+            string element_type = extract_element_type(iter_type.base_type, "List<");
             loop_var_type = {element_type, false, false};
         }
     }
