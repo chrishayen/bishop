@@ -38,6 +38,8 @@ install: build
 	@cp $(BUILD_DIR)/include/bishop/http.hpp.gch ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/fs.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/crypto.hpp ~/.local/include/bishop/
+	@cp $(BUILD_DIR)/include/bishop/net.hpp ~/.local/include/bishop/
+	@cp $(BUILD_DIR)/include/bishop/net.hpp.gch ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/process.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/fiber_asio/*.hpp ~/.local/include/bishop/fiber_asio/
 	@cp $(BUILD_DIR)/include/llhttp.h ~/.local/include/
