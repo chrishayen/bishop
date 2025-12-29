@@ -230,6 +230,20 @@ bool is_valid_type(const TypeCheckerState& state, const string& type) {
         return is_valid_type(state, element_type);
     }
 
+    if (type.rfind("Pair<", 0) == 0 && type.back() == '>') {
+        size_t start = 5;
+        size_t end = type.find('>', start);
+        string element_type = type.substr(start, end - start);
+        return is_valid_type(state, element_type);
+    }
+
+    if (type.rfind("Tuple<", 0) == 0 && type.back() == '>') {
+        size_t start = 6;
+        size_t end = type.find('>', start);
+        string element_type = type.substr(start, end - start);
+        return is_valid_type(state, element_type);
+    }
+
     // Pointer type: StructName* -> check that base is a valid struct
     if (!type.empty() && type.back() == '*') {
         string pointee = type.substr(0, type.length() - 1);

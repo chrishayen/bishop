@@ -392,6 +392,90 @@ nums.insert(1, 15);      // insert element at index
 nums.remove(1);          // remove element at index
 ```
 
+## Pairs
+
+Pairs hold exactly two values of the same type.
+
+### Pair Creation
+
+```bishop
+p := Pair<int>(1, 2);
+names := Pair<str>("hello", "world");
+```
+
+### Pair Field Access
+
+```bishop
+p := Pair<int>(10, 20);
+x := p.first;   // 10
+y := p.second;  // 20
+```
+
+### Pair get() with default
+
+```bishop
+p := Pair<int>(10, 20);
+x := p.get(0) default 0;   // 10 (first element)
+y := p.get(1) default 0;   // 20 (second element)
+z := p.get(2) default 99;  // 99 (out of bounds, uses default)
+```
+
+### Pair as Return Type
+
+```bishop
+fn divide(int a, int b) -> Pair<int> {
+    quotient := a / b;
+    remainder := a - quotient * b;
+    return Pair<int>(quotient, remainder);
+}
+
+result := divide(17, 5);
+quotient := result.first;   // 3
+remainder := result.second; // 2
+```
+
+## Tuples
+
+Tuples hold 2-5 values of the same type.
+
+### Tuple Creation
+
+```bishop
+t2 := Tuple<int>(1, 2);
+t3 := Tuple<str>("a", "b", "c");
+t5 := Tuple<int>(1, 2, 3, 4, 5);
+```
+
+### Tuple Access with get()
+
+```bishop
+t := Tuple<int>(10, 20, 30);
+x := t.get(0) default 0;   // 10
+y := t.get(1) default 0;   // 20
+z := t.get(2) default 0;   // 30
+out := t.get(10) default 99;  // 99 (out of bounds)
+```
+
+### Tuple with Variable Index
+
+```bishop
+t := Tuple<str>("a", "b", "c");
+idx := 2;
+val := t.get(idx) default "fallback";  // "c"
+```
+
+### Tuple in Loops
+
+```bishop
+t := Tuple<int>(1, 2, 3, 4, 5);
+sum := 0;
+
+for i in 0..5 {
+    sum = sum + (t.get(i) default 0);
+}
+// sum is 15
+```
+
 ## Error Handling
 
 ### Error Types
@@ -1025,4 +1109,4 @@ sleep(100);       // sleep for 100 milliseconds
 
 ## Keywords
 
-`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`
+`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `Pair`, `Tuple`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`

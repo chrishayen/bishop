@@ -70,6 +70,10 @@ add_library(bishop_lib
     typechecker/check_select_stmt.cpp
     typechecker/strings.cpp
     typechecker/lists.cpp
+    typechecker/pairs.cpp
+    typechecker/tuples.cpp
+    typechecker/check_pair.cpp
+    typechecker/check_tuple.cpp
     codegen/codegen.cpp
     codegen/emit_type.cpp
     codegen/emit_expression.cpp
@@ -94,6 +98,8 @@ add_library(bishop_lib
     codegen/emit_go_spawn.cpp
     codegen/emit_channel.cpp
     codegen/emit_list.cpp
+    codegen/emit_pair.cpp
+    codegen/emit_tuple.cpp
     codegen/emit_method_call.cpp
     codegen/emit_function_call.cpp
     codegen/emit_field.cpp

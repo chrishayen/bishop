@@ -78,6 +78,15 @@ std::string emit_list_create(const ListCreate& list);
 std::string emit_list_literal(CodeGenState& state, const ListLiteral& list);
 std::string emit_list_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
 
+// Pair (emit_pair.cpp)
+std::string emit_pair_create(CodeGenState& state, const PairCreate& pair);
+std::string emit_pair_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
+std::string emit_pair_field_access(const std::string& obj_str, const std::string& field_name);
+
+// Tuple (emit_tuple.cpp)
+std::string emit_tuple_create(CodeGenState& state, const TupleCreate& tuple);
+std::string emit_tuple_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
+
 // Method call (emit_method_call.cpp)
 std::string method_call(const std::string& object, const std::string& method, const std::vector<std::string>& args);
 std::string emit_method_call(CodeGenState& state, const MethodCall& call);

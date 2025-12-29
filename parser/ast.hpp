@@ -171,6 +171,19 @@ struct ListLiteral : ASTNode {
     vector<unique_ptr<ASTNode>> elements;  ///< List element expressions
 };
 
+/** @brief Pair creation: Pair<T>(a, b) */
+struct PairCreate : ASTNode {
+    string element_type;               ///< Type of elements (homogeneous)
+    unique_ptr<ASTNode> first;         ///< First element expression
+    unique_ptr<ASTNode> second;        ///< Second element expression
+};
+
+/** @brief Tuple creation: Tuple<T>(v1, v2, ...) up to 5 elements */
+struct TupleCreate : ASTNode {
+    string element_type;                    ///< Type of elements (homogeneous)
+    vector<unique_ptr<ASTNode>> elements;   ///< Element expressions (2-5 elements)
+};
+
 /** @brief A single case in a select statement */
 struct SelectCase : ASTNode {
     string binding_name;              ///< Variable to bind result (empty for send)

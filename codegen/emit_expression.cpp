@@ -84,6 +84,14 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return emit_list_literal(state, *list);
     }
 
+    if (auto* pair = dynamic_cast<const PairCreate*>(&node)) {
+        return emit_pair_create(state, *pair);
+    }
+
+    if (auto* tuple = dynamic_cast<const TupleCreate*>(&node)) {
+        return emit_tuple_create(state, *tuple);
+    }
+
     if (auto* qref = dynamic_cast<const QualifiedRef*>(&node)) {
         return emit_qualified_ref(*qref);
     }
