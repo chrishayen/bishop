@@ -49,8 +49,55 @@ jobs:
           cp -r build/include/* release/include/
           cd release && tar -czvf ../bishop-linux-x64-${{ github.ref_name }}.tar.gz .
 
+      - name: Build .deb package
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
+          PKG_DIR="bishop_${VERSION}_amd64"
+
+          mkdir -p "${PKG_DIR}/DEBIAN"
+          mkdir -p "${PKG_DIR}/usr/local/bin"
+          mkdir -p "${PKG_DIR}/usr/local/lib/bishop"
+          mkdir -p "${PKG_DIR}/usr/local/include/bishop/fiber_asio"
+
+          cat > "${PKG_DIR}/DEBIAN/control" << EOF
+          Package: bishop
+          Version: ${VERSION}
+          Section: devel
+          Priority: optional
+          Architecture: amd64
+          Maintainer: Chris Hayen <chris@shotgun.dev>
+          Description: Bishop programming language compiler
+           Bishop is a modern programming language that transpiles to C++.
+           It combines the power of C++ with an elegant, Python-inspired
+           syntax designed for readability and ease of use.
+          EOF
+
+          sed -i 's/^          //' "${PKG_DIR}/DEBIAN/control"
+
+          cp build/bishop "${PKG_DIR}/usr/local/bin/"
+          cp build/lib/libbishop_std_runtime.a "${PKG_DIR}/usr/local/lib/bishop/"
+          cp build/lib/libbishop_http_runtime.a "${PKG_DIR}/usr/local/lib/bishop/"
+          cp build/lib/libllhttp.a "${PKG_DIR}/usr/local/lib/bishop/"
+          cp build/include/bishop/std.hpp "${PKG_DIR}/usr/local/include/bishop/"
+          cp build/include/bishop/std.hpp.gch "${PKG_DIR}/usr/local/include/bishop/"
+          cp build/include/bishop/error.hpp "${PKG_DIR}/usr/local/include/bishop/"
+          cp build/include/bishop/http.hpp "${PKG_DIR}/usr/local/include/bishop/"
+          cp build/include/bishop/http.hpp.gch "${PKG_DIR}/usr/local/include/bishop/"
+          cp build/include/bishop/fs.hpp "${PKG_DIR}/usr/local/include/bishop/"
+          cp build/include/bishop/net.hpp "${PKG_DIR}/usr/local/include/bishop/"
+          cp build/include/bishop/net.hpp.gch "${PKG_DIR}/usr/local/include/bishop/"
+          cp build/include/bishop/process.hpp "${PKG_DIR}/usr/local/include/bishop/"
+          cp build/include/bishop/fiber_asio/*.hpp "${PKG_DIR}/usr/local/include/bishop/fiber_asio/"
+          cp build/include/llhttp.h "${PKG_DIR}/usr/local/include/"
+
+          dpkg-deb --build --root-owner-group "${PKG_DIR}"
+          mv "${PKG_DIR}.deb" "bishop-linux-x64-${{ github.ref_name }}.deb"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: bishop-linux-x64-${{ github.ref_name }}.tar.gz
+          files: |
+            bishop-linux-x64-${{ github.ref_name }}.tar.gz
+            bishop-linux-x64-${{ github.ref_name }}.deb
           generate_release_notes: true
