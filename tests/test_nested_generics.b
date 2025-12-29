@@ -179,3 +179,84 @@ fn test_list_of_list_of_int() {
     assert_eq(outer.get(0).get(0), 1);
     assert_eq(outer.get(1).get(1), 4);
 }
+
+// ============================================
+// Channel with Nested Generic Types
+// ============================================
+
+fn list_sender(Channel<List<int>> ch, List<int> val) {
+    ch.send(val);
+}
+
+fn test_channel_of_list_int() {
+    ch := Channel<List<int>>();
+    list := [1, 2, 3];
+
+    go list_sender(ch, list);
+
+    received := ch.recv();
+    assert_eq(received.length(), 3);
+    assert_eq(received.get(0), 1);
+    assert_eq(received.get(2), 3);
+}
+
+fn pair_sender(Channel<Pair<int>> ch, Pair<int> val) {
+    ch.send(val);
+}
+
+fn test_channel_of_pair_int() {
+    ch := Channel<Pair<int>>();
+    p := Pair<int>(10, 20);
+
+    go pair_sender(ch, p);
+
+    received := ch.recv();
+    assert_eq(received.first, 10);
+    assert_eq(received.second, 20);
+}
+
+fn tuple_sender(Channel<Tuple<int>> ch, Tuple<int> val) {
+    ch.send(val);
+}
+
+fn test_channel_of_tuple_int() {
+    ch := Channel<Tuple<int>>();
+    t := Tuple<int>(100, 200, 300);
+
+    go tuple_sender(ch, t);
+
+    received := ch.recv();
+    first := received.get(0) default 0;
+    second := received.get(1) default 0;
+    third := received.get(2) default 0;
+    assert_eq(first, 100);
+    assert_eq(second, 200);
+    assert_eq(third, 300);
+}
+
+fn test_channel_of_list_str() {
+    ch := Channel<List<str>>();
+    list := ["hello", "world"];
+
+    go fn() {
+        ch.send(list);
+    }();
+
+    received := ch.recv();
+    assert_eq(received.length(), 2);
+    assert_eq(received.get(0), "hello");
+    assert_eq(received.get(1), "world");
+}
+
+// Test typed declaration for Channel with nested generic
+fn test_typed_channel_of_list() {
+    Channel<List<int>> ch = Channel<List<int>>();
+    list := [42];
+
+    go fn() {
+        ch.send(list);
+    }();
+
+    received := ch.recv();
+    assert_eq(received.get(0), 42);
+}
