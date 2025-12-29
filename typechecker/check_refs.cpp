@@ -60,7 +60,7 @@ TypeInfo check_function_ref(TypeCheckerState& state, const FunctionRef& fref) {
 
 /**
  * Infers the type of a qualified reference.
- * Checks for qualified structs and qualified constants.
+ * Checks for qualified structs, qualified constants, and qualified functions.
  */
 TypeInfo check_qualified_ref(TypeCheckerState& state, const QualifiedRef& qref) {
     const StructDef* s = get_qualified_struct(state, qref.module_name, qref.name);
@@ -74,6 +74,13 @@ TypeInfo check_qualified_ref(TypeCheckerState& state, const QualifiedRef& qref) 
 
     if (c) {
         return *c;
+    }
+
+    // Check for qualified function (for function references as arguments)
+    const FunctionDef* func = get_qualified_function(state, qref.module_name, qref.name);
+
+    if (func) {
+        return {"fn:" + qref.module_name + "." + qref.name, false, false};
     }
 
     error(state, "undefined reference '" + qref.module_name + "." + qref.name + "'", qref.line);
