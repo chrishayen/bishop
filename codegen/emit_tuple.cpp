@@ -30,14 +30,16 @@ string emit_tuple_create(CodeGenState& state, const TupleCreate& tuple) {
 
 /**
  * Emits a tuple method call, mapping Bishop methods to std::vector equivalents.
+ *
+ * Note: When get() is used with the `default` expression pattern, bounds
+ * checking is handled by emit_default_expr in emit_or.cpp. When used
+ * without `default`, at() throws std::out_of_range for invalid indices.
  */
 string emit_tuple_method_call(CodeGenState& state, const MethodCall& call, const string& obj_str, const vector<string>& args) {
     if (call.method_name == "get") {
         // t.get(index) - returns element at index
-        // This is used with default, so we need bounds checking
-        // The at() method throws on out of bounds, but we want default value
-        // We'll use a conditional expression
-        return "(static_cast<size_t>(" + args[0] + ") < " + obj_str + ".size() && " + args[0] + " >= 0 ? " + obj_str + "[" + args[0] + "] : " + obj_str + "[0])";
+        // Use at() for bounds-checked access that throws on out-of-bounds
+        return obj_str + ".at(" + args[0] + ")";
     }
 
     // Unknown tuple method - fall back to generic method call
