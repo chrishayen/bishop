@@ -11,19 +11,10 @@ using namespace std;
 namespace codegen {
 
 /**
- * Checks if a character is a valid escape sequence character.
- * Valid escape characters: n, t, r, ", ', \
- */
-bool is_escape_char(char c) {
-    return c == 'n' || c == 't' || c == 'r' || c == '"' || c == '\'' || c == '\\';
-}
-
-/**
  * Escapes special characters in a string for C++ string literals.
  *
- * Preserves valid escape sequences like \n, \t, \r, \", \', \\
- * so they are passed through to the C++ compiler for interpretation.
- * Only escapes backslashes that are NOT part of valid escape sequences.
+ * The lexer has already processed escape sequences (e.g., \n -> newline char),
+ * so this function converts actual characters to their C++ escape sequences.
  */
 string escape_string(const string& value) {
     string result;
@@ -32,20 +23,13 @@ string escape_string(const string& value) {
     for (size_t i = 0; i < value.size(); i++) {
         char c = value[i];
 
-        if (c == '\\' && i + 1 < value.size() && is_escape_char(value[i + 1])) {
-            // Preserve valid escape sequences by copying both characters
-            result += c;             // backslash
-            result += value[i + 1];  // escape character
-            i++;                     // skip the escape character in the next iteration
-        } else {
-            switch (c) {
-                case '"':  result += "\\\""; break;
-                case '\\': result += "\\\\"; break;
-                case '\n': result += "\\n"; break;
-                case '\t': result += "\\t"; break;
-                case '\r': result += "\\r"; break;
-                default:   result += c; break;
-            }
+        switch (c) {
+            case '"':  result += "\\\""; break;
+            case '\\': result += "\\\\"; break;
+            case '\n': result += "\\n"; break;
+            case '\t': result += "\\t"; break;
+            case '\r': result += "\\r"; break;
+            default:   result += c; break;
         }
     }
 
