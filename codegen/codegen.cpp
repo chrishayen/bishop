@@ -59,6 +59,7 @@
 #include "stdlib/fs.hpp"
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
+#include "stdlib/random.hpp"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
@@ -150,6 +151,10 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
 
     if (name == "process") {
         return nog::stdlib::generate_process_runtime();
+    }
+
+    if (name == "random") {
+        return nog::stdlib::generate_random_runtime();
     }
 
     string out = "namespace " + name + " {\n\n";
