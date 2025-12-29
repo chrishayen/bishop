@@ -129,7 +129,6 @@ TypeInfo check_float_literal(TypeCheckerState& state, const FloatLiteral& lit);
 TypeInfo check_string_literal(TypeCheckerState& state, const StringLiteral& lit);
 TypeInfo check_bool_literal(TypeCheckerState& state, const BoolLiteral& lit);
 TypeInfo check_none_literal(TypeCheckerState& state, const NoneLiteral& lit);
-TypeInfo check_char_literal(TypeCheckerState& state, const CharLiteral& lit);
 
 // Reference type inference (check_refs.cpp)
 TypeInfo check_variable_ref(TypeCheckerState& state, const VariableRef& var);

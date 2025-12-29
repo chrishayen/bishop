@@ -32,7 +32,6 @@ Bishop source files use the `.b` extension.
 | `int`  | Integer                  |
 | `str`  | String                   |
 | `bool` | Boolean (`true`/`false`) |
-| `char` | Single character         |
 | `f32`  | 32-bit float             |
 | `f64`  | 64-bit float             |
 | `u32`  | Unsigned 32-bit integer  |
@@ -62,7 +61,6 @@ if value { }  // truthy check for non-none
 int x = 42;
 str name = "Chris";
 bool flag = true;
-char c = 'a';
 f64 pi = 3.14159;
 ```
 
@@ -311,7 +309,7 @@ s.contains("world");     // -> bool: true
 s.starts_with("hello");  // -> bool: true
 s.ends_with("world");    // -> bool: true
 s.substr(0, 5);          // -> str: "hello"
-s.at(0);                 // -> char: 'h'
+s.at(0);                 // -> str: "h"
 s.find("world");         // -> int: index of substring
 ```
 

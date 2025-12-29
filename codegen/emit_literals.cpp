@@ -15,7 +15,7 @@ namespace codegen {
  */
 string escape_string(const string& value) {
     string result;
-    result.reserve(value.size());
+    result.reserve(value.size() * 2);
 
     for (char c : value) {
         switch (c) {
@@ -64,13 +64,6 @@ string bool_literal(bool value) {
  */
 string none_literal() {
     return "std::nullopt";
-}
-
-/**
- * Emits a C++ char literal.
- */
-string char_literal(char value) {
-    return fmt::format("'{}'", value);
 }
 
 } // namespace codegen

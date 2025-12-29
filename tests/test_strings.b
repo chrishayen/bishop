@@ -128,3 +128,16 @@ fn test_double_quoted_string_with_single_quotes() {
     assert_eq(s.contains("'"), true);
     assert_eq(s.length(), 5);
 }
+
+fn test_single_char_single_quoted_is_string() {
+    s := 'a';
+    assert_eq(s, "a");
+    assert_eq(s.length(), 1);
+}
+
+fn test_str_at_returns_string() {
+    s := "hello";
+    c := s.at(0);
+    assert_eq(c, "h");
+    assert_eq(c.length(), 1);
+}

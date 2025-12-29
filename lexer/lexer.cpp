@@ -49,7 +49,6 @@ static unordered_map<string, TokenType> keywords = {
     {"int", TokenType::TYPE_INT},
     {"str", TokenType::TYPE_STR},
     {"bool", TokenType::TYPE_BOOL},
-    {"char", TokenType::TYPE_CHAR},
     {"f32", TokenType::TYPE_F32},
     {"f64", TokenType::TYPE_F64},
     {"u32", TokenType::TYPE_U32},
@@ -113,9 +112,8 @@ Token Lexer::read_string() {
 }
 
 /**
- * Reads a single-quoted literal. Assumes current char is '\''.
- * If exactly one character between quotes, returns CHAR_LITERAL.
- * Otherwise, returns STRING (for single-quoted strings).
+ * Reads a single-quoted string literal. Assumes current char is '\''.
+ * All single-quoted literals produce STRING tokens (same as double-quoted).
  */
 Token Lexer::read_single_quoted() {
     int start_line = line;
@@ -132,12 +130,6 @@ Token Lexer::read_single_quoted() {
     }
 
     advance();  // skip closing quote
-
-    // Single character is a char literal, otherwise it's a string
-    if (value.length() == 1) {
-        return {TokenType::CHAR_LITERAL, value, start_line};
-    }
-
     return {TokenType::STRING, value, start_line};
 }
 
