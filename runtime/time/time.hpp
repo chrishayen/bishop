@@ -15,7 +15,7 @@
 #include <iomanip>
 #include <sstream>
 
-namespace time {
+namespace bishop_time {
 
 /**
  * Duration represents a time span in milliseconds.
@@ -371,4 +371,4 @@ inline bishop::rt::Result<Timestamp> parse(const std::string& str, const std::st
     return Timestamp::from_time_point(tp);
 }
 
-}  // namespace time
+}  // namespace bishop_time

@@ -33,7 +33,15 @@ string emit_function_call(CodeGenState& state, const FunctionCall& call) {
     size_t dot_pos = func_name.find('.');
 
     if (dot_pos != string::npos) {
-        func_name = func_name.substr(0, dot_pos) + "::" + func_name.substr(dot_pos + 1);
+        string module_name = func_name.substr(0, dot_pos);
+        string fn_name = func_name.substr(dot_pos + 1);
+
+        // Map 'time' module to 'bishop_time' to avoid conflict with C time()
+        if (module_name == "time") {
+            module_name = "bishop_time";
+        }
+
+        func_name = module_name + "::" + fn_name;
     }
 
     return function_call(func_name, args);

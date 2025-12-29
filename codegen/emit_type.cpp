@@ -129,7 +129,15 @@ string map_type(const string& t) {
     size_t dot_pos = t.find('.');
 
     if (dot_pos != string::npos) {
-        return t.substr(0, dot_pos) + "::" + t.substr(dot_pos + 1);
+        string module_name = t.substr(0, dot_pos);
+        string type_name = t.substr(dot_pos + 1);
+
+        // Map 'time' module to 'bishop_time' to avoid conflict with C time()
+        if (module_name == "time") {
+            module_name = "bishop_time";
+        }
+
+        return module_name + "::" + type_name;
     }
 
     return t;
