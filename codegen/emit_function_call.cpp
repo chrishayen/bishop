@@ -63,6 +63,12 @@ string emit_function_call(CodeGenState& state, const FunctionCall& call) {
         string module_name = func_name.substr(0, dot_pos);
         string method_name = func_name.substr(dot_pos + 1);
         method_name = escape_reserved_name(method_name);
+
+        // Map module names that conflict with C/C++ identifiers
+        if (module_name == "random") {
+            module_name = "bishop_random";
+        }
+
         func_name = module_name + "::" + method_name;
     }
 

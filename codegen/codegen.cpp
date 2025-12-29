@@ -127,6 +127,13 @@ static bool has_process_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the random module.
+ */
+static bool has_random_import(const map<string, const Module*>& imports) {
+    return imports.find("random") != imports.end();
+}
+
+/**
  * Checks if the program uses channels (requires boost fiber).
  */
 static bool uses_channels(const Program& program) {
@@ -284,6 +291,10 @@ string generate_with_imports(
 
     if (has_process_import(imports)) {
         out += "#include <bishop/process.hpp>\n";
+    }
+
+    if (has_random_import(imports)) {
+        out += "#include <bishop/random.hpp>\n";
     }
 
     if (uses_channels(*program)) {

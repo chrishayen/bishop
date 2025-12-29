@@ -15,7 +15,7 @@
 #include <vector>
 #include <string>
 
-namespace random {
+namespace bishop_random {
 
 /**
  * Global random engine instance.
@@ -180,4 +180,4 @@ inline void seed(int n) {
     engine().seed(static_cast<unsigned int>(n));
 }
 
-}  // namespace random
+}  // namespace bishop_random

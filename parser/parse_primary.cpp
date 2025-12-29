@@ -280,11 +280,41 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         Token tok = current(state);
         advance(state);
 
-        // Check for qualified reference: module.item (e.g., math.add)
+        // Check for qualified reference: module.item (e.g., math.add, random.int)
         if (check(state, TokenType::DOT) && is_imported_module(state, tok.value)) {
             advance(state);
-            Token item_tok = consume(state, TokenType::IDENT);
-            string item_name = item_tok.value;
+
+            // Allow type keywords as function names (e.g., random.int, random.float)
+            string item_name;
+
+            if (check(state, TokenType::IDENT)) {
+                item_name = current(state).value;
+                advance(state);
+            } else if (check(state, TokenType::TYPE_INT)) {
+                item_name = "int";
+                advance(state);
+            } else if (check(state, TokenType::TYPE_STR)) {
+                item_name = "str";
+                advance(state);
+            } else if (check(state, TokenType::TYPE_BOOL)) {
+                item_name = "bool";
+                advance(state);
+            } else if (check(state, TokenType::TYPE_F32)) {
+                item_name = "f32";
+                advance(state);
+            } else if (check(state, TokenType::TYPE_F64)) {
+                item_name = "f64";
+                advance(state);
+            } else if (check(state, TokenType::TYPE_U32)) {
+                item_name = "u32";
+                advance(state);
+            } else if (check(state, TokenType::TYPE_U64)) {
+                item_name = "u64";
+                advance(state);
+            } else {
+                Token err_tok = current(state);
+                throw runtime_error("expected identifier or type name after '.' at line " + to_string(err_tok.line));
+            }
 
             // Check if it's a qualified function call: module.func(args)
             if (check(state, TokenType::LPAREN)) {
