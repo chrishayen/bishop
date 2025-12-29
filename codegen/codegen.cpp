@@ -102,6 +102,13 @@ static bool has_fs_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the math module.
+ */
+static bool has_math_import(const map<string, const Module*>& imports) {
+    return imports.find("math") != imports.end();
+}
+
+/**
  * Checks if the program uses channels (requires boost fiber).
  */
 static bool uses_channels(const Program& program) {
@@ -215,6 +222,10 @@ string generate_with_imports(
 
     if (has_fs_import(imports)) {
         out += "#include <bishop/fs.hpp>\n";
+    }
+
+    if (has_math_import(imports)) {
+        out += "#include <bishop/math.hpp>\n";
     }
 
     if (uses_channels(*program)) {

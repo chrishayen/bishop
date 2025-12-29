@@ -279,6 +279,106 @@ fn main() {
 }
 ```
 
+## Math Module
+
+### Import
+```bishop
+import math;
+```
+
+### Constants
+```bishop
+math.PI();      // -> f64: 3.14159265358979...
+math.E();       // -> f64: 2.71828182845904...
+math.INF();     // -> f64: positive infinity
+math.NAN();     // -> f64: not a number
+```
+
+### Basic Operations
+```bishop
+math.abs(x);              // -> f64: absolute value
+math.abs_int(x);          // -> int: absolute value of integer
+math.min(a, b);           // -> f64: smaller of two values
+math.min_int(a, b);       // -> int: smaller of two integers
+math.max(a, b);           // -> f64: larger of two values
+math.max_int(a, b);       // -> int: larger of two integers
+math.clamp(x, min, max);  // -> f64: clamp to range
+math.clamp_int(x, min, max); // -> int: clamp integer to range
+```
+
+### Rounding Functions
+```bishop
+math.floor(x);   // -> f64: largest integer <= x
+math.ceil(x);    // -> f64: smallest integer >= x
+math.round(x);   // -> f64: round to nearest integer
+math.trunc(x);   // -> f64: truncate towards zero
+```
+
+### Power and Root Functions
+```bishop
+math.pow(base, exp);   // -> f64: base^exp
+math.sqrt(x);          // -> f64: square root
+math.cbrt(x);          // -> f64: cube root
+math.exp(x);           // -> f64: e^x
+math.log(x);           // -> f64: natural logarithm
+math.log10(x);         // -> f64: base-10 logarithm
+math.log2(x);          // -> f64: base-2 logarithm
+```
+
+### Trigonometric Functions
+```bishop
+math.sin(x);           // -> f64: sine (x in radians)
+math.cos(x);           // -> f64: cosine (x in radians)
+math.tan(x);           // -> f64: tangent (x in radians)
+math.asin(x);          // -> f64: arc sine
+math.acos(x);          // -> f64: arc cosine
+math.atan(x);          // -> f64: arc tangent
+math.atan2(y, x);      // -> f64: arc tangent of y/x
+```
+
+### Hyperbolic Functions
+```bishop
+math.sinh(x);          // -> f64: hyperbolic sine
+math.cosh(x);          // -> f64: hyperbolic cosine
+math.tanh(x);          // -> f64: hyperbolic tangent
+```
+
+### Utility Functions
+```bishop
+math.is_nan(x);        // -> bool: true if NaN
+math.is_inf(x);        // -> bool: true if infinity
+math.is_finite(x);     // -> bool: true if finite
+math.sign(x);          // -> int: -1, 0, or 1
+math.sign_int(x);      // -> int: -1, 0, or 1 for integer
+math.gcd(a, b);        // -> int: greatest common divisor
+math.lcm(a, b);        // -> int: least common multiple
+```
+
+### Example
+```bishop
+import math;
+
+fn calculate_circle_area(f64 radius) -> f64 {
+    return math.PI() * math.pow(radius, 2.0);
+}
+
+fn main() {
+    area := calculate_circle_area(5.0);
+    print("Area:", area);
+
+    // Clamp a value to a valid range
+    value := math.clamp(150.0, 0.0, 100.0);
+    print("Clamped:", value);  // 100.0
+
+    // Check for special values
+    result := math.sqrt(-1.0);
+
+    if math.is_nan(result) {
+        print("Invalid result");
+    }
+}
+```
+
 ## String Methods
 ```bishop
 s.length();              // -> int
