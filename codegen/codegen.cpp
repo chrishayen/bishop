@@ -57,6 +57,7 @@
 #include "codegen.hpp"
 #include "stdlib/http.hpp"
 #include "stdlib/fs.hpp"
+#include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -103,6 +104,13 @@ static bool has_fs_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the net module.
+ */
+static bool has_net_import(const map<string, const Module*>& imports) {
+    return imports.find("net") != imports.end();
+}
+
+/**
  * Checks if the program imports the process module.
  */
 static bool has_process_import(const map<string, const Module*>& imports) {
@@ -134,6 +142,10 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
 
     if (name == "fs") {
         return nog::stdlib::generate_fs_runtime();
+    }
+
+    if (name == "net") {
+        return nog::stdlib::generate_net_runtime();
     }
 
     if (name == "process") {
@@ -221,6 +233,8 @@ string generate_with_imports(
 
     if (has_http_import(imports)) {
         out += "#include <bishop/http.hpp>\n";
+    } else if (has_net_import(imports)) {
+        out += "#include <bishop/net.hpp>\n";
     } else {
         out += "#include <bishop/std.hpp>\n";
     }

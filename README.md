@@ -651,6 +651,118 @@ fn main() {
 }
 ```
 
+### Networking Module
+
+```bishop
+import net;
+```
+
+#### TCP Server
+
+```bishop
+server := net.listen("127.0.0.1", 8080) or {
+    print("Failed to listen:", err.message);
+    return;
+};
+
+with server {
+    while true {
+        conn := server.accept() or continue;
+
+        go fn() {
+            data := conn.read(1024) or return;
+            conn.write("HTTP/1.1 200 OK\r\n\r\nHello") or return;
+            conn.close();
+        }();
+    }
+}
+```
+
+#### TCP Client
+
+```bishop
+conn := net.connect("example.com", 80) or {
+    print("Connection failed");
+    return;
+};
+conn.write("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+response := conn.read(4096);
+print(response);
+conn.close();
+```
+
+#### UDP
+
+```bishop
+// Bind and receive
+sock := net.udp_bind("0.0.0.0", 9000) or return;
+pkt := sock.recv_from(1024) or return;
+print("From:", pkt.addr, ":", pkt.port);
+print(pkt.data);
+
+// Send to specific address
+sock.send_to("hello", "192.168.1.1", 9000) or return;
+sock.close();
+
+// Connected UDP
+conn_sock := net.udp_connect("192.168.1.1", 9000) or return;
+conn_sock.send("hello") or return;
+data := conn_sock.recv(1024) or return;
+conn_sock.close();
+```
+
+#### DNS
+
+```bishop
+// Forward lookup
+addrs := net.resolve("example.com") or return;
+
+for addr in addrs {
+    print(addr);
+}
+
+// Reverse lookup
+hostname := net.reverse_lookup("93.184.216.34") or return;
+print(hostname);
+```
+
+#### net.TcpListener Methods
+
+| Method | Description |
+|--------|-------------|
+| `accept() -> net.TcpStream or err` | Accept incoming connection |
+| `close()` | Close the listener |
+
+#### net.TcpStream Methods
+
+| Method | Description |
+|--------|-------------|
+| `read(int n) -> str or err` | Read up to n bytes |
+| `read_exact(int n) -> str or err` | Read exactly n bytes |
+| `read_line() -> str or err` | Read a line (up to newline) |
+| `write(str data) -> int or err` | Write data, returns bytes written |
+| `flush() -> bool or err` | Flush buffered data |
+| `close()` | Close the connection |
+| `set_timeout(int ms)` | Set read/write timeout in milliseconds |
+
+#### net.UdpSocket Methods
+
+| Method | Description |
+|--------|-------------|
+| `send_to(str data, str host, int port) -> int or err` | Send to specific address |
+| `recv_from(int n) -> net.UdpPacket or err` | Receive with sender info |
+| `send(str data) -> int or err` | Send to connected address |
+| `recv(int n) -> str or err` | Receive from connected address |
+| `close()` | Close the socket |
+
+#### net.UdpPacket Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data` | `str` | Received data |
+| `addr` | `str` | Sender IP address |
+| `port` | `int` | Sender port |
+
 ### Process Module
 
 ```bishop

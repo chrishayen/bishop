@@ -117,6 +117,20 @@ public:
     explicit operator bool() const {
         return is_ok();
     }
+
+    /**
+     * Static factory for success value.
+     */
+    static Result<T> ok(T val) {
+        return Result<T>(std::move(val));
+    }
+
+    /**
+     * Static factory for error value.
+     */
+    static Result<T> error(const Error& err) {
+        return Result<T>(std::make_shared<Error>(err));
+    }
 };
 
 /**

@@ -125,7 +125,7 @@ namespace nog::stdlib {
 /**
  * List of built-in stdlib modules.
  */
-const vector<string> BUILTIN_MODULES = {"http", "fs", "process"};
+const vector<string> BUILTIN_MODULES = {"http", "fs", "net", "process"};
 
 /**
  * Checks if a module name is a built-in stdlib module.
