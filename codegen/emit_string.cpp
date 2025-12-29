@@ -183,9 +183,13 @@ string emit_str_reverse(const string& obj_str) {
  * Returns empty string for negative or zero counts.
  *
  * @param obj_str The emitted C++ expression for the string object
- * @param count The emitted C++ expression for the int count (e.g., "3" or "n")
+ * @param count_expr The emitted C++ expression for the repeat count.
+ *                   This is a string containing valid C++ code that evaluates
+ *                   to an int (e.g., "3" for a literal, or "n" for a variable).
+ *                   The generated C++ lambda takes `int n` so the Bishop-to-C++
+ *                   type conversion happens at the C++ level.
  */
-string emit_str_repeat(const string& obj_str, const string& count) {
+string emit_str_repeat(const string& obj_str, const string& count_expr) {
     return fmt::format(
         "[](const std::string& s, int n) {{ "
         "if (n <= 0) return std::string(); "
@@ -194,7 +198,7 @@ string emit_str_repeat(const string& obj_str, const string& count) {
         "for (int i = 0; i < n; ++i) result += s; "
         "return result; "
         "}}({}, {})",
-        obj_str, count
+        obj_str, count_expr
     );
 }
 
@@ -242,45 +246,54 @@ string emit_str_split_lines(const string& obj_str) {
 /**
  * Emits C++ code for the pad_left() string method.
  * Pads the string on the left to reach a specified width.
+ *
+ * @param fill_str The fill character as a string (first char is used)
  */
-string emit_str_pad_left(const string& obj_str, const string& width, const string& fill_char) {
+string emit_str_pad_left(const string& obj_str, const string& width, const string& fill_str) {
     return fmt::format(
-        "[](const std::string& s, int w, char c) {{ "
+        "[](const std::string& s, int w, const std::string& fill) {{ "
         "if (static_cast<int>(s.size()) >= w) return s; "
+        "char c = fill.empty() ? ' ' : fill[0]; "
         "return std::string(w - s.size(), c) + s; "
         "}}({}, {}, {})",
-        obj_str, width, fill_char
+        obj_str, width, fill_str
     );
 }
 
 /**
  * Emits C++ code for the pad_right() string method.
  * Pads the string on the right to reach a specified width.
+ *
+ * @param fill_str The fill character as a string (first char is used)
  */
-string emit_str_pad_right(const string& obj_str, const string& width, const string& fill_char) {
+string emit_str_pad_right(const string& obj_str, const string& width, const string& fill_str) {
     return fmt::format(
-        "[](const std::string& s, int w, char c) {{ "
+        "[](const std::string& s, int w, const std::string& fill) {{ "
         "if (static_cast<int>(s.size()) >= w) return s; "
+        "char c = fill.empty() ? ' ' : fill[0]; "
         "return s + std::string(w - s.size(), c); "
         "}}({}, {}, {})",
-        obj_str, width, fill_char
+        obj_str, width, fill_str
     );
 }
 
 /**
  * Emits C++ code for the center() string method.
  * Centers the string within a specified width.
+ *
+ * @param fill_str The fill character as a string (first char is used)
  */
-string emit_str_center(const string& obj_str, const string& width, const string& fill_char) {
+string emit_str_center(const string& obj_str, const string& width, const string& fill_str) {
     return fmt::format(
-        "[](const std::string& s, int w, char c) {{ "
+        "[](const std::string& s, int w, const std::string& fill) {{ "
         "if (static_cast<int>(s.size()) >= w) return s; "
+        "char c = fill.empty() ? ' ' : fill[0]; "
         "int total_pad = w - s.size(); "
         "int left_pad = total_pad / 2; "
         "int right_pad = total_pad - left_pad; "
         "return std::string(left_pad, c) + s + std::string(right_pad, c); "
         "}}({}, {}, {})",
-        obj_str, width, fill_char
+        obj_str, width, fill_str
     );
 }
 
@@ -364,20 +377,20 @@ string emit_str_method_call(CodeGenState& state, const MethodCall& call, const s
         return emit_str_split_lines(obj_str);
     }
 
-    // Padding methods (with optional char parameter)
+    // Padding methods (with optional str parameter for fill character)
     if (method == "pad_left") {
-        string fill_char = args.size() > 1 ? args[1] : "' '";
-        return emit_str_pad_left(obj_str, args[0], fill_char);
+        string fill_str = args.size() > 1 ? args[1] : "\" \"";
+        return emit_str_pad_left(obj_str, args[0], fill_str);
     }
 
     if (method == "pad_right") {
-        string fill_char = args.size() > 1 ? args[1] : "' '";
-        return emit_str_pad_right(obj_str, args[0], fill_char);
+        string fill_str = args.size() > 1 ? args[1] : "\" \"";
+        return emit_str_pad_right(obj_str, args[0], fill_str);
     }
 
     if (method == "center") {
-        string fill_char = args.size() > 1 ? args[1] : "' '";
-        return emit_str_center(obj_str, args[0], fill_char);
+        string fill_str = args.size() > 1 ? args[1] : "\" \"";
+        return emit_str_center(obj_str, args[0], fill_str);
     }
 
     // Conversion methods

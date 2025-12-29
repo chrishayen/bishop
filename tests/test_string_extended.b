@@ -283,9 +283,9 @@ fn test_str_pad_left_exact() {
     assert_eq(s.pad_left(2), "hi");
 }
 
-fn test_str_pad_left_char() {
+fn test_str_pad_left_fill() {
     s := "hi";
-    assert_eq(s.pad_left(5, '0'), "000hi");
+    assert_eq(s.pad_left(5, "0"), "000hi");
 }
 
 fn test_str_pad_right() {
@@ -298,9 +298,9 @@ fn test_str_pad_right_already_long() {
     assert_eq(s.pad_right(3), "hello");
 }
 
-fn test_str_pad_right_char() {
+fn test_str_pad_right_fill() {
     s := "hi";
-    assert_eq(s.pad_right(5, '.'), "hi...");
+    assert_eq(s.pad_right(5, "."), "hi...");
 }
 
 fn test_str_center() {
@@ -318,9 +318,9 @@ fn test_str_center_already_long() {
     assert_eq(s.center(3), "hello");
 }
 
-fn test_str_center_char() {
+fn test_str_center_fill() {
     s := "hi";
-    assert_eq(s.center(6, '-'), "--hi--");
+    assert_eq(s.center(6, "-"), "--hi--");
 }
 
 // ============================================

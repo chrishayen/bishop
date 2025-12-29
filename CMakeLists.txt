@@ -68,7 +68,6 @@ add_library(bishop_lib
     typechecker/check_select_stmt.cpp
     typechecker/strings.cpp
     typechecker/lists.cpp
-    typechecker/chars.cpp
     codegen/codegen.cpp
     codegen/emit_type.cpp
     codegen/emit_expression.cpp
@@ -94,7 +93,6 @@ add_library(bishop_lib
     codegen/emit_channel.cpp
     codegen/emit_list.cpp
     codegen/emit_string.cpp
-    codegen/emit_char.cpp
     codegen/emit_method_call.cpp
     codegen/emit_function_call.cpp
     codegen/emit_field.cpp

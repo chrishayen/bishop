@@ -234,11 +234,12 @@
  * @type str
  * @description Pads the string on the left to reach a specified width.
  * @param width int - The target width
- * @param fill_char char - The character to pad with (optional, default ' ')
+ * @param fill str - The fill character (optional, default " ", first char used)
  * @returns str - The padded string
  * @example
  * s := "hi";
- * result := s.pad_left(5);  // "   hi"
+ * result := s.pad_left(5);       // "   hi"
+ * result := s.pad_left(5, "0");  // "000hi"
  */
 
 /**
@@ -246,11 +247,12 @@
  * @type str
  * @description Pads the string on the right to reach a specified width.
  * @param width int - The target width
- * @param fill_char char - The character to pad with (optional, default ' ')
+ * @param fill str - The fill character (optional, default " ", first char used)
  * @returns str - The padded string
  * @example
  * s := "hi";
- * result := s.pad_right(5);  // "hi   "
+ * result := s.pad_right(5);       // "hi   "
+ * result := s.pad_right(5, ".");  // "hi..."
  */
 
 /**
@@ -258,11 +260,12 @@
  * @type str
  * @description Centers the string within a specified width.
  * @param width int - The target width
- * @param fill_char char - The character to pad with (optional, default ' ')
+ * @param fill str - The fill character (optional, default " ", first char used)
  * @returns str - The centered string
  * @example
  * s := "hi";
- * result := s.center(6);  // "  hi  "
+ * result := s.center(6);       // "  hi  "
+ * result := s.center(6, "-");  // "--hi--"
  */
 
 /**

@@ -320,34 +320,15 @@ s.split(" ");            // -> List<str>: ["hello", "world"]
 
 // Padding
 "hi".pad_left(5);        // -> str: "   hi"
-"hi".pad_left(5, '0');   // -> str: "000hi"
+"hi".pad_left(5, "0");   // -> str: "000hi"
 "hi".pad_right(5);       // -> str: "hi   "
-"hi".pad_right(5, '.');  // -> str: "hi..."
+"hi".pad_right(5, ".");  // -> str: "hi..."
 "hi".center(6);          // -> str: "  hi  "
-"hi".center(6, '-');     // -> str: "--hi--"
+"hi".center(6, "-");     // -> str: "--hi--"
 
 // Conversions
 "42".to_int();           // -> int: 42
 "3.14".to_float();       // -> f64: 3.14
-```
-
-## Chars
-
-### Char Methods
-
-```bishop
-c := 'A';
-
-// Type checking
-c.is_alpha();            // -> bool: true
-c.is_digit();            // -> bool: false
-c.is_whitespace();       // -> bool: false
-c.is_upper();            // -> bool: true
-c.is_lower();            // -> bool: false
-
-// Case conversion
-c.to_lower();            // -> char: 'a'
-c.to_upper();            // -> char: 'A'
 ```
 
 ## Lists
