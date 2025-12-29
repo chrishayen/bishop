@@ -24,7 +24,8 @@ jobs:
             ccache \
             libfmt-dev \
             libboost-context-dev \
-            libboost-fiber-dev
+            libboost-fiber-dev \
+            libssl-dev
 
       - name: Install tomlplusplus
         run: |

@@ -354,6 +354,7 @@ Both quote styles produce the same `str` type.
 ```bishop
 s := "hello world";
 
+// Query methods
 s.length();              // -> int: 11
 s.empty();               // -> bool: false
 s.contains("world");     // -> bool: true
@@ -362,6 +363,42 @@ s.ends_with("world");    // -> bool: true
 s.substr(0, 5);          // -> str: "hello"
 s.at(0);                 // -> str: "h"
 s.find("world");         // -> int: index of substring
+
+// Case transformation
+s.upper();               // -> str: "HELLO WORLD"
+s.lower();               // -> str: "hello world"
+s.capitalize();          // -> str: "Hello world"
+s.title();               // -> str: "Hello World"
+
+// Trimming
+padded := "  hello  ";
+padded.trim();           // -> str: "hello"
+padded.trim_left();      // -> str: "hello  "
+padded.trim_right();     // -> str: "  hello"
+
+// Replace
+s.replace("world", "there");      // -> str: "hello there" (first only)
+s.replace_all("l", "L");          // -> str: "heLLo worLd" (all)
+
+// Reverse and repeat
+s.reverse();             // -> str: "dlrow olleh"
+"ab".repeat(3);          // -> str: "ababab"
+
+// Split
+s.split(" ");            // -> List<str>: ["hello", "world"]
+"a\nb\nc".split_lines(); // -> List<str>: ["a", "b", "c"]
+
+// Padding
+"hi".pad_left(5);        // -> str: "   hi"
+"hi".pad_left(5, "0");   // -> str: "000hi"
+"hi".pad_right(5);       // -> str: "hi   "
+"hi".pad_right(5, ".");  // -> str: "hi..."
+"hi".center(6);          // -> str: "  hi  "
+"hi".center(6, "-");     // -> str: "--hi--"
+
+// Conversions
+"42".to_int();           // -> int: 42
+"3.14".to_float();       // -> f64: 3.14
 ```
 
 ## Lists
@@ -409,6 +446,11 @@ nums.set(1, 99);         // replace element at index
 nums.clear();            // remove all elements
 nums.insert(1, 15);      // insert element at index
 nums.remove(1);          // remove element at index
+
+// String list methods (List<str> only)
+parts := ["hello", "world"];
+parts.join(" ");         // -> str: "hello world"
+parts.join("-");         // -> str: "hello-world"
 ```
 
 ## Pairs
@@ -818,6 +860,67 @@ fs.read_file("path");    // -> str (file contents, empty if not found)
 fs.exists("path");       // -> bool (true if file or dir exists)
 fs.is_dir("path");       // -> bool (true if path is a directory)
 fs.read_dir("path");     // -> str (newline-separated filenames)
+```
+
+### Crypto Module
+
+Cryptographic utilities for hashing, encoding, and UUID generation. Uses OpenSSL.
+
+```bishop
+import crypto;
+```
+
+#### Hashing Functions
+
+All hash functions return `str or err` with lowercase hex strings.
+
+```bishop
+hash := crypto.md5("hello") or return;     // -> "5d41402abc4b2a76b9719d911017c592"
+hash := crypto.sha1("hello") or return;    // -> "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d"
+hash := crypto.sha256("hello") or return;  // -> "2cf24dba5fb0a30e26e83b2ac5b9e29e..."
+hash := crypto.sha512("hello") or return;  // -> "9b71d224bd62f3785d96d46ad3ea3d73..."
+```
+
+#### HMAC
+
+```bishop
+crypto.hmac_sha256("secret_key", "data");  // -> hex string
+```
+
+#### Base64 Encoding/Decoding
+
+```bishop
+// Encoding (always succeeds)
+encoded := crypto.base64_encode("Hello, World!");
+// encoded == "SGVsbG8sIFdvcmxkIQ=="
+
+// Decoding (can fail on invalid input)
+decoded := crypto.base64_decode("SGVsbG8h") or return;
+```
+
+#### Hex Encoding/Decoding
+
+```bishop
+hex := crypto.hex_encode("hello");               // -> "68656c6c6f"
+decoded := crypto.hex_decode("68656c6c6f") or return;  // -> "hello"
+```
+
+#### UUID Generation
+
+```bishop
+// Random UUID v4
+id := crypto.uuid() or return;
+// e.g., "550e8400-e29b-41d4-a716-446655440000"
+
+// Deterministic UUID v5 (namespace + name based)
+id := crypto.uuid_v5("namespace", "name") or return;
+// Same inputs always produce same UUID
+```
+
+#### Random Bytes
+
+```bishop
+bytes := crypto.random_bytes(32) or return;  // -> List<u8> with 32 random bytes
 ```
 
 ### Example: Static File Server

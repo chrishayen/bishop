@@ -20,16 +20,10 @@ static unique_ptr<ASTNode> parse_unary(ParserState& state) {
 
         auto operand = parse_unary(state);  // Recursively handle nested unary
 
-        // Create a binary expression: 0 - operand
-        auto zero = make_unique<NumberLiteral>("0");
-        zero->line = op_tok.line;
-
-        auto binop = make_unique<BinaryExpr>();
-        binop->op = "-";
-        binop->line = op_tok.line;
-        binop->left = move(zero);
-        binop->right = move(operand);
-        return binop;
+        auto negate = make_unique<NegateExpr>();
+        negate->value = move(operand);
+        negate->line = op_tok.line;
+        return negate;
     }
 
     auto expr = parse_primary(state);
