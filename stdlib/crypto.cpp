@@ -57,10 +57,10 @@
  * @description Computes HMAC-SHA256 of data with key.
  * @param key str - Secret key
  * @param data str - Data to authenticate
- * @returns str - Lowercase hex string of the HMAC
+ * @returns str or err - Lowercase hex string of the HMAC, or error
  * @example
  * import crypto;
- * hmac := crypto.hmac_sha256("secret", "message");
+ * hmac := crypto.hmac_sha256("secret", "message") or return;
  */
 
 /**
@@ -190,13 +190,14 @@ unique_ptr<Program> create_crypto_module() {
     sha512_fn->error_type = "err";
     program->functions.push_back(move(sha512_fn));
 
-    // fn hmac_sha256(str key, str data) -> str
+    // fn hmac_sha256(str key, str data) -> str or err
     auto hmac_fn = make_unique<FunctionDef>();
     hmac_fn->name = "hmac_sha256";
     hmac_fn->visibility = Visibility::Public;
     hmac_fn->params.push_back({"str", "key"});
     hmac_fn->params.push_back({"str", "data"});
     hmac_fn->return_type = "str";
+    hmac_fn->error_type = "err";
     program->functions.push_back(move(hmac_fn));
 
     // fn base64_encode(str data) -> str

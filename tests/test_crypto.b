@@ -53,12 +53,12 @@ fn test_sha512_empty() {
 // ============================================
 
 fn test_hmac_sha256_basic() {
-    hmac := crypto.hmac_sha256("key", "hello");
+    hmac := crypto.hmac_sha256("key", "hello") or return;
     assert_eq(hmac, "9307b3b915efb5171ff14d8cb55fbcc798c6c0ef1456d66ded1a6aa723a58b7b");
 }
 
 fn test_hmac_sha256_empty_data() {
-    hmac := crypto.hmac_sha256("key", "");
+    hmac := crypto.hmac_sha256("key", "") or return;
     assert_eq(hmac, "5d5d139563c95b5967b9bd9a8c9b233a9dedb45072794cd232dc1b74832607d0");
 }
 
@@ -277,4 +277,16 @@ fn test_random_bytes_non_zero() {
     }
 
     assert_eq(has_nonzero, true);
+}
+
+fn test_random_bytes_negative() {
+    // Negative count should fail
+    passed := false;
+
+    result := crypto.random_bytes(-1) or {
+        passed = true;
+        return;
+    };
+
+    assert_eq(passed, true);
 }

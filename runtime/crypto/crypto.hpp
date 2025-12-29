@@ -93,16 +93,20 @@ inline bishop::rt::Result<std::string> sha512(const std::string& data) {
 
 /**
  * Computes HMAC-SHA256 of data with key.
- * Returns lowercase hex string.
+ * Returns Result with lowercase hex string or error.
  */
-inline std::string hmac_sha256(const std::string& key, const std::string& data) {
+inline bishop::rt::Result<std::string> hmac_sha256(const std::string& key, const std::string& data) {
     unsigned char result[EVP_MAX_MD_SIZE];
     unsigned int result_len = 0;
 
-    HMAC(EVP_sha256(),
+    unsigned char* hmac_result = HMAC(EVP_sha256(),
          key.c_str(), static_cast<int>(key.size()),
          reinterpret_cast<const unsigned char*>(data.c_str()), data.size(),
          result, &result_len);
+
+    if (!hmac_result) {
+        return bishop::rt::make_error<std::string>("HMAC computation failed");
+    }
 
     return bytes_to_hex(result, result_len);
 }
@@ -354,7 +358,11 @@ inline bishop::rt::Result<std::string> uuid_v5(const std::string& ns, const std:
  * Returns Result with vector of unsigned 8-bit integers or error.
  */
 inline bishop::rt::Result<std::vector<uint8_t>> random_bytes(int count) {
-    if (count <= 0) {
+    if (count < 0) {
+        return bishop::rt::make_error<std::vector<uint8_t>>("count must be non-negative");
+    }
+
+    if (count == 0) {
         return std::vector<uint8_t>();
     }
 
