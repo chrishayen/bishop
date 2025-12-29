@@ -373,7 +373,9 @@ z := p.get(2) default 99;  // 99 (out of bounds, uses default)
 
 ```bishop
 fn divide(int a, int b) -> Pair<int> {
-    return Pair<int>(a / b, a % b);
+    quotient := a / b;
+    remainder := a - quotient * b;
+    return Pair<int>(quotient, remainder);
 }
 
 result := divide(17, 5);

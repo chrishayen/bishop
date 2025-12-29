@@ -103,7 +103,9 @@ fn test_pair_of_structs() {
 // ============================================
 
 fn divide(int a, int b) -> Pair<int> {
-    return Pair<int>(a / b, a % b);
+    quotient := a / b;
+    remainder := a - quotient * b;
+    return Pair<int>(quotient, remainder);
 }
 
 fn test_pair_as_return_type() {
