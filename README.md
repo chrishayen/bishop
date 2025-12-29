@@ -930,11 +930,108 @@ fn main() {
 import fs;
 ```
 
+#### Basic File Operations
+
 ```bishop
-fs.read_file("path");    // -> str (file contents, empty if not found)
-fs.exists("path");       // -> bool (true if file or dir exists)
-fs.is_dir("path");       // -> bool (true if path is a directory)
-fs.read_dir("path");     // -> str (newline-separated filenames)
+// Reading files
+fs.read_file("path");              // -> str (file contents, empty if not found)
+data := fs.read_bytes("path") or fail err;  // -> str or err (binary content)
+
+// Writing files
+_ := fs.write_file("path", "content") or fail err;   // -> bool or err
+_ := fs.append_file("path", "more") or fail err;     // -> bool or err
+_ := fs.write_bytes("path", data) or fail err;       // -> bool or err
+
+// File/directory checks
+fs.exists("path");                 // -> bool (true if file or dir exists)
+fs.is_dir("path");                 // -> bool (true if path is a directory)
+fs.is_file("path");                // -> bool (true if path is a regular file)
+```
+
+#### File Handle (with statement)
+
+```bishop
+with fs.open("data.txt", "r") as f {
+    content := f.read_all() or fail err;
+    print(content);
+}  // file automatically closed
+
+// Modes: "r" (read), "w" (write), "a" (append), "rw" (read+write)
+```
+
+File methods:
+- `f.read_line()` -> str or err
+- `f.read_lines()` -> List<str> or err
+- `f.read_all()` -> str or err
+- `f.write(data)` -> bool or err
+- `f.write_line(data)` -> bool or err
+- `f.close()` -> void
+
+#### Directory Operations
+
+```bishop
+fs.read_dir("path");               // -> str (newline-separated filenames)
+files := fs.list_dir("path") or fail err;   // -> List<str> or err
+
+_ := fs.mkdir("dir") or fail err;            // -> bool or err
+_ := fs.mkdir_all("a/b/c") or fail err;      // -> bool or err
+
+_ := fs.remove("file.txt") or fail err;      // -> bool or err (single file)
+_ := fs.remove_dir("empty_dir") or fail err; // -> bool or err (empty directory)
+_ := fs.remove_all("dir") or fail err;       // -> bool or err (recursive)
+```
+
+#### File Operations
+
+```bishop
+_ := fs.rename("old.txt", "new.txt") or fail err;  // -> bool or err
+_ := fs.copy("src.txt", "dst.txt") or fail err;    // -> bool or err
+_ := fs.copy_dir("src_dir", "dst_dir") or fail err; // -> bool or err (recursive)
+```
+
+#### Path Operations
+
+```bishop
+fs.join("dir", "file.txt");        // -> str ("dir/file.txt")
+fs.dirname("/home/user/file.txt"); // -> str ("/home/user")
+fs.basename("/home/user/file.txt");// -> str ("file.txt")
+fs.extension("file.txt");          // -> str ("txt")
+fs.stem("file.txt");               // -> str ("file")
+fs.is_absolute("/home/user");      // -> bool (true)
+abs := fs.absolute("rel/path") or fail err;   // -> str or err
+canon := fs.canonical("path") or fail err;    // -> str or err
+```
+
+#### File Info
+
+```bishop
+info := fs.stat("file.txt") or fail err;
+print(info.size);        // int (file size in bytes)
+print(info.modified);    // int (Unix timestamp)
+print(info.is_file);     // bool
+print(info.is_dir);      // bool
+print(info.is_symlink);  // bool
+
+size := fs.file_size("file.txt") or fail err; // -> int or err
+```
+
+#### Directory Walking
+
+```bishop
+entries := fs.walk("src") or fail err;
+for entry in entries {
+    if !entry.is_dir {
+        print(entry.path);   // full path
+        print(entry.name);   // filename only
+    }
+}
+```
+
+#### Temp Files
+
+```bishop
+path := fs.temp_file() or fail err;   // -> str or err (unique temp file path)
+dir := fs.temp_dir() or fail err;     // -> str or err (creates temp directory)
 ```
 
 ### Crypto Module
