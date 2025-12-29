@@ -142,6 +142,78 @@ fn test_str_at_returns_string() {
     assert_eq(c.length(), 1);
 }
 
+fn test_escape_sequence_newline() {
+    s := "hello\nworld";
+    assert_eq(s.length(), 11);
+    assert_eq(s.contains("\n"), true);
+}
+
+fn test_escape_sequence_tab() {
+    s := "hello\tworld";
+    assert_eq(s.length(), 11);
+    assert_eq(s.contains("\t"), true);
+}
+
+fn test_escape_sequence_carriage_return() {
+    s := "hello\rworld";
+    assert_eq(s.length(), 11);
+}
+
+fn test_escape_sequence_backslash() {
+    s := "path\\to\\file";
+    assert_eq(s.length(), 12);
+}
+
+fn test_escape_sequence_double_quote_via_single_quoted() {
+    s := 'say "hello"';
+    dq := '"';
+    assert_eq(s.contains(dq), true);
+}
+
+fn test_escape_sequence_single_quote_in_double_quoted() {
+    s := "it's";
+    assert_eq(s.length(), 4);
+}
+
+fn test_escape_sequence_backslash_then_newline() {
+    // \\ + \n in source = backslash + newline (2 chars in result)
+    s := "\\\n";
+    assert_eq(s.length(), 2);
+}
+
+fn test_escape_sequence_backslash_then_tab() {
+    // \\ + \t in source = backslash + tab (2 chars in result)
+    s := "\\\t";
+    assert_eq(s.length(), 2);
+}
+
+fn test_escape_sequence_double_backslash() {
+    // \\ + \\ in source = two backslashes (2 chars in result)
+    s := "\\\\";
+    assert_eq(s.length(), 2);
+}
+
+fn test_escape_sequence_multiple_newlines() {
+    // Three newlines
+    s := "\n\n\n";
+    assert_eq(s.length(), 3);
+}
+
+fn test_escape_sequence_backslash_followed_by_letter_n() {
+    // \\ + n (literal) in source = backslash + letter n (2 chars)
+    // This is different from \n which is a newline
+    s := "\\n";
+    assert_eq(s.length(), 2);
+    assert_eq(s.contains("\n"), false);
+}
+
+fn test_escape_sequence_backslash_followed_by_letter_t() {
+    // \\ + t (literal) in source = backslash + letter t (2 chars)
+    s := "\\t";
+    assert_eq(s.length(), 2);
+    assert_eq(s.contains("\t"), false);
+}
+
 // Raw string literal tests (r"..." and r'...')
 
 fn test_raw_string_basic() {
