@@ -216,7 +216,7 @@ unique_ptr<Program> create_crypto_module() {
     b64_decode_fn->visibility = Visibility::Public;
     b64_decode_fn->params.push_back({"str", "data"});
     b64_decode_fn->return_type = "str";
-    b64_decode_fn->is_fallible = true;
+    b64_decode_fn->error_type = "err";
     program->functions.push_back(move(b64_decode_fn));
 
     // fn hex_encode(str data) -> str
@@ -233,7 +233,7 @@ unique_ptr<Program> create_crypto_module() {
     hex_decode_fn->visibility = Visibility::Public;
     hex_decode_fn->params.push_back({"str", "data"});
     hex_decode_fn->return_type = "str";
-    hex_decode_fn->is_fallible = true;
+    hex_decode_fn->error_type = "err";
     program->functions.push_back(move(hex_decode_fn));
 
     // fn uuid() -> str
