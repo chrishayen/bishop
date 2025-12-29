@@ -159,6 +159,14 @@ string generate_statement(CodeGenState& state, const ASTNode& node) {
         return emit_fail(state, *fail) + ";";
     }
 
+    if (auto* cont = dynamic_cast<const ContinueStmt*>(&node)) {
+        return "continue;";
+    }
+
+    if (auto* brk = dynamic_cast<const BreakStmt*>(&node)) {
+        return "break;";
+    }
+
     return emit(state, node);
 }
 
