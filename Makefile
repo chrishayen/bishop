@@ -1,4 +1,4 @@
-.PHONY: all build clean test run configure rebuild install docs
+.PHONY: all build clean test run configure rebuild install docs docker
 
 BUILD_DIR := build
 
@@ -45,3 +45,11 @@ install: build
 
 docs: build
 	@$(BUILD_DIR)/docgen src/ docs/reference/
+
+docker:
+	@cp ~/.claude/CLAUDE.md docker/CLAUDE.md
+	@cp ~/.claude/.credentials.json docker/.credentials.json
+	@cp ~/clank-hayen.2025-12-28.private-key.pem docker/app-private-key.pem
+	@docker build -t claude-agent docker/
+	@rm docker/CLAUDE.md docker/.credentials.json docker/app-private-key.pem
+	@echo "Built claude-agent image"
