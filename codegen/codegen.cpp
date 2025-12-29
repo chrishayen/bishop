@@ -59,6 +59,7 @@
 #include "stdlib/fs.hpp"
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
+#include "stdlib/math.hpp"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
@@ -118,6 +119,13 @@ static bool has_process_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the math module.
+ */
+static bool has_math_import(const map<string, const Module*>& imports) {
+    return imports.find("math") != imports.end();
+}
+
+/**
  * Checks if the program uses channels (requires boost fiber).
  */
 static bool uses_channels(const Program& program) {
@@ -150,6 +158,10 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
 
     if (name == "process") {
         return nog::stdlib::generate_process_runtime();
+    }
+
+    if (name == "math") {
+        return nog::stdlib::generate_math_runtime();
     }
 
     string out = "namespace " + name + " {\n\n";
@@ -263,6 +275,10 @@ string generate_with_imports(
 
     if (has_process_import(imports)) {
         out += "#include <bishop/process.hpp>\n";
+    }
+
+    if (has_math_import(imports)) {
+        out += "#include <bishop/math.hpp>\n";
     }
 
     if (uses_channels(*program)) {
