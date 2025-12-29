@@ -203,12 +203,13 @@ struct MethodCall : ASTNode {
 // Statements - Nodes that perform actions
 //------------------------------------------------------------------------------
 
-/** @brief Variable declaration: int x = 5 or x := 5 or int? x = none */
+/** @brief Variable declaration: int x = 5 or x := 5 or int? x = none or const int x = 5 */
 struct VariableDecl : ASTNode {
     mutable string type;           ///< Type name (empty for type inference, may be updated by typechecker)
     string name;                   ///< Variable name
     unique_ptr<ASTNode> value;     ///< Initial value expression
     bool is_optional = false;      ///< True if declared with ? (e.g., int?)
+    bool is_const = false;         ///< True if declared with const keyword
 };
 
 /** @brief Assignment to existing variable: x = value */
@@ -235,6 +236,12 @@ struct FailStmt : ASTNode {
     unique_ptr<ASTNode> value;     ///< Error message (string) or error literal
 };
 
+/** @brief Continue statement: continue; */
+struct ContinueStmt : ASTNode {};
+
+/** @brief Break statement: break; */
+struct BreakStmt : ASTNode {};
+
 //------------------------------------------------------------------------------
 // Error Handling - Or and Default expressions
 //------------------------------------------------------------------------------
@@ -259,6 +266,12 @@ struct OrFail : ASTNode {
 struct OrBlock : ASTNode {
     vector<unique_ptr<ASTNode>> body; ///< Statements to execute on error
 };
+
+/** @brief Or-continue handler: or continue */
+struct OrContinue : ASTNode {};
+
+/** @brief Or-break handler: or break */
+struct OrBreak : ASTNode {};
 
 /** @brief Or-match handler: or match err { arms } */
 struct OrMatch : ASTNode {
@@ -408,4 +421,5 @@ struct Program : ASTNode {
     vector<unique_ptr<FunctionDef>> functions;        ///< All function definitions
     vector<unique_ptr<MethodDef>> methods;            ///< All method definitions
     vector<unique_ptr<ExternFunctionDef>> externs;    ///< All extern function declarations
+    vector<unique_ptr<VariableDecl>> constants;       ///< Module-level const declarations
 };

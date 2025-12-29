@@ -272,6 +272,11 @@ unique_ptr<Program> ModuleManager::merge_files(const vector<fs::path>& files, co
         for (auto& m : ast->methods) {
             merged->methods.push_back(move(m));
         }
+
+        // Merge constants
+        for (auto& c : ast->constants) {
+            merged->constants.push_back(move(c));
+        }
     }
 
     return merged;

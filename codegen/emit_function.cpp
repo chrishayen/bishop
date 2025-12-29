@@ -229,6 +229,15 @@ string generate_test_harness(CodeGenState& state, const unique_ptr<Program>& pro
         out += generate_error(state, *e) + "\n";
     }
 
+    // Emit module-level constants
+    for (const auto& c : program->constants) {
+        out += generate_module_constant(state, *c);
+    }
+
+    if (!program->constants.empty()) {
+        out += "\n";
+    }
+
     vector<pair<string, bool>> test_funcs;  // name, is_fallible
 
     for (const auto& fn : program->functions) {

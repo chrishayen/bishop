@@ -31,10 +31,12 @@ struct TypeInfo {
     bool is_optional = false;
     bool is_void = false;
     bool is_fallible = false;
+    bool is_const = false;
 
     bool operator==(const TypeInfo& other) const {
         return base_type == other.base_type && is_optional == other.is_optional &&
-               is_void == other.is_void && is_fallible == other.is_fallible;
+               is_void == other.is_void && is_fallible == other.is_fallible &&
+               is_const == other.is_const;
     }
 
     bool operator!=(const TypeInfo& other) const {
@@ -51,6 +53,7 @@ struct TypeCheckerState {
     std::map<std::string, std::vector<const MethodDef*>> methods;
     std::map<std::string, const FunctionDef*> functions;
     std::map<std::string, const ExternFunctionDef*> extern_functions;
+    std::map<std::string, TypeInfo> module_constants;  ///< Module-level const declarations
     /**
      * Local variables are tracked with a lexical scope stack.
      *
@@ -99,6 +102,7 @@ void collect_structs(TypeCheckerState& state, const Program& program);
 void collect_methods(TypeCheckerState& state, const Program& program);
 void collect_functions(TypeCheckerState& state, const Program& program);
 void collect_extern_functions(TypeCheckerState& state, const Program& program);
+void collect_constants(TypeCheckerState& state, const Program& program);
 
 // Function/method checking (check_function.cpp)
 void check_method(TypeCheckerState& state, const MethodDef& method);
@@ -184,6 +188,8 @@ void error(TypeCheckerState& state, const std::string& msg, int line);
 const FunctionDef* get_qualified_function(const TypeCheckerState& state, const std::string& module, const std::string& name);
 const StructDef* get_qualified_struct(const TypeCheckerState& state, const std::string& module, const std::string& name);
 const MethodDef* get_qualified_method(const TypeCheckerState& state, const std::string& module, const std::string& struct_name, const std::string& method_name);
+const TypeInfo* get_module_constant(const TypeCheckerState& state, const std::string& name);
+const TypeInfo* get_qualified_constant(const TypeCheckerState& state, const std::string& module, const std::string& name);
 
 } // namespace typechecker
 

@@ -31,6 +31,26 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return parse_fail(state);
     }
 
+    // continue statement
+    if (check(state, TokenType::CONTINUE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::SEMICOLON);
+        auto stmt = make_unique<ContinueStmt>();
+        stmt->line = start_line;
+        return stmt;
+    }
+
+    // break statement
+    if (check(state, TokenType::BREAK)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::SEMICOLON);
+        auto stmt = make_unique<BreakStmt>();
+        stmt->line = start_line;
+        return stmt;
+    }
+
     // if statement
     if (check(state, TokenType::IF)) {
         return parse_if(state);
@@ -59,6 +79,11 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
     // go statement: go func();
     if (check(state, TokenType::GO)) {
         return parse_go_spawn(state);
+    }
+
+    // const declaration: const int x = 5 or const x := 5
+    if (check(state, TokenType::CONST)) {
+        return parse_const_decl(state);
     }
 
     // typed variable: int x = 5

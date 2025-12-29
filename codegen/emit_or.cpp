@@ -37,6 +37,20 @@ string emit_or_return_handler(CodeGenState& state, const OrReturn& handler) {
 }
 
 /**
+ * Emit the handler code for an OrContinue.
+ */
+string emit_or_continue_handler() {
+    return "continue;";
+}
+
+/**
+ * Emit the handler code for an OrBreak.
+ */
+string emit_or_break_handler() {
+    return "break;";
+}
+
+/**
  * Emit the handler code for an OrFail.
  */
 string emit_or_fail_handler(CodeGenState& state, const OrFail& handler) {
@@ -148,6 +162,14 @@ OrEmitResult emit_or_for_decl(CodeGenState& state, const OrExpr& expr, const str
             temp, temp, match_code, var_name, temp);
         result.value_expr = "";  // Empty - variable is assigned in the check
         result.is_match = true;
+    } else if (dynamic_cast<const OrContinue*>(expr.handler.get())) {
+        handler_code = emit_or_continue_handler();
+        result.check = fmt::format("if ({}.is_error()) {{ {} }}", temp, handler_code);
+        result.value_expr = temp + ".value()";
+    } else if (dynamic_cast<const OrBreak*>(expr.handler.get())) {
+        handler_code = emit_or_break_handler();
+        result.check = fmt::format("if ({}.is_error()) {{ {} }}", temp, handler_code);
+        result.value_expr = temp + ".value()";
     }
 
     return result;
