@@ -24,6 +24,11 @@ fn test_constant_INF() {
     assert_eq(true, inf > 1000000.0);
 }
 
+fn test_constant_NAN() {
+    nan := math.NAN;
+    assert_eq(true, math.is_nan(nan));
+}
+
 // ============================================================
 // Tests for basic operations - abs
 // ============================================================
@@ -608,6 +613,31 @@ fn test_pow_one_base() {
     result := math.pow(1.0, 100.0);
     assert_eq(true, result > 0.99);
     assert_eq(true, result < 1.01);
+}
+
+fn test_sqrt_negative() {
+    result := math.sqrt(-1.0);
+    assert_eq(true, math.is_nan(result));
+}
+
+fn test_log_zero() {
+    result := math.log(0.0);
+    assert_eq(true, math.is_inf(result));
+}
+
+fn test_log_negative() {
+    result := math.log(-1.0);
+    assert_eq(true, math.is_nan(result));
+}
+
+fn test_asin_out_of_range() {
+    result := math.asin(2.0);
+    assert_eq(true, math.is_nan(result));
+}
+
+fn test_acos_out_of_range() {
+    result := math.acos(2.0);
+    assert_eq(true, math.is_nan(result));
 }
 
 // ============================================================
