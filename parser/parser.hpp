@@ -77,8 +77,9 @@ std::unique_ptr<GoSpawn> parse_go_spawn(ParserState& state);
 // Statement parsing (parse_statement.cpp)
 std::unique_ptr<ASTNode> parse_statement(ParserState& state);
 std::unique_ptr<FunctionCall> parse_function_call(ParserState& state);
-std::unique_ptr<VariableDecl> parse_variable_decl(ParserState& state);
-std::unique_ptr<VariableDecl> parse_inferred_decl(ParserState& state);
+std::unique_ptr<VariableDecl> parse_variable_decl(ParserState& state, bool is_const = false);
+std::unique_ptr<VariableDecl> parse_inferred_decl(ParserState& state, bool is_const = false);
+std::unique_ptr<VariableDecl> parse_const_decl(ParserState& state);
 std::unique_ptr<ReturnStmt> parse_return(ParserState& state);
 std::unique_ptr<FailStmt> parse_fail(ParserState& state);
 std::unique_ptr<FailStmt> parse_fail_expr(ParserState& state);

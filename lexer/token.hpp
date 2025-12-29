@@ -38,15 +38,6 @@
  */
 
 /**
- * @bishop_syntax char
- * @category Types
- * @order 4
- * @description Single character type.
- * @syntax char
- * @example char c = 'a';
- */
-
-/**
  * @bishop_syntax f32
  * @category Types
  * @order 5
@@ -168,6 +159,8 @@ enum class TokenType {
     PRIVATE,
     CHANNEL,
     LIST,
+    PAIR,
+    TUPLE,
     SELECT,
     CASE,
     EXTERN,
@@ -178,6 +171,9 @@ enum class TokenType {
     MATCH,
     WITH,
     AS,
+    CONST,
+    CONTINUE,
+    BREAK,
 
     // Annotations
     AT,
@@ -186,7 +182,6 @@ enum class TokenType {
     TYPE_INT,
     TYPE_STR,
     TYPE_BOOL,
-    TYPE_CHAR,
     TYPE_F32,
     TYPE_F64,
     TYPE_U32,
@@ -200,7 +195,6 @@ enum class TokenType {
     STRING,
     NUMBER,
     FLOAT,
-    CHAR_LITERAL,
 
     // Documentation
     DOC_COMMENT,  ///< /// doc comment text

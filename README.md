@@ -32,7 +32,6 @@ Bishop source files use the `.b` extension.
 | `int`  | Integer                  |
 | `str`  | String                   |
 | `bool` | Boolean (`true`/`false`) |
-| `char` | Single character         |
 | `f32`  | 32-bit float             |
 | `f64`  | 64-bit float             |
 | `u32`  | Unsigned 32-bit integer  |
@@ -62,7 +61,6 @@ if value { }  // truthy check for non-none
 int x = 42;
 str name = "Chris";
 bool flag = true;
-char c = 'a';
 f64 pi = 3.14159;
 ```
 
@@ -74,6 +72,57 @@ Use `:=` for type inference:
 x := 100;        // inferred as int
 name := "Hello"; // inferred as str
 pi := 3.14;      // inferred as f64
+```
+
+### Constants
+
+Use `const` to declare immutable values:
+
+```bishop
+const int MAX_SIZE = 100;
+const str APP_NAME = "MyApp";
+const f64 PI = 3.14159;
+```
+
+Constants with type inference:
+
+```bishop
+const MAX := 100;           // inferred as int
+const NAME := "Bishop";     // inferred as str
+const RATE := 0.05;         // inferred as f64
+```
+
+Constants cannot be reassigned:
+
+```bishop
+const int X = 42;
+X = 100;  // ERROR: cannot assign to const variable 'X'
+```
+
+### Module-Level Constants
+
+Constants can be declared at the module level (outside of functions):
+
+```bishop
+// config.b
+const int MAX_CONNECTIONS = 100;
+const str VERSION = "1.0.0";
+
+fn get_max_connections() -> int {
+    return MAX_CONNECTIONS;  // access module-level const
+}
+```
+
+Module-level constants can be accessed from other modules using qualified names:
+
+```bishop
+// main.b
+import config;
+
+fn main() {
+    print(config.MAX_CONNECTIONS);  // 100
+    print(config.VERSION);          // "1.0.0"
+}
 ```
 
 ## Functions
@@ -279,6 +328,27 @@ s := "hello" + " " + "world";
 
 ## Strings
 
+### String Literals
+
+Strings can be defined using either double quotes or single quotes:
+
+```bishop
+str greeting = "Hello, World!";
+str name = 'Alice';
+```
+
+Single-quoted strings are useful when the string contains double quotes:
+
+```bishop
+// JSON with embedded quotes - no escaping needed
+json := '{"name": "Alice", "age": 30}';
+
+// Equivalent using double quotes (requires escaping)
+json := "{\"name\": \"Alice\", \"age\": 30}";
+```
+
+Both quote styles produce the same `str` type.
+
 ### String Methods
 
 ```bishop
@@ -291,7 +361,7 @@ s.contains("world");     // -> bool: true
 s.starts_with("hello");  // -> bool: true
 s.ends_with("world");    // -> bool: true
 s.substr(0, 5);          // -> str: "hello"
-s.at(0);                 // -> char: 'h'
+s.at(0);                 // -> str: "h"
 s.find("world");         // -> int: index of substring
 
 // Case transformation
@@ -383,6 +453,90 @@ parts.join(" ");         // -> str: "hello world"
 parts.join("-");         // -> str: "hello-world"
 ```
 
+## Pairs
+
+Pairs hold exactly two values of the same type.
+
+### Pair Creation
+
+```bishop
+p := Pair<int>(1, 2);
+names := Pair<str>("hello", "world");
+```
+
+### Pair Field Access
+
+```bishop
+p := Pair<int>(10, 20);
+x := p.first;   // 10
+y := p.second;  // 20
+```
+
+### Pair get() with default
+
+```bishop
+p := Pair<int>(10, 20);
+x := p.get(0) default 0;   // 10 (first element)
+y := p.get(1) default 0;   // 20 (second element)
+z := p.get(2) default 99;  // 99 (out of bounds, uses default)
+```
+
+### Pair as Return Type
+
+```bishop
+fn divide(int a, int b) -> Pair<int> {
+    quotient := a / b;
+    remainder := a - quotient * b;
+    return Pair<int>(quotient, remainder);
+}
+
+result := divide(17, 5);
+quotient := result.first;   // 3
+remainder := result.second; // 2
+```
+
+## Tuples
+
+Tuples hold 2-5 values of the same type.
+
+### Tuple Creation
+
+```bishop
+t2 := Tuple<int>(1, 2);
+t3 := Tuple<str>("a", "b", "c");
+t5 := Tuple<int>(1, 2, 3, 4, 5);
+```
+
+### Tuple Access with get()
+
+```bishop
+t := Tuple<int>(10, 20, 30);
+x := t.get(0) default 0;   // 10
+y := t.get(1) default 0;   // 20
+z := t.get(2) default 0;   // 30
+out := t.get(10) default 99;  // 99 (out of bounds)
+```
+
+### Tuple with Variable Index
+
+```bishop
+t := Tuple<str>("a", "b", "c");
+idx := 2;
+val := t.get(idx) default "fallback";  // "c"
+```
+
+### Tuple in Loops
+
+```bishop
+t := Tuple<int>(1, 2, 3, 4, 5);
+sum := 0;
+
+for i in 0..5 {
+    sum = sum + (t.get(i) default 0);
+}
+// sum is 15
+```
+
 ## Error Handling
 
 ### Error Types
@@ -457,6 +611,52 @@ x := fallible() or match err {
     ParseError => fail err,
     _          => fail ConfigError { message: "unknown", cause: err }
 };
+
+// Continue to next loop iteration on error
+for item in items {
+    result := process(item) or continue;
+    handle(result);
+}
+
+// Break out of loop on error
+while running {
+    data := fetch() or break;
+    process(data);
+}
+```
+
+### Loop Control: `continue` and `break`
+
+Use `continue` to skip to the next iteration and `break` to exit a loop:
+
+```bishop
+for i in 0..10 {
+    if i == 3 {
+        continue;  // skip 3
+    }
+
+    if i == 7 {
+        break;     // stop at 7
+    }
+
+    print(i);
+}
+```
+
+Combined with `or` for error handling in loops:
+
+```bishop
+// Skip items that fail processing
+for item in items {
+    result := process(item) or continue;
+    save(result);
+}
+
+// Stop on first error
+while running {
+    conn := server.accept() or break;
+    handle(conn);
+}
 ```
 
 ### The `default` Keyword
@@ -693,6 +893,199 @@ fn main() {
 }
 ```
 
+### Networking Module
+
+```bishop
+import net;
+```
+
+#### TCP Server
+
+```bishop
+server := net.listen("127.0.0.1", 8080) or {
+    print("Failed to listen:", err.message);
+    return;
+};
+
+with server {
+    while true {
+        conn := server.accept() or continue;
+
+        go fn() {
+            data := conn.read(1024) or return;
+            conn.write("HTTP/1.1 200 OK\r\n\r\nHello") or return;
+            conn.close();
+        }();
+    }
+}
+```
+
+#### TCP Client
+
+```bishop
+conn := net.connect("example.com", 80) or {
+    print("Connection failed");
+    return;
+};
+conn.write("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+response := conn.read(4096);
+print(response);
+conn.close();
+```
+
+#### UDP
+
+```bishop
+// Bind and receive
+sock := net.udp_bind("0.0.0.0", 9000) or return;
+pkt := sock.recv_from(1024) or return;
+print("From:", pkt.addr, ":", pkt.port);
+print(pkt.data);
+
+// Send to specific address
+sock.send_to("hello", "192.168.1.1", 9000) or return;
+sock.close();
+
+// Connected UDP
+conn_sock := net.udp_connect("192.168.1.1", 9000) or return;
+conn_sock.send("hello") or return;
+data := conn_sock.recv(1024) or return;
+conn_sock.close();
+```
+
+#### DNS
+
+```bishop
+// Forward lookup
+addrs := net.resolve("example.com") or return;
+
+for addr in addrs {
+    print(addr);
+}
+
+// Reverse lookup
+hostname := net.reverse_lookup("93.184.216.34") or return;
+print(hostname);
+```
+
+#### net.TcpListener Methods
+
+| Method | Description |
+|--------|-------------|
+| `accept() -> net.TcpStream or err` | Accept incoming connection |
+| `close()` | Close the listener |
+
+#### net.TcpStream Methods
+
+| Method | Description |
+|--------|-------------|
+| `read(int n) -> str or err` | Read up to n bytes |
+| `read_exact(int n) -> str or err` | Read exactly n bytes |
+| `read_line() -> str or err` | Read a line (up to newline) |
+| `write(str data) -> int or err` | Write data, returns bytes written |
+| `flush() -> bool or err` | Flush buffered data |
+| `close()` | Close the connection |
+| `set_timeout(int ms)` | Set read/write timeout in milliseconds |
+
+#### net.UdpSocket Methods
+
+| Method | Description |
+|--------|-------------|
+| `send_to(str data, str host, int port) -> int or err` | Send to specific address |
+| `recv_from(int n) -> net.UdpPacket or err` | Receive with sender info |
+| `send(str data) -> int or err` | Send to connected address |
+| `recv(int n) -> str or err` | Receive from connected address |
+| `close()` | Close the socket |
+
+#### net.UdpPacket Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data` | `str` | Received data |
+| `addr` | `str` | Sender IP address |
+| `port` | `int` | Sender port |
+
+### Process Module
+
+```bishop
+import process;
+```
+
+#### ProcessResult Struct
+
+```bishop
+process.ProcessResult {
+    output str,      // Standard output from the process
+    error str,       // Standard error from the process
+    exit_code int,   // Exit code of the process
+    success bool     // True if exit code is 0
+}
+```
+
+#### Command Execution
+
+```bishop
+// Execute a command with arguments
+result := process.run("ls", ["-la"]) or {
+    print("Command failed:", err.message);
+    return;
+};
+print(result.output);
+print("Exit code:", result.exit_code);
+
+if result.success {
+    print("Command succeeded");
+}
+
+// Execute a shell command (supports pipes and redirects)
+result := process.shell("ls -la | grep txt") or return;
+print(result.output);
+```
+
+#### Environment Variables
+
+```bishop
+// Get environment variable (fails if not found)
+home := process.env("HOME") or fail err;
+
+// Get environment variable with default fallback
+token := process.env("API_TOKEN") or "default_value";
+
+// Require environment variable with graceful failure
+token := process.env("GH_TOKEN") or {
+    print("Error: GH_TOKEN environment variable is not set");
+    return;
+};
+
+// Set environment variable (fails if name is empty or system error)
+process.set_env("MY_VAR", "value") or fail err;
+```
+
+#### Working Directory
+
+```bishop
+// Get current working directory (fails if directory was deleted or permission denied)
+dir := process.cwd() or fail err;
+print(dir);
+
+// Change working directory
+process.chdir("/new/dir") or {
+    print("Failed to change directory");
+    return;
+};
+```
+
+#### Command Line Arguments
+
+```bishop
+// Get command line arguments as List<str>
+args := process.args();
+
+for arg in args {
+    print(arg);
+}
+```
+
 ## Import System
 
 Import modules using dot notation:
@@ -787,4 +1180,4 @@ sleep(100);       // sleep for 100 milliseconds
 
 ## Keywords
 
-`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`
+`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `Pair`, `Tuple`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`

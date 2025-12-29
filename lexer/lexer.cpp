@@ -34,6 +34,8 @@ static unordered_map<string, TokenType> keywords = {
     {"private", TokenType::PRIVATE},
     {"Channel", TokenType::CHANNEL},
     {"List", TokenType::LIST},
+    {"Pair", TokenType::PAIR},
+    {"Tuple", TokenType::TUPLE},
     {"select", TokenType::SELECT},
     {"case", TokenType::CASE},
     {"extern", TokenType::EXTERN},
@@ -44,10 +46,12 @@ static unordered_map<string, TokenType> keywords = {
     {"match", TokenType::MATCH},
     {"with", TokenType::WITH},
     {"as", TokenType::AS},
+    {"const", TokenType::CONST},
+    {"continue", TokenType::CONTINUE},
+    {"break", TokenType::BREAK},
     {"int", TokenType::TYPE_INT},
     {"str", TokenType::TYPE_STR},
     {"bool", TokenType::TYPE_BOOL},
-    {"char", TokenType::TYPE_CHAR},
     {"f32", TokenType::TYPE_F32},
     {"f64", TokenType::TYPE_F64},
     {"u32", TokenType::TYPE_U32},
@@ -111,46 +115,25 @@ Token Lexer::read_string() {
 }
 
 /**
- * Reads a single-quoted character literal. Assumes current char is '\''.
- * Format: 'c' where c is a single character, or '\x' for escape sequences.
+ * Reads a single-quoted string literal. Assumes current char is '\''.
+ * All single-quoted literals produce STRING tokens (same as double-quoted).
  */
-Token Lexer::read_char() {
+Token Lexer::read_single_quoted() {
     int start_line = line;
     advance();  // skip opening quote
+    string value;
 
-    if (current() == '\0' || current() == '\'') {
-        throw runtime_error("Empty character literal at line " + to_string(line));
-    }
-
-    char value;
-
-    if (current() == '\\') {
-        // Handle escape sequences
-        advance();
-
-        switch (current()) {
-            case 'n': value = '\n'; break;
-            case 't': value = '\t'; break;
-            case 'r': value = '\r'; break;
-            case '\\': value = '\\'; break;
-            case '\'': value = '\''; break;
-            case '0': value = '\0'; break;
-            default:
-                throw runtime_error("Unknown escape sequence '\\" + string(1, current()) + "' at line " + to_string(line));
-        }
-
-        advance();
-    } else {
-        value = current();
+    while (current() != '\'' && current() != '\0') {
+        value += current();
         advance();
     }
 
-    if (current() != '\'') {
-        throw runtime_error("Unterminated character literal at line " + to_string(line));
+    if (current() == '\0') {
+        throw runtime_error("Unterminated string literal at line " + to_string(start_line));
     }
 
     advance();  // skip closing quote
-    return {TokenType::CHAR_LITERAL, string(1, value), start_line};
+    return {TokenType::STRING, value, start_line};
 }
 
 /**
@@ -347,7 +330,7 @@ vector<Token> Lexer::tokenize() {
         } else if (current() == '"') {
             tokens.push_back(read_string());
         } else if (current() == '\'') {
-            tokens.push_back(read_char());
+            tokens.push_back(read_single_quoted());
         } else if (isdigit(current())) {
             tokens.push_back(read_number());
         } else if (isalpha(current()) || current() == '_') {

@@ -54,6 +54,11 @@ string emit_method_call(CodeGenState& state, const MethodCall& call) {
 
     string obj_str = emit(state, *call.object);
 
+    // Handle str.at() - wrap char result in std::string
+    if (call.object_type == "str" && call.method_name == "at") {
+        return fmt::format("std::string(1, {}.at({}))", obj_str, args[0]);
+    }
+
     // Handle List methods - map to std::vector equivalents
     if (call.object_type.rfind("List<", 0) == 0) {
         return emit_list_method_call(state, call, obj_str, args);
@@ -68,6 +73,16 @@ string emit_method_call(CodeGenState& state, const MethodCall& call) {
         }
 
         // Fall through to default handling for basic string methods
+    }
+
+    // Handle Pair methods
+    if (call.object_type.rfind("Pair<", 0) == 0) {
+        return emit_pair_method_call(state, call, obj_str, args);
+    }
+
+    // Handle Tuple methods
+    if (call.object_type.rfind("Tuple<", 0) == 0) {
+        return emit_tuple_method_call(state, call, obj_str, args);
     }
 
     // Use -> for pointer types (auto-deref like Go)

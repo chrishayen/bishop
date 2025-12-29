@@ -90,12 +90,6 @@ struct BoolLiteral : ASTNode {
 /** @brief The none literal for optional types */
 struct NoneLiteral : ASTNode {};
 
-/** @brief Character literal: 'a' */
-struct CharLiteral : ASTNode {
-    char value;
-    CharLiteral(char v, int l) : value(v) { this->line = l; }
-};
-
 /** @brief Reference to a variable by name */
 struct VariableRef : ASTNode {
     string name;
@@ -176,6 +170,19 @@ struct ListLiteral : ASTNode {
     vector<unique_ptr<ASTNode>> elements;  ///< List element expressions
 };
 
+/** @brief Pair creation: Pair<T>(a, b) */
+struct PairCreate : ASTNode {
+    string element_type;               ///< Type of elements (homogeneous)
+    unique_ptr<ASTNode> first;         ///< First element expression
+    unique_ptr<ASTNode> second;        ///< Second element expression
+};
+
+/** @brief Tuple creation: Tuple<T>(v1, v2, ...) up to 5 elements */
+struct TupleCreate : ASTNode {
+    string element_type;                    ///< Type of elements (homogeneous)
+    vector<unique_ptr<ASTNode>> elements;   ///< Element expressions (2-5 elements)
+};
+
 /** @brief A single case in a select statement */
 struct SelectCase : ASTNode {
     string binding_name;              ///< Variable to bind result (empty for send)
@@ -208,12 +215,13 @@ struct MethodCall : ASTNode {
 // Statements - Nodes that perform actions
 //------------------------------------------------------------------------------
 
-/** @brief Variable declaration: int x = 5 or x := 5 or int? x = none */
+/** @brief Variable declaration: int x = 5 or x := 5 or int? x = none or const int x = 5 */
 struct VariableDecl : ASTNode {
     mutable string type;           ///< Type name (empty for type inference, may be updated by typechecker)
     string name;                   ///< Variable name
     unique_ptr<ASTNode> value;     ///< Initial value expression
     bool is_optional = false;      ///< True if declared with ? (e.g., int?)
+    bool is_const = false;         ///< True if declared with const keyword
 };
 
 /** @brief Assignment to existing variable: x = value */
@@ -240,6 +248,12 @@ struct FailStmt : ASTNode {
     unique_ptr<ASTNode> value;     ///< Error message (string) or error literal
 };
 
+/** @brief Continue statement: continue; */
+struct ContinueStmt : ASTNode {};
+
+/** @brief Break statement: break; */
+struct BreakStmt : ASTNode {};
+
 //------------------------------------------------------------------------------
 // Error Handling - Or and Default expressions
 //------------------------------------------------------------------------------
@@ -264,6 +278,12 @@ struct OrFail : ASTNode {
 struct OrBlock : ASTNode {
     vector<unique_ptr<ASTNode>> body; ///< Statements to execute on error
 };
+
+/** @brief Or-continue handler: or continue */
+struct OrContinue : ASTNode {};
+
+/** @brief Or-break handler: or break */
+struct OrBreak : ASTNode {};
 
 /** @brief Or-match handler: or match err { arms } */
 struct OrMatch : ASTNode {
@@ -413,4 +433,5 @@ struct Program : ASTNode {
     vector<unique_ptr<FunctionDef>> functions;        ///< All function definitions
     vector<unique_ptr<MethodDef>> methods;            ///< All method definitions
     vector<unique_ptr<ExternFunctionDef>> externs;    ///< All extern function declarations
+    vector<unique_ptr<VariableDecl>> constants;       ///< Module-level const declarations
 };

@@ -106,10 +106,13 @@ string generate_function(CodeGenState& state, const FunctionDef& fn) {
 
     // Add implicit return {} for Result<void> functions without explicit return
     if (is_fallible && fn.return_type.empty() && !body.empty()) {
-        // Check if last statement is a return
+        // Check if the last line of the last statement is a return
+        // (Statements can be multi-line, e.g. or-expressions generate multiple lines)
         string last = body.back();
+        size_t last_newline = last.rfind('\n');
+        string last_line = (last_newline == string::npos) ? last : last.substr(last_newline + 1);
 
-        if (last.find("return") == string::npos) {
+        if (last_line.find("return") == string::npos) {
             body.push_back("return {};");
         }
     }
@@ -224,6 +227,15 @@ string generate_test_harness(CodeGenState& state, const unique_ptr<Program>& pro
 
     for (const auto& e : program->errors) {
         out += generate_error(state, *e) + "\n";
+    }
+
+    // Emit module-level constants
+    for (const auto& c : program->constants) {
+        out += generate_module_constant(state, *c);
+    }
+
+    if (!program->constants.empty()) {
+        out += "\n";
     }
 
     vector<pair<string, bool>> test_funcs;  // name, is_fallible

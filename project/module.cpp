@@ -11,6 +11,8 @@
 #include "parser/parser.hpp"
 #include "stdlib/http.hpp"
 #include "stdlib/fs.hpp"
+#include "stdlib/net.hpp"
+#include "stdlib/process.hpp"
 #include <fstream>
 #include <sstream>
 
@@ -169,6 +171,10 @@ unique_ptr<Module> ModuleManager::create_builtin_module(const string& name) {
         mod->ast = nog::stdlib::create_http_module();
     } else if (name == "fs") {
         mod->ast = nog::stdlib::create_fs_module();
+    } else if (name == "net") {
+        mod->ast = nog::stdlib::create_net_module();
+    } else if (name == "process") {
+        mod->ast = nog::stdlib::create_process_module();
     } else {
         return nullptr;
     }
@@ -262,6 +268,11 @@ unique_ptr<Program> ModuleManager::merge_files(const vector<fs::path>& files, co
         // Merge methods
         for (auto& m : ast->methods) {
             merged->methods.push_back(move(m));
+        }
+
+        // Merge constants
+        for (auto& c : ast->constants) {
+            merged->constants.push_back(move(c));
         }
     }
 

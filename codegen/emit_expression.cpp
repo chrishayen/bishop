@@ -40,10 +40,6 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return none_literal();
     }
 
-    if (auto* lit = dynamic_cast<const CharLiteral*>(&node)) {
-        return char_literal(lit->value);
-    }
-
     if (auto* ref = dynamic_cast<const VariableRef*>(&node)) {
         return variable_ref(ref->name);
     }
@@ -88,6 +84,14 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return emit_list_literal(state, *list);
     }
 
+    if (auto* pair = dynamic_cast<const PairCreate*>(&node)) {
+        return emit_pair_create(state, *pair);
+    }
+
+    if (auto* tuple = dynamic_cast<const TupleCreate*>(&node)) {
+        return emit_tuple_create(state, *tuple);
+    }
+
     if (auto* qref = dynamic_cast<const QualifiedRef*>(&node)) {
         return emit_qualified_ref(*qref);
     }
@@ -107,19 +111,20 @@ string emit(CodeGenState& state, const ASTNode& node) {
                 string cpp_type = decl->type.empty()
                     ? "std::remove_reference_t<decltype(" + result.temp_var + ".value())>"
                     : map_type(decl->type);
+                string const_prefix = decl->is_const ? "const " : "";
                 string out = result.preamble + "\n\t";
-                out += cpp_type + " " + decl->name + ";\n\t";
+                out += const_prefix + cpp_type + " " + decl->name + ";\n\t";
                 out += result.check;
                 return out;
             }
 
             string out = result.preamble + "\n\t";
             out += result.check + "\n\t";
-            out += variable_decl(decl->type, decl->name, result.value_expr, decl->is_optional);
+            out += variable_decl(decl->type, decl->name, result.value_expr, decl->is_optional, decl->is_const);
             return out;
         }
 
-        return variable_decl(decl->type, decl->name, emit(state, *decl->value), decl->is_optional);
+        return variable_decl(decl->type, decl->name, emit(state, *decl->value), decl->is_optional, decl->is_const);
     }
 
     if (auto* def_expr = dynamic_cast<const DefaultExpr*>(&node)) {

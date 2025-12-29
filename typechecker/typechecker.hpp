@@ -31,10 +31,12 @@ struct TypeInfo {
     bool is_optional = false;
     bool is_void = false;
     bool is_fallible = false;
+    bool is_const = false;
 
     bool operator==(const TypeInfo& other) const {
         return base_type == other.base_type && is_optional == other.is_optional &&
-               is_void == other.is_void && is_fallible == other.is_fallible;
+               is_void == other.is_void && is_fallible == other.is_fallible &&
+               is_const == other.is_const;
     }
 
     bool operator!=(const TypeInfo& other) const {
@@ -51,6 +53,7 @@ struct TypeCheckerState {
     std::map<std::string, std::vector<const MethodDef*>> methods;
     std::map<std::string, const FunctionDef*> functions;
     std::map<std::string, const ExternFunctionDef*> extern_functions;
+    std::map<std::string, TypeInfo> module_constants;  ///< Module-level const declarations
     /**
      * Local variables are tracked with a lexical scope stack.
      *
@@ -99,6 +102,7 @@ void collect_structs(TypeCheckerState& state, const Program& program);
 void collect_methods(TypeCheckerState& state, const Program& program);
 void collect_functions(TypeCheckerState& state, const Program& program);
 void collect_extern_functions(TypeCheckerState& state, const Program& program);
+void collect_constants(TypeCheckerState& state, const Program& program);
 
 // Function/method checking (check_function.cpp)
 void check_method(TypeCheckerState& state, const MethodDef& method);
@@ -129,7 +133,6 @@ TypeInfo check_float_literal(TypeCheckerState& state, const FloatLiteral& lit);
 TypeInfo check_string_literal(TypeCheckerState& state, const StringLiteral& lit);
 TypeInfo check_bool_literal(TypeCheckerState& state, const BoolLiteral& lit);
 TypeInfo check_none_literal(TypeCheckerState& state, const NoneLiteral& lit);
-TypeInfo check_char_literal(TypeCheckerState& state, const CharLiteral& lit);
 
 // Reference type inference (check_refs.cpp)
 TypeInfo check_variable_ref(TypeCheckerState& state, const VariableRef& var);
@@ -156,6 +159,15 @@ TypeInfo check_channel_method(TypeCheckerState& state, const MethodCall& mcall, 
 TypeInfo check_list_create(TypeCheckerState& state, const ListCreate& list);
 TypeInfo check_list_literal(TypeCheckerState& state, const ListLiteral& list);
 TypeInfo check_list_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+
+// Pair type inference (check_pair.cpp)
+TypeInfo check_pair_create(TypeCheckerState& state, const PairCreate& pair);
+TypeInfo check_pair_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+TypeInfo check_pair_field(TypeCheckerState& state, const FieldAccess& access, const std::string& element_type);
+
+// Tuple type inference (check_tuple.cpp)
+TypeInfo check_tuple_create(TypeCheckerState& state, const TupleCreate& tuple);
+TypeInfo check_tuple_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
 
 // Function call type inference (check_function_call.cpp)
 TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call);
@@ -186,6 +198,8 @@ void error(TypeCheckerState& state, const std::string& msg, int line);
 const FunctionDef* get_qualified_function(const TypeCheckerState& state, const std::string& module, const std::string& name);
 const StructDef* get_qualified_struct(const TypeCheckerState& state, const std::string& module, const std::string& name);
 const MethodDef* get_qualified_method(const TypeCheckerState& state, const std::string& module, const std::string& struct_name, const std::string& method_name);
+const TypeInfo* get_module_constant(const TypeCheckerState& state, const std::string& name);
+const TypeInfo* get_qualified_constant(const TypeCheckerState& state, const std::string& module, const std::string& name);
 
 } // namespace typechecker
 

@@ -11,10 +11,31 @@ using namespace std;
 namespace codegen {
 
 /**
+ * Escapes special characters in a string for C++ string literals.
+ */
+string escape_string(const string& value) {
+    string result;
+    result.reserve(value.size() * 2);
+
+    for (char c : value) {
+        switch (c) {
+            case '"':  result += "\\\""; break;
+            case '\\': result += "\\\\"; break;
+            case '\n': result += "\\n"; break;
+            case '\t': result += "\\t"; break;
+            case '\r': result += "\\r"; break;
+            default:   result += c; break;
+        }
+    }
+
+    return result;
+}
+
+/**
  * Emits a C++ string literal wrapped in std::string constructor.
  */
 string string_literal(const string& value) {
-    return fmt::format("std::string(\"{}\")", value);
+    return fmt::format("std::string(\"{}\")", escape_string(value));
 }
 
 /**
@@ -43,21 +64,6 @@ string bool_literal(bool value) {
  */
 string none_literal() {
     return "std::nullopt";
-}
-
-/**
- * Emits a C++ char literal with proper escape sequence handling.
- */
-string char_literal(char value) {
-    switch (value) {
-        case '\n': return "'\\n'";
-        case '\t': return "'\\t'";
-        case '\r': return "'\\r'";
-        case '\\': return "'\\\\'";
-        case '\'': return "'\\''";
-        case '\0': return "'\\0'";
-        default:   return fmt::format("'{}'", value);
-    }
 }
 
 } // namespace codegen

@@ -143,21 +143,21 @@ sub := s.substr(0, 5);  // "hello"
 
 ## at
 
-Returns the character at the specified index.
+Returns the character at the specified index as a single-character string.
 
 ```nog
-s.at(int index) -> char
+s.at(int index) -> str
 ```
 
 **Parameters:**
 
 - `index` (`int`): The index (0-based)
 
-**Returns:** `char` - The character at that position
+**Returns:** `str` - A single-character string at that position
 
 **Example:**
 ```nog
 s := "hello";
-c := s.at(0);  // 'h'
+c := s.at(0);  // "h"
 ```
 

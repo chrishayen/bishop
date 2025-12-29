@@ -31,6 +31,26 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return parse_fail(state);
     }
 
+    // continue statement
+    if (check(state, TokenType::CONTINUE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::SEMICOLON);
+        auto stmt = make_unique<ContinueStmt>();
+        stmt->line = start_line;
+        return stmt;
+    }
+
+    // break statement
+    if (check(state, TokenType::BREAK)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::SEMICOLON);
+        auto stmt = make_unique<BreakStmt>();
+        stmt->line = start_line;
+        return stmt;
+    }
+
     // if statement
     if (check(state, TokenType::IF)) {
         return parse_if(state);
@@ -61,6 +81,11 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return parse_go_spawn(state);
     }
 
+    // const declaration: const int x = 5 or const x := 5
+    if (check(state, TokenType::CONST)) {
+        return parse_const_decl(state);
+    }
+
     // typed variable: int x = 5
     if (is_type_token(state)) {
         return parse_variable_decl(state);
@@ -86,6 +111,62 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
 
         auto decl = make_unique<VariableDecl>();
         decl->type = "List<" + element_type + ">";
+        decl->line = start_line;
+        decl->name = consume(state, TokenType::IDENT).value;
+        consume(state, TokenType::ASSIGN);
+        decl->value = parse_expression(state);
+        consume(state, TokenType::SEMICOLON);
+        return decl;
+    }
+
+    // Pair<T> variable declaration: Pair<int> p = Pair<int>(1, 2);
+    if (check(state, TokenType::PAIR)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        string element_type;
+
+        if (is_type_token(state)) {
+            element_type = token_to_type(current(state).type);
+            advance(state);
+        } else if (check(state, TokenType::IDENT)) {
+            element_type = current(state).value;
+            advance(state);
+        }
+
+        consume(state, TokenType::GT);
+
+        auto decl = make_unique<VariableDecl>();
+        decl->type = "Pair<" + element_type + ">";
+        decl->line = start_line;
+        decl->name = consume(state, TokenType::IDENT).value;
+        consume(state, TokenType::ASSIGN);
+        decl->value = parse_expression(state);
+        consume(state, TokenType::SEMICOLON);
+        return decl;
+    }
+
+    // Tuple<T> variable declaration: Tuple<int> t = Tuple<int>(1, 2, 3);
+    if (check(state, TokenType::TUPLE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        string element_type;
+
+        if (is_type_token(state)) {
+            element_type = token_to_type(current(state).type);
+            advance(state);
+        } else if (check(state, TokenType::IDENT)) {
+            element_type = current(state).value;
+            advance(state);
+        }
+
+        consume(state, TokenType::GT);
+
+        auto decl = make_unique<VariableDecl>();
+        decl->type = "Tuple<" + element_type + ">";
         decl->line = start_line;
         decl->name = consume(state, TokenType::IDENT).value;
         consume(state, TokenType::ASSIGN);

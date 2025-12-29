@@ -37,6 +37,20 @@ string emit_or_return_handler(CodeGenState& state, const OrReturn& handler) {
 }
 
 /**
+ * Emit the handler code for an OrContinue.
+ */
+string emit_or_continue_handler() {
+    return "continue;";
+}
+
+/**
+ * Emit the handler code for an OrBreak.
+ */
+string emit_or_break_handler() {
+    return "break;";
+}
+
+/**
  * Emit the handler code for an OrFail.
  */
 string emit_or_fail_handler(CodeGenState& state, const OrFail& handler) {
@@ -148,6 +162,14 @@ OrEmitResult emit_or_for_decl(CodeGenState& state, const OrExpr& expr, const str
             temp, temp, match_code, var_name, temp);
         result.value_expr = "";  // Empty - variable is assigned in the check
         result.is_match = true;
+    } else if (dynamic_cast<const OrContinue*>(expr.handler.get())) {
+        handler_code = emit_or_continue_handler();
+        result.check = fmt::format("if ({}.is_error()) {{ {} }}", temp, handler_code);
+        result.value_expr = temp + ".value()";
+    } else if (dynamic_cast<const OrBreak*>(expr.handler.get())) {
+        handler_code = emit_or_break_handler();
+        result.check = fmt::format("if ({}.is_error()) {{ {} }}", temp, handler_code);
+        result.value_expr = temp + ".value()";
     }
 
     return result;
@@ -165,12 +187,40 @@ string emit_or_expr(CodeGenState& state, const OrExpr& expr) {
 
 /**
  * Emit a default expression.
+ *
+ * For Pair and Tuple get() methods, generates proper bounds-checking code
+ * that uses the fallback value for out-of-bounds access.
  */
 string emit_default_expr(CodeGenState& state, const DefaultExpr& expr) {
-    string value = emit(state, *expr.expr);
     string fallback = emit(state, *expr.fallback);
 
-    // Use ternary for falsy check
+    // Check if this is a method call on Pair or Tuple
+    if (auto* mcall = dynamic_cast<const MethodCall*>(expr.expr.get())) {
+        if (mcall->method_name == "get") {
+            string obj_type = mcall->object_type;
+
+            // Handle Pair<T>.get(idx) default fallback
+            if (obj_type.rfind("Pair<", 0) == 0) {
+                string obj_str = emit(state, *mcall->object);
+                string idx = emit(state, *mcall->args[0]);
+                // Return first for 0, second for 1, fallback otherwise
+                return fmt::format("(({}) == 0 ? {}.first : (({}) == 1 ? {}.second : {}))",
+                                   idx, obj_str, idx, obj_str, fallback);
+            }
+
+            // Handle Tuple<T>.get(idx) default fallback
+            if (obj_type.rfind("Tuple<", 0) == 0) {
+                string obj_str = emit(state, *mcall->object);
+                string idx = emit(state, *mcall->args[0]);
+                // Return element at idx if in bounds, fallback otherwise
+                return fmt::format("(static_cast<size_t>({}) < {}.size() && ({}) >= 0 ? {}[{}] : {})",
+                                   idx, obj_str, idx, obj_str, idx, fallback);
+            }
+        }
+    }
+
+    // Default behavior: use ternary for falsy check
+    string value = emit(state, *expr.expr);
     return fmt::format("({} ? {} : {})", value, value, fallback);
 }
 

@@ -21,7 +21,6 @@ string map_type(const string& t) {
     if (t == "int") return "int";
     if (t == "str") return "std::string";
     if (t == "bool") return "bool";
-    if (t == "char") return "char";
     if (t == "f32") return "float";
     if (t == "f64") return "double";
     if (t == "u32") return "uint32_t";
@@ -42,6 +41,24 @@ string map_type(const string& t) {
     // Handle List<T> types: List<int> -> std::vector<int>
     if (t.rfind("List<", 0) == 0 && t.back() == '>') {
         size_t start = 5;
+        size_t end = t.find('>', start);
+        string element_type = t.substr(start, end - start);
+        return "std::vector<" + map_type(element_type) + ">";
+    }
+
+    // Handle Pair<T> types: Pair<int> -> std::pair<int, int>
+    if (t.rfind("Pair<", 0) == 0 && t.back() == '>') {
+        size_t start = 5;
+        size_t end = t.find('>', start);
+        string element_type = t.substr(start, end - start);
+        string cpp_type = map_type(element_type);
+        return "std::pair<" + cpp_type + ", " + cpp_type + ">";
+    }
+
+    // Handle Tuple<T> types: Tuple<int> -> std::vector<int>
+    // We use vector for homogeneous tuples since all elements are the same type
+    if (t.rfind("Tuple<", 0) == 0 && t.back() == '>') {
+        size_t start = 6;
         size_t end = t.find('>', start);
         string element_type = t.substr(start, end - start);
         return "std::vector<" + map_type(element_type) + ">";
