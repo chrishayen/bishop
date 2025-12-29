@@ -144,7 +144,7 @@ void App::listen(int port) {
     try {
         acceptor.open(boost::asio::ip::tcp::v4());
         acceptor.set_option(boost::asio::socket_base::reuse_address(true));
-        acceptor.bind({boost::asio::ip::tcp::v4(), static_cast<boost::asio::ip::port_type>(port)});
+        acceptor.bind({boost::asio::ip::tcp::v4(), static_cast<unsigned short>(port)});
         acceptor.listen();
     } catch (const boost::system::system_error& e) {
         std::cerr << "Error: Failed to bind to port " << port << ": " << e.what() << std::endl;

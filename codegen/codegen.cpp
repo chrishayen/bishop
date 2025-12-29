@@ -58,6 +58,7 @@
 #include "stdlib/http.hpp"
 #include "stdlib/fs.hpp"
 #include "stdlib/crypto.hpp"
+#include "stdlib/process.hpp"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
@@ -110,6 +111,13 @@ static bool has_crypto_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the process module.
+ */
+static bool has_process_import(const map<string, const Module*>& imports) {
+    return imports.find("process") != imports.end();
+}
+
+/**
  * Checks if the program uses channels (requires boost fiber).
  */
 static bool uses_channels(const Program& program) {
@@ -138,6 +146,10 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
 
     if (name == "crypto") {
         return nog::stdlib::generate_crypto_runtime();
+    }
+
+    if (name == "process") {
+        return nog::stdlib::generate_process_runtime();
     }
 
     string out = "namespace " + name + " {\n\n";
@@ -231,6 +243,10 @@ string generate_with_imports(
 
     if (has_crypto_import(imports)) {
         out += "#include <bishop/crypto.hpp>\n";
+    }
+
+    if (has_process_import(imports)) {
+        out += "#include <bishop/process.hpp>\n";
     }
 
     if (uses_channels(*program)) {
