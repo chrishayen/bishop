@@ -121,7 +121,7 @@
  * @type regex.Regex
  * @description Replace the first match with the replacement string.
  * @param text str - The text to search
- * @param replacement str - Replacement string (supports $1, $2, etc. for capture groups)
+ * @param replacement str - Replacement string ($0 = full match, $1-$99 = capture groups, $$ = literal $)
  * @returns str - The modified string (original if no match)
  * @example
  * re := regex.compile(r"(\d+)-(\d+)") or return;
@@ -133,7 +133,7 @@
  * @type regex.Regex
  * @description Replace all matches with the replacement string.
  * @param text str - The text to search
- * @param replacement str - Replacement string (supports $1, $2, etc. for capture groups)
+ * @param replacement str - Replacement string ($0 = full match, $1-$99 = capture groups, $$ = literal $)
  * @returns str - The modified string (original if no matches)
  * @example
  * re := regex.compile(r"\d+") or return;

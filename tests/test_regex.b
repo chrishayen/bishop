@@ -238,6 +238,36 @@ fn test_replace_all_single_match() {
     assert_eq(result, "abcX");
 }
 
+fn test_replace_with_dollar_zero() {
+    re := regex.compile(r"\d+") or return;
+    result := re.replace("abc123def", "[$0]");
+    assert_eq(result, "abc[123]def");
+}
+
+fn test_replace_all_with_dollar_zero() {
+    re := regex.compile(r"\d+") or return;
+    result := re.replace_all("a1b2c3", "[$0]");
+    assert_eq(result, "a[1]b[2]c[3]");
+}
+
+fn test_replace_with_escaped_dollar() {
+    re := regex.compile(r"\d+") or return;
+    result := re.replace("price: 100", "$$");
+    assert_eq(result, "price: $");
+}
+
+fn test_replace_all_with_escaped_dollar() {
+    re := regex.compile(r"\d+") or return;
+    result := re.replace_all("a1b2", "$$");
+    assert_eq(result, "a$b$");
+}
+
+fn test_replace_mixed_dollar_references() {
+    re := regex.compile(r"(\d+)") or return;
+    result := re.replace("cost: 50", "$$($1)");
+    assert_eq(result, "cost: $(50)");
+}
+
 // ============================================
 // regex.split()
 // ============================================

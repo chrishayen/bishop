@@ -164,8 +164,9 @@ struct Regex {
 private:
     /**
      * Expand replacement string with capture group references.
-     * $1, $2, etc. are replaced with the corresponding capture groups.
-     * $0 is the full match.
+     * $0, $1, $2, etc. are replaced with the corresponding capture groups.
+     * $0 is the full match, $1-$99 are capture groups.
+     * $$ inserts a literal dollar sign.
      */
     std::string expand_replacement(const std::string& replacement, const std::smatch& match) const {
         std::string result;
@@ -174,9 +175,34 @@ private:
             if (replacement[i] == '$' && i + 1 < replacement.size()) {
                 char next = replacement[i + 1];
 
+                // Handle $$ -> literal $
+                if (next == '$') {
+                    result += '$';
+                    ++i;
+                    continue;
+                }
+
+                // Handle $0-$99 capture group references
                 if (next >= '0' && next <= '9') {
                     int group_num = next - '0';
 
+                    // Check for second digit (for $10-$99)
+                    if (i + 2 < replacement.size()) {
+                        char next2 = replacement[i + 2];
+
+                        if (next2 >= '0' && next2 <= '9') {
+                            int two_digit = group_num * 10 + (next2 - '0');
+
+                            // Only use two-digit if it's a valid group
+                            if (static_cast<size_t>(two_digit) < match.size()) {
+                                result += match[two_digit].str();
+                                i += 2;
+                                continue;
+                            }
+                        }
+                    }
+
+                    // Use single digit group
                     if (static_cast<size_t>(group_num) < match.size()) {
                         result += match[group_num].str();
                     }

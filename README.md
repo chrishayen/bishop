@@ -1222,15 +1222,24 @@ for m in matches {
 
 #### Replacement
 
+Replacement strings support capture group references:
+- `$0` - Full match
+- `$1` to `$99` - Capture groups
+- `$$` - Literal dollar sign
+
 ```bishop
 re := regex.compile(r"(\d+)-(\d+)") or return;
 
-// Replace first match (supports $1, $2 capture group references)
+// Replace first match (supports $0-$99 capture group references)
 re.replace("123-456", "$2-$1");      // "456-123"
+re.replace("123-456", "[$0]");       // "[123-456]"
 
 // Replace all matches
 re := regex.compile(r"\d+") or return;
 re.replace_all("a1b2c3", "X");       // "aXbXcX"
+
+// Use $$ for literal dollar sign
+re.replace("price: 100", "$$");      // "price: $"
 ```
 
 #### Splitting
