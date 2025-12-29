@@ -20,7 +20,8 @@ namespace codegen {
 string emit_str_upper(const string& obj_str) {
     return fmt::format(
         "[](std::string s) {{ "
-        "std::transform(s.begin(), s.end(), s.begin(), ::toupper); "
+        "std::transform(s.begin(), s.end(), s.begin(), "
+        "[](unsigned char c) {{ return std::toupper(c); }}); "
         "return s; "
         "}}({})",
         obj_str
@@ -34,7 +35,8 @@ string emit_str_upper(const string& obj_str) {
 string emit_str_lower(const string& obj_str) {
     return fmt::format(
         "[](std::string s) {{ "
-        "std::transform(s.begin(), s.end(), s.begin(), ::tolower); "
+        "std::transform(s.begin(), s.end(), s.begin(), "
+        "[](unsigned char c) {{ return std::tolower(c); }}); "
         "return s; "
         "}}({})",
         obj_str
@@ -49,8 +51,9 @@ string emit_str_capitalize(const string& obj_str) {
     return fmt::format(
         "[](std::string s) {{ "
         "if (s.empty()) return s; "
-        "std::transform(s.begin(), s.end(), s.begin(), ::tolower); "
-        "s[0] = std::toupper(s[0]); "
+        "std::transform(s.begin(), s.end(), s.begin(), "
+        "[](unsigned char c) {{ return std::tolower(c); }}); "
+        "s[0] = std::toupper(static_cast<unsigned char>(s[0])); "
         "return s; "
         "}}({})",
         obj_str
@@ -66,9 +69,10 @@ string emit_str_title(const string& obj_str) {
         "[](std::string s) {{ "
         "bool new_word = true; "
         "for (size_t i = 0; i < s.size(); ++i) {{ "
-        "if (std::isspace(s[i])) {{ new_word = true; }} "
-        "else if (new_word) {{ s[i] = std::toupper(s[i]); new_word = false; }} "
-        "else {{ s[i] = std::tolower(s[i]); }} "
+        "unsigned char c = static_cast<unsigned char>(s[i]); "
+        "if (std::isspace(c)) {{ new_word = true; }} "
+        "else if (new_word) {{ s[i] = std::toupper(c); new_word = false; }} "
+        "else {{ s[i] = std::tolower(c); }} "
         "}} "
         "return s; "
         "}}({})",
