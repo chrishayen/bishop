@@ -122,3 +122,9 @@ fn test_single_quoted_empty() {
     s := '';
     assert_eq(s.empty(), true);
 }
+
+fn test_double_quoted_string_with_single_quotes() {
+    s := "can't";
+    assert_eq(s.contains("'"), true);
+    assert_eq(s.length(), 5);
+}
