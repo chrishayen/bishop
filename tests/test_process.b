@@ -74,47 +74,59 @@ fn test_shell_command_substitution() or err {
 // Tests for process.env and process.set_env
 // ============================================================
 
-fn test_env_read_existing() {
-    home := process.env("HOME");
+fn test_env_read_existing() or err {
+    home := process.env("HOME") or fail err;
     assert_eq(true, home.length() > 0);
 }
 
-fn test_env_read_nonexistent() {
-    value := process.env("NONEXISTENT_VAR_XYZ123");
-    assert_eq(0, value.length());
+fn test_env_read_nonexistent_fails() or err {
+    value := process.env("NONEXISTENT_VAR_XYZ123") or {
+        return;
+    };
+    assert_eq(true, false);
 }
 
-fn test_set_env_and_read() {
-    process.set_env("BISHOP_TEST_VAR", "test_value");
-    value := process.env("BISHOP_TEST_VAR");
+fn test_set_env_and_read() or err {
+    _ := process.set_env("BISHOP_TEST_VAR", "test_value") or fail err;
+    value := process.env("BISHOP_TEST_VAR") or fail err;
     assert_eq("test_value", value);
 }
 
-fn test_set_env_override() {
-    process.set_env("BISHOP_TEST_VAR2", "original");
-    process.set_env("BISHOP_TEST_VAR2", "updated");
-    value := process.env("BISHOP_TEST_VAR2");
+fn test_set_env_override() or err {
+    _a := process.set_env("BISHOP_TEST_VAR2", "original") or fail err;
+    _b := process.set_env("BISHOP_TEST_VAR2", "updated") or fail err;
+    value := process.env("BISHOP_TEST_VAR2") or fail err;
     assert_eq("updated", value);
 }
 
-fn test_env_nonexistent_returns_empty() {
-    value := process.env("NONEXISTENT_VAR_ABC");
-    assert_eq("", value);
+fn test_env_with_or_handler() or err {
+    value := process.env("NONEXISTENT_VAR_ABC") or {
+        return;
+    };
+
+    assert_eq(true, false);
+}
+
+fn test_set_env_empty_name_fails() or err {
+    _ := process.set_env("", "value") or {
+        return;
+    };
+    assert_eq(true, false);
 }
 
 // ============================================================
 // Tests for process.cwd and process.chdir
 // ============================================================
 
-fn test_cwd_returns_path() {
-    current := process.cwd();
+fn test_cwd_returns_path() or err {
+    current := process.cwd() or fail err;
     assert_eq(true, current.length() > 0);
 }
 
 fn test_chdir_success() or err {
-    original := process.cwd();
+    original := process.cwd() or fail err;
     _a := process.chdir("/tmp") or fail err;
-    new_dir := process.cwd();
+    new_dir := process.cwd() or fail err;
     assert_eq("/tmp", new_dir);
 
     _b := process.chdir(original) or fail err;
@@ -125,6 +137,11 @@ fn test_chdir_failure() or err {
         return;
     };
     assert_eq(true, false);
+}
+
+fn test_cwd_with_or_handler() or err {
+    dir := process.cwd() or fail err;
+    assert_eq(true, dir.length() > 0);
 }
 
 // ============================================================

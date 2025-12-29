@@ -327,13 +327,14 @@ inline bishop::rt::Result<ProcessResult> shell(const std::string& cmd) {
 
 /**
  * Gets an environment variable value.
- * Returns empty string if not found.
+ * Returns error if variable is not found.
  */
-inline std::string env(const std::string& name) {
+inline bishop::rt::Result<std::string> env(const std::string& name) {
     const char* value = std::getenv(name.c_str());
 
     if (value == nullptr) {
-        return "";
+        return std::make_shared<bishop::rt::Error>(
+            "Environment variable not found: " + name);
     }
 
     return std::string(value);
@@ -341,19 +342,32 @@ inline std::string env(const std::string& name) {
 
 /**
  * Sets an environment variable.
+ * Returns error if the operation fails.
  */
-inline void set_env(const std::string& name, const std::string& value) {
-    setenv(name.c_str(), value.c_str(), 1);
+inline bishop::rt::Result<bool> set_env(const std::string& name, const std::string& value) {
+    if (name.empty()) {
+        return std::make_shared<bishop::rt::Error>(
+            "Environment variable name cannot be empty");
+    }
+
+    if (setenv(name.c_str(), value.c_str(), 1) != 0) {
+        return std::make_shared<bishop::rt::Error>(
+            "Failed to set environment variable: " + name + " - " + strerror(errno));
+    }
+
+    return true;
 }
 
 /**
  * Gets the current working directory.
+ * Returns error if the operation fails.
  */
-inline std::string cwd() {
+inline bishop::rt::Result<std::string> cwd() {
     char buffer[4096];
 
     if (getcwd(buffer, sizeof(buffer)) == nullptr) {
-        return "";
+        return std::make_shared<bishop::rt::Error>(
+            "Failed to get current working directory: " + std::string(strerror(errno)));
     }
 
     return std::string(buffer);
