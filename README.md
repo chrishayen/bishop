@@ -651,6 +651,77 @@ fn main() {
 }
 ```
 
+### Process Module
+
+```bishop
+import process;
+```
+
+#### ProcessResult Struct
+
+```bishop
+process.ProcessResult {
+    output str,      // Standard output from the process
+    error str,       // Standard error from the process
+    exit_code int,   // Exit code of the process
+    success bool     // True if exit code is 0
+}
+```
+
+#### Command Execution
+
+```bishop
+// Execute a command with arguments
+result := process.run("ls", ["-la"]) or {
+    print("Command failed:", err.message);
+    return;
+};
+print(result.output);
+print("Exit code:", result.exit_code);
+
+if result.success {
+    print("Command succeeded");
+}
+
+// Execute a shell command (supports pipes and redirects)
+result := process.shell("ls -la | grep txt") or return;
+print(result.output);
+```
+
+#### Environment Variables
+
+```bishop
+// Get environment variable (returns empty string if not found)
+home := process.env("HOME");
+
+// Set environment variable
+process.set_env("MY_VAR", "value");
+```
+
+#### Working Directory
+
+```bishop
+// Get current working directory
+print(process.cwd());
+
+// Change working directory
+process.chdir("/new/dir") or {
+    print("Failed to change directory");
+    return;
+};
+```
+
+#### Command Line Arguments
+
+```bishop
+// Get command line arguments as List<str>
+args := process.args();
+
+for arg in args {
+    print(arg);
+}
+```
+
 ## Import System
 
 Import modules using dot notation:

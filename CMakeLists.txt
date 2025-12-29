@@ -9,7 +9,9 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 find_package(fmt REQUIRED)
 find_package(tomlplusplus REQUIRED)
-cmake_policy(SET CMP0167 NEW)
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif()
 find_package(Boost REQUIRED COMPONENTS context fiber)
 
 # Fetch llhttp for HTTP parsing
@@ -99,6 +101,7 @@ add_library(bishop_lib
     project/module.cpp
     stdlib/http.cpp
     stdlib/fs.cpp
+    stdlib/process.cpp
 )
 target_link_libraries(bishop_lib fmt::fmt tomlplusplus::tomlplusplus)
 target_include_directories(bishop_lib PUBLIC ${llhttp_SOURCE_DIR}/include)
@@ -128,6 +131,9 @@ add_custom_target(bishop_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/fs/fs.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/fs.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/process/process.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/process.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/fiber_asio/round_robin.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/fiber_asio/round_robin.hpp
