@@ -108,6 +108,7 @@ add_library(bishop_lib
     project/module.cpp
     stdlib/http.cpp
     stdlib/fs.cpp
+    stdlib/crypto.cpp
     stdlib/net.cpp
     stdlib/process.cpp
     stdlib/math.cpp
@@ -140,6 +141,9 @@ add_custom_target(bishop_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/fs/fs.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/fs.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/crypto/crypto.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/crypto.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/net/net.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/net.hpp

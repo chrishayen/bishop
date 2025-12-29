@@ -862,6 +862,67 @@ fs.is_dir("path");       // -> bool (true if path is a directory)
 fs.read_dir("path");     // -> str (newline-separated filenames)
 ```
 
+### Crypto Module
+
+Cryptographic utilities for hashing, encoding, and UUID generation. Uses OpenSSL.
+
+```bishop
+import crypto;
+```
+
+#### Hashing Functions
+
+All hash functions return `str or err` with lowercase hex strings.
+
+```bishop
+hash := crypto.md5("hello") or return;     // -> "5d41402abc4b2a76b9719d911017c592"
+hash := crypto.sha1("hello") or return;    // -> "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d"
+hash := crypto.sha256("hello") or return;  // -> "2cf24dba5fb0a30e26e83b2ac5b9e29e..."
+hash := crypto.sha512("hello") or return;  // -> "9b71d224bd62f3785d96d46ad3ea3d73..."
+```
+
+#### HMAC
+
+```bishop
+crypto.hmac_sha256("secret_key", "data");  // -> hex string
+```
+
+#### Base64 Encoding/Decoding
+
+```bishop
+// Encoding (always succeeds)
+encoded := crypto.base64_encode("Hello, World!");
+// encoded == "SGVsbG8sIFdvcmxkIQ=="
+
+// Decoding (can fail on invalid input)
+decoded := crypto.base64_decode("SGVsbG8h") or return;
+```
+
+#### Hex Encoding/Decoding
+
+```bishop
+hex := crypto.hex_encode("hello");               // -> "68656c6c6f"
+decoded := crypto.hex_decode("68656c6c6f") or return;  // -> "hello"
+```
+
+#### UUID Generation
+
+```bishop
+// Random UUID v4
+id := crypto.uuid() or return;
+// e.g., "550e8400-e29b-41d4-a716-446655440000"
+
+// Deterministic UUID v5 (namespace + name based)
+id := crypto.uuid_v5("namespace", "name") or return;
+// Same inputs always produce same UUID
+```
+
+#### Random Bytes
+
+```bishop
+bytes := crypto.random_bytes(32) or return;  // -> List<u8> with 32 random bytes
+```
+
 ### Example: Static File Server
 
 ```bishop
