@@ -103,19 +103,20 @@ string emit(CodeGenState& state, const ASTNode& node) {
                 string cpp_type = decl->type.empty()
                     ? "std::remove_reference_t<decltype(" + result.temp_var + ".value())>"
                     : map_type(decl->type);
+                string const_prefix = decl->is_const ? "const " : "";
                 string out = result.preamble + "\n\t";
-                out += cpp_type + " " + decl->name + ";\n\t";
+                out += const_prefix + cpp_type + " " + decl->name + ";\n\t";
                 out += result.check;
                 return out;
             }
 
             string out = result.preamble + "\n\t";
             out += result.check + "\n\t";
-            out += variable_decl(decl->type, decl->name, result.value_expr, decl->is_optional);
+            out += variable_decl(decl->type, decl->name, result.value_expr, decl->is_optional, decl->is_const);
             return out;
         }
 
-        return variable_decl(decl->type, decl->name, emit(state, *decl->value), decl->is_optional);
+        return variable_decl(decl->type, decl->name, emit(state, *decl->value), decl->is_optional, decl->is_const);
     }
 
     if (auto* def_expr = dynamic_cast<const DefaultExpr*>(&node)) {
