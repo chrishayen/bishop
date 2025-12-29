@@ -611,10 +611,10 @@ fn test_pow_one_base() {
 }
 
 // ============================================================
-// Integration test from issue #32 example
+// Integration test combining multiple math operations
 // ============================================================
 
-fn test_issue_32_example() {
+fn test_math_integration() {
     // Constants
     pi := math.PI;
     e := math.E;
