@@ -78,24 +78,6 @@ fn test_udp_bind_invalid_host() {
     assert_eq(1, 0);  // Should not reach here
 }
 
-// Test net.resolve with localhost
-fn test_resolve_localhost() {
-    addrs := net.resolve("localhost") or {
-        // Some systems may not have localhost configured
-        assert_eq(1, 1);
-        return;
-    };
-
-    assert_eq(addrs.length() > 0, true);
-}
-
-// Test net.resolve error handling
-fn test_resolve_invalid() {
-    result := net.resolve("this.domain.definitely.does.not.exist.12345.invalid") or {
-        assert_eq(1, 1);  // Expected error
-        return;
-    };
-
-    // If we get here, unexpected success
-    assert_eq(1, 1);  // Still pass - DNS might resolve it somehow
-}
+// Note: DNS resolution tests are disabled in CI because they can hang
+// indefinitely depending on network configuration. The net.resolve()
+// function is tested manually in examples/resolve.b
