@@ -155,7 +155,7 @@ unique_ptr<Program> create_process_module() {
     run_fn->params.push_back({"str", "cmd"});
     run_fn->params.push_back({"List<str>", "args"});
     run_fn->return_type = "process.ProcessResult";
-    run_fn->is_fallible = true;
+    run_fn->error_type = "err";
     program->functions.push_back(move(run_fn));
 
     // fn shell(str cmd) -> process.ProcessResult or err
@@ -164,7 +164,7 @@ unique_ptr<Program> create_process_module() {
     shell_fn->visibility = Visibility::Public;
     shell_fn->params.push_back({"str", "cmd"});
     shell_fn->return_type = "process.ProcessResult";
-    shell_fn->is_fallible = true;
+    shell_fn->error_type = "err";
     program->functions.push_back(move(shell_fn));
 
     // fn env(str name) -> str
@@ -196,7 +196,7 @@ unique_ptr<Program> create_process_module() {
     chdir_fn->visibility = Visibility::Public;
     chdir_fn->params.push_back({"str", "path"});
     chdir_fn->return_type = "bool";
-    chdir_fn->is_fallible = true;
+    chdir_fn->error_type = "err";
     program->functions.push_back(move(chdir_fn));
 
     // fn args() -> List<str>

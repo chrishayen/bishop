@@ -81,7 +81,7 @@ public:
     Arena(const Arena&) = delete;
     Arena& operator=(const Arena&) = delete;
 
-    void* alloc(size_t size, size_t alignment = alignof(std::max_align_t)) {
+    void* alloc(size_t size, size_t alignment = alignof(max_align_t)) {
         size_t aligned_offset = (offset_ + alignment - 1) & ~(alignment - 1);
         size_t new_offset = aligned_offset + size;
 
