@@ -69,6 +69,16 @@ TypeInfo check_lambda_expr(TypeCheckerState& state, const LambdaExpr& lambda) {
         check_statement(state, *stmt);
     }
 
+    // Ensure non-void lambdas return on all code paths
+    if (!lambda.return_type.empty() && lambda.return_type != "void") {
+        if (!has_return(lambda.body)) {
+            error(state,
+                  "lambda with non-void return type '" + lambda.return_type +
+                      "' may not return a value on all paths",
+                  lambda.line);
+        }
+    }
+
     // Restore previous context
     state.current_return = saved_return;
     state.current_function_is_fallible = saved_fallible;

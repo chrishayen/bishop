@@ -40,10 +40,10 @@ string emit_lambda_expr(CodeGenState& state, const LambdaExpr& lambda) {
 
     // Emit body statements
     for (const auto& stmt : lambda.body) {
-        out += "\t\t" + generate_statement(state, *stmt) + "\n";
+        out += "\t" + generate_statement(state, *stmt) + "\n";
     }
 
-    out += "\t}";
+    out += "}";
 
     return out;
 }
