@@ -13,12 +13,18 @@ namespace codegen {
 /**
  * Emits a field access AST node with self handling.
  * Auto-dereferences pointer types (like Go).
+ * Handles module constant access (module.CONST -> module::CONST).
  */
 string emit_field_access(CodeGenState& state, const FieldAccess& access) {
     // Handle self.field -> this->field in methods
     if (auto* ref = dynamic_cast<const VariableRef*>(access.object.get())) {
         if (ref->name == "self") {
             return "this->" + access.field_name;
+        }
+
+        // Handle module.CONST -> module::CONST
+        if (access.object_type == "__module__") {
+            return ref->name + "::" + access.field_name;
         }
     }
 

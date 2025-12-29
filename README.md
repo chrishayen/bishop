@@ -74,6 +74,57 @@ name := "Hello"; // inferred as str
 pi := 3.14;      // inferred as f64
 ```
 
+### Constants
+
+Use `const` to declare immutable values:
+
+```bishop
+const int MAX_SIZE = 100;
+const str APP_NAME = "MyApp";
+const f64 PI = 3.14159;
+```
+
+Constants with type inference:
+
+```bishop
+const MAX := 100;           // inferred as int
+const NAME := "Bishop";     // inferred as str
+const RATE := 0.05;         // inferred as f64
+```
+
+Constants cannot be reassigned:
+
+```bishop
+const int X = 42;
+X = 100;  // ERROR: cannot assign to const variable 'X'
+```
+
+### Module-Level Constants
+
+Constants can be declared at the module level (outside of functions):
+
+```bishop
+// config.b
+const int MAX_CONNECTIONS = 100;
+const str VERSION = "1.0.0";
+
+fn get_max_connections() -> int {
+    return MAX_CONNECTIONS;  // access module-level const
+}
+```
+
+Module-level constants can be accessed from other modules using qualified names:
+
+```bishop
+// main.b
+import config;
+
+fn main() {
+    print(config.MAX_CONNECTIONS);  // 100
+    print(config.VERSION);          // "1.0.0"
+}
+```
+
 ## Functions
 
 ### Basic Function
@@ -993,4 +1044,4 @@ sleep(100);       // sleep for 100 milliseconds
 
 ## Keywords
 
-`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `continue`, `break`
+`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`

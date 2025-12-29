@@ -63,7 +63,7 @@ Token consume(ParserState& state, TokenType type) {
 /**
  * Main parsing entry point. Parses the complete token stream into a Program AST.
  * Parses imports first, then function definitions (fn), struct definitions (Name :: struct),
- * and method definitions (Name :: method_name).
+ * method definitions (Name :: method_name), and module-level const declarations.
  */
 unique_ptr<Program> parse(ParserState& state) {
     auto program = make_unique<Program>();
@@ -113,6 +113,13 @@ unique_ptr<Program> parse(ParserState& state) {
             auto fn = parse_function(state, vis);
             fn->doc_comment = doc;
             program->functions.push_back(move(fn));
+            continue;
+        }
+
+        // Module-level const declaration
+        if (check(state, TokenType::CONST)) {
+            auto decl = parse_const_decl(state);
+            program->constants.push_back(move(decl));
             continue;
         }
 

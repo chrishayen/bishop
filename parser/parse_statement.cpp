@@ -81,6 +81,11 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return parse_go_spawn(state);
     }
 
+    // const declaration: const int x = 5 or const x := 5
+    if (check(state, TokenType::CONST)) {
+        return parse_const_decl(state);
+    }
+
     // typed variable: int x = 5
     if (is_type_token(state)) {
         return parse_variable_decl(state);

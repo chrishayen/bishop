@@ -169,6 +169,7 @@ enum class TokenType {
     MATCH,
     WITH,
     AS,
+    CONST,
     CONTINUE,
     BREAK,
 
