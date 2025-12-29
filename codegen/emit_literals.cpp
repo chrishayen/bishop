@@ -46,10 +46,18 @@ string none_literal() {
 }
 
 /**
- * Emits a C++ char literal.
+ * Emits a C++ char literal with proper escape sequence handling.
  */
 string char_literal(char value) {
-    return fmt::format("'{}'", value);
+    switch (value) {
+        case '\n': return "'\\n'";
+        case '\t': return "'\\t'";
+        case '\r': return "'\\r'";
+        case '\\': return "'\\\\'";
+        case '\'': return "'\\''";
+        case '\0': return "'\\0'";
+        default:   return fmt::format("'{}'", value);
+    }
 }
 
 } // namespace codegen
