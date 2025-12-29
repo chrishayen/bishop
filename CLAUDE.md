@@ -279,6 +279,106 @@ fn main() {
 }
 ```
 
+## Crypto Module
+
+Cryptographic utilities for hashing, encoding, and UUID generation. Uses OpenSSL.
+
+### Import
+```bishop
+import crypto;
+```
+
+### Hashing Functions
+All hash functions return lowercase hex strings.
+
+```bishop
+crypto.md5("hello");     // -> "5d41402abc4b2a76b9719d911017c592"
+crypto.sha1("hello");    // -> "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d"
+crypto.sha256("hello");  // -> "2cf24dba5fb0a30e26e83b2ac5b9e29e..."
+crypto.sha512("hello");  // -> "9b71d224bd62f3785d96d46ad3ea3d73..."
+```
+
+### HMAC
+```bishop
+crypto.hmac_sha256("secret_key", "data");  // -> hex string
+```
+
+### Base64 Encoding/Decoding
+```bishop
+// Encoding (always succeeds)
+encoded := crypto.base64_encode("Hello, World!");
+// encoded == "SGVsbG8sIFdvcmxkIQ=="
+
+// Decoding (can fail on invalid input)
+decoded := crypto.base64_decode("SGVsbG8h") or return;
+```
+
+### Hex Encoding/Decoding
+```bishop
+// Encoding
+hex := crypto.hex_encode("hello");  // -> "68656c6c6f"
+
+// Decoding
+decoded := crypto.hex_decode("68656c6c6f");  // -> "hello"
+```
+
+### UUID Generation
+```bishop
+// Random UUID v4
+id := crypto.uuid();
+// e.g., "550e8400-e29b-41d4-a716-446655440000"
+
+// Deterministic UUID v5 (namespace + name based)
+id := crypto.uuid_v5("namespace", "name");
+// Same inputs always produce same UUID
+```
+
+### Random Bytes
+```bishop
+bytes := crypto.random_bytes(32);  // -> List<u8> with 32 random bytes
+```
+
+### Complete Example
+```bishop
+import crypto;
+
+fn main() {
+    // Hash a password
+    password := "secret123";
+    hash := crypto.sha256(password);
+    print("Password hash:", hash);
+
+    // Create HMAC for API signing
+    message := "GET /api/users";
+    signature := crypto.hmac_sha256("api_key", message);
+    print("Signature:", signature);
+
+    // Encode data for transmission
+    data := "Hello, World!";
+    encoded := crypto.base64_encode(data);
+    print("Encoded:", encoded);
+
+    // Decode received data
+    decoded := crypto.base64_decode(encoded) or {
+        print("Decode failed");
+        return;
+    };
+    print("Decoded:", decoded);
+
+    // Generate unique ID
+    user_id := crypto.uuid();
+    print("User ID:", user_id);
+
+    // Generate deterministic ID from user data
+    stable_id := crypto.uuid_v5("users", "john@example.com");
+    print("Stable ID:", stable_id);
+
+    // Generate random bytes for encryption key
+    key := crypto.random_bytes(32);
+    print("Key length:", key.length());
+}
+```
+
 ## String Methods
 ```bishop
 s.length();              // -> int
