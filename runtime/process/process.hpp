@@ -26,8 +26,8 @@ namespace process {
  * Result of a process execution.
  */
 struct ProcessResult {
-    std::string stdout_str;
-    std::string stderr_str;
+    std::string output;
+    std::string error;
     int exit_code;
     bool success;
 };
@@ -56,9 +56,7 @@ inline bishop::rt::Result<ProcessResult> run(
     int stderr_pipe[2];
 
     if (pipe(stdout_pipe) == -1 || pipe(stderr_pipe) == -1) {
-        return bishop::rt::Result<ProcessResult>::err(
-            bishop::rt::Error("Failed to create pipes")
-        );
+        return std::make_shared<bishop::rt::Error>("Failed to create pipes");
     }
 
     pid_t pid = fork();
@@ -68,9 +66,7 @@ inline bishop::rt::Result<ProcessResult> run(
         close(stdout_pipe[1]);
         close(stderr_pipe[0]);
         close(stderr_pipe[1]);
-        return bishop::rt::Result<ProcessResult>::err(
-            bishop::rt::Error("Failed to fork process")
-        );
+        return std::make_shared<bishop::rt::Error>("Failed to fork process");
     }
 
     if (pid == 0) {
@@ -127,8 +123,8 @@ inline bishop::rt::Result<ProcessResult> run(
     waitpid(pid, &status, 0);
 
     ProcessResult result;
-    result.stdout_str = stdout_output;
-    result.stderr_str = stderr_output;
+    result.output = stdout_output;
+    result.error = stderr_output;
 
     if (WIFEXITED(status)) {
         result.exit_code = WEXITSTATUS(status);
@@ -138,7 +134,7 @@ inline bishop::rt::Result<ProcessResult> run(
 
     result.success = (result.exit_code == 0);
 
-    return bishop::rt::Result<ProcessResult>::ok(result);
+    return result;
 }
 
 /**
@@ -155,9 +151,7 @@ inline bishop::rt::Result<ProcessResult> run_with_options(
     int stdin_pipe[2];
 
     if (pipe(stdout_pipe) == -1 || pipe(stderr_pipe) == -1) {
-        return bishop::rt::Result<ProcessResult>::err(
-            bishop::rt::Error("Failed to create pipes")
-        );
+        return std::make_shared<bishop::rt::Error>("Failed to create pipes");
     }
 
     bool has_stdin = !options.stdin_str.empty();
@@ -167,9 +161,7 @@ inline bishop::rt::Result<ProcessResult> run_with_options(
         close(stdout_pipe[1]);
         close(stderr_pipe[0]);
         close(stderr_pipe[1]);
-        return bishop::rt::Result<ProcessResult>::err(
-            bishop::rt::Error("Failed to create stdin pipe")
-        );
+        return std::make_shared<bishop::rt::Error>("Failed to create stdin pipe");
     }
 
     pid_t pid = fork();
@@ -185,9 +177,7 @@ inline bishop::rt::Result<ProcessResult> run_with_options(
             close(stdin_pipe[1]);
         }
 
-        return bishop::rt::Result<ProcessResult>::err(
-            bishop::rt::Error("Failed to fork process")
-        );
+        return std::make_shared<bishop::rt::Error>("Failed to fork process");
     }
 
     if (pid == 0) {
@@ -308,14 +298,12 @@ inline bishop::rt::Result<ProcessResult> run_with_options(
     }
 
     if (timed_out) {
-        return bishop::rt::Result<ProcessResult>::err(
-            bishop::rt::Error("Process timed out")
-        );
+        return std::make_shared<bishop::rt::Error>("Process timed out");
     }
 
     ProcessResult proc_result;
-    proc_result.stdout_str = stdout_output;
-    proc_result.stderr_str = stderr_output;
+    proc_result.output = stdout_output;
+    proc_result.error = stderr_output;
 
     if (WIFEXITED(status)) {
         proc_result.exit_code = WEXITSTATUS(status);
@@ -325,7 +313,7 @@ inline bishop::rt::Result<ProcessResult> run_with_options(
 
     proc_result.success = (proc_result.exit_code == 0);
 
-    return bishop::rt::Result<ProcessResult>::ok(proc_result);
+    return proc_result;
 }
 
 /**
@@ -375,14 +363,12 @@ inline std::string cwd() {
  * Changes the current working directory.
  * Returns true on success, false on failure.
  */
-inline bishop::rt::Result<bool> chdir_bishop(const std::string& path) {
-    if (chdir(path.c_str()) == 0) {
-        return bishop::rt::Result<bool>::ok(true);
+inline bishop::rt::Result<bool> chdir(const std::string& path) {
+    if (::chdir(path.c_str()) == 0) {
+        return true;
     }
 
-    return bishop::rt::Result<bool>::err(
-        bishop::rt::Error("Failed to change directory to: " + path)
-    );
+    return std::make_shared<bishop::rt::Error>("Failed to change directory to: " + path);
 }
 
 /**

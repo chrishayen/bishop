@@ -10,13 +10,13 @@
  * @nog_struct ProcessResult
  * @module process
  * @description Result of a process execution.
- * @field stdout str - Standard output from the process
- * @field stderr str - Standard error from the process
+ * @field output str - Standard output from the process
+ * @field error str - Standard error from the process
  * @field exit_code int - Exit code of the process
  * @field success bool - True if exit code is 0
  * @example
  * result := process.run("ls", ["-la"]) or return;
- * print(result.stdout);
+ * print(result.output);
  * print("Exit code:", result.exit_code);
  */
 
@@ -49,7 +49,7 @@
  *     print("Command failed:", err.message);
  *     return;
  * };
- * print(result.stdout);
+ * print(result.output);
  */
 
 /**
@@ -60,7 +60,7 @@
  * @returns ProcessResult or err - Result of the execution
  * @example
  * result := process.shell("ls -la | grep txt") or return;
- * print(result.stdout);
+ * print(result.output);
  */
 
 /**
@@ -129,12 +129,12 @@ namespace nog::stdlib {
 unique_ptr<Program> create_process_module() {
     auto program = make_unique<Program>();
 
-    // ProcessResult :: struct { stdout str, stderr str, exit_code int, success bool }
+    // ProcessResult :: struct { output str, error str, exit_code int, success bool }
     auto result_struct = make_unique<StructDef>();
     result_struct->name = "ProcessResult";
     result_struct->visibility = Visibility::Public;
-    result_struct->fields.push_back({"stdout", "str", ""});
-    result_struct->fields.push_back({"stderr", "str", ""});
+    result_struct->fields.push_back({"output", "str", ""});
+    result_struct->fields.push_back({"error", "str", ""});
     result_struct->fields.push_back({"exit_code", "int", ""});
     result_struct->fields.push_back({"success", "bool", ""});
     program->structs.push_back(move(result_struct));

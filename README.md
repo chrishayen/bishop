@@ -661,8 +661,8 @@ import process;
 
 ```bishop
 process.ProcessResult {
-    stdout str,      // Standard output from the process
-    stderr str,      // Standard error from the process
+    output str,      // Standard output from the process
+    error str,       // Standard error from the process
     exit_code int,   // Exit code of the process
     success bool     // True if exit code is 0
 }
@@ -676,7 +676,7 @@ result := process.run("ls", ["-la"]) or {
     print("Command failed:", err.message);
     return;
 };
-print(result.stdout);
+print(result.output);
 print("Exit code:", result.exit_code);
 
 if result.success {
@@ -685,14 +685,14 @@ if result.success {
 
 // Execute a shell command (supports pipes and redirects)
 result := process.shell("ls -la | grep txt") or return;
-print(result.stdout);
+print(result.output);
 ```
 
 #### Environment Variables
 
 ```bishop
 // Get environment variable (returns empty string if not found)
-home := process.env("HOME") default "/tmp";
+home := process.env("HOME");
 
 // Set environment variable
 process.set_env("MY_VAR", "value");
