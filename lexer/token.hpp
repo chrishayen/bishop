@@ -168,6 +168,8 @@ enum class TokenType {
     PRIVATE,
     CHANNEL,
     LIST,
+    PAIR,
+    TUPLE,
     SELECT,
     CASE,
     EXTERN,

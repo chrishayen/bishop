@@ -29,6 +29,11 @@ string emit_field_access(CodeGenState& state, const FieldAccess& access) {
         return obj_str + "->" + access.field_name;
     }
 
+    // Handle Pair<T> field access (first, second)
+    if (access.object_type.rfind("Pair<", 0) == 0) {
+        return emit_pair_field_access(obj_str, access.field_name);
+    }
+
     return field_access(obj_str, access.field_name);
 }
 

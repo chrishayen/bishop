@@ -87,6 +87,14 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
         return check_list_literal(state, *list);
     }
 
+    if (auto* pair = dynamic_cast<const PairCreate*>(&expr)) {
+        return check_pair_create(state, *pair);
+    }
+
+    if (auto* tuple = dynamic_cast<const TupleCreate*>(&expr)) {
+        return check_tuple_create(state, *tuple);
+    }
+
     if (auto* call = dynamic_cast<const FunctionCall*>(&expr)) {
         return check_function_call(state, *call);
     }

@@ -109,6 +109,24 @@ string parse_base_type(ParserState& state) {
         return "List<" + element_type + ">";
     }
 
+    // Pair<T> type
+    if (check(state, TokenType::PAIR)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Pair<" + element_type + ">";
+    }
+
+    // Tuple<T> type
+    if (check(state, TokenType::TUPLE)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Tuple<" + element_type + ">";
+    }
+
     // Custom type (struct name), qualified type (module.Type), or generic (Type<T>)
     if (check(state, TokenType::IDENT)) {
         string type = current(state).value;

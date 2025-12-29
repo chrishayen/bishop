@@ -59,6 +59,16 @@ string emit_method_call(CodeGenState& state, const MethodCall& call) {
         return emit_list_method_call(state, call, obj_str, args);
     }
 
+    // Handle Pair methods
+    if (call.object_type.rfind("Pair<", 0) == 0) {
+        return emit_pair_method_call(state, call, obj_str, args);
+    }
+
+    // Handle Tuple methods
+    if (call.object_type.rfind("Tuple<", 0) == 0) {
+        return emit_tuple_method_call(state, call, obj_str, args);
+    }
+
     // Use -> for pointer types (auto-deref like Go)
     if (!call.object_type.empty() && call.object_type.back() == '*') {
         return fmt::format("{}->{}({})", obj_str, call.method_name, fmt::join(args, ", "));
