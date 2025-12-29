@@ -65,6 +65,7 @@ std::string emit_qualified_ref(const QualifiedRef& ref);
 std::string binary_expr(const std::string& left, const std::string& op, const std::string& right);
 std::string is_none(const std::string& value);
 std::string emit_not_expr(CodeGenState& state, const NotExpr& expr);
+std::string emit_negate_expr(CodeGenState& state, const NegateExpr& expr);
 std::string emit_address_of(CodeGenState& state, const AddressOf& addr);
 
 // Go spawn (emit_go_spawn.cpp)

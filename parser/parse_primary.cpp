@@ -41,6 +41,16 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return addr;
     }
 
+    // Handle unary negation: -expr
+    if (check(state, TokenType::MINUS)) {
+        int start_line = current(state).line;
+        advance(state);
+        auto negate = make_unique<NegateExpr>();
+        negate->value = parse_primary(state);
+        negate->line = start_line;
+        return negate;
+    }
+
     // Parenthesized expression: (expr)
     if (check(state, TokenType::LPAREN)) {
         Token lparen = consume(state, TokenType::LPAREN);

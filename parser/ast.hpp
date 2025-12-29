@@ -137,6 +137,11 @@ struct NotExpr : ASTNode {
     unique_ptr<ASTNode> value;  ///< The expression to negate
 };
 
+/** @brief Numeric negation expression: -expr */
+struct NegateExpr : ASTNode {
+    unique_ptr<ASTNode> value;  ///< The expression to negate
+};
+
 /** @brief Goroutine spawn: go func() */
 struct GoSpawn : ASTNode {
     unique_ptr<ASTNode> call;  ///< The function call to spawn

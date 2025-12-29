@@ -112,7 +112,7 @@ Token Lexer::read_string() {
 
 /**
  * Reads a single-quoted character literal. Assumes current char is '\''.
- * Format: 'c' where c is a single character.
+ * Format: 'c' where c is a single character, or '\x' for escape sequences.
  */
 Token Lexer::read_char() {
     int start_line = line;
@@ -122,15 +122,35 @@ Token Lexer::read_char() {
         throw runtime_error("Empty character literal at line " + to_string(line));
     }
 
-    string value(1, current());
-    advance();  // consume the character
+    char value;
+
+    if (current() == '\\') {
+        // Handle escape sequences
+        advance();
+
+        switch (current()) {
+            case 'n': value = '\n'; break;
+            case 't': value = '\t'; break;
+            case 'r': value = '\r'; break;
+            case '\\': value = '\\'; break;
+            case '\'': value = '\''; break;
+            case '0': value = '\0'; break;
+            default:
+                throw runtime_error("Unknown escape sequence '\\" + string(1, current()) + "' at line " + to_string(line));
+        }
+
+        advance();
+    } else {
+        value = current();
+        advance();
+    }
 
     if (current() != '\'') {
         throw runtime_error("Unterminated character literal at line " + to_string(line));
     }
 
     advance();  // skip closing quote
-    return {TokenType::CHAR_LITERAL, value, start_line};
+    return {TokenType::CHAR_LITERAL, string(1, value), start_line};
 }
 
 /**
