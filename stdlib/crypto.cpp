@@ -209,7 +209,7 @@ unique_ptr<Program> create_crypto_module() {
     b64_dec_fn->visibility = Visibility::Public;
     b64_dec_fn->params.push_back({"str", "data"});
     b64_dec_fn->return_type = "str";
-    b64_dec_fn->is_fallible = true;
+    b64_dec_fn->error_type = "err";
     program->functions.push_back(move(b64_dec_fn));
 
     // fn hex_encode(str data) -> str
