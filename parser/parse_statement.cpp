@@ -91,21 +91,14 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return parse_variable_decl(state);
     }
 
-    // List<T> variable declaration: List<int> nums = [1, 2, 3];
+    // List<T> variable declaration: List<int> nums = [1, 2, 3]; or List<Pair<int>> x = ...;
     if (check(state, TokenType::LIST)) {
         int start_line = current(state).line;
         advance(state);
         consume(state, TokenType::LT);
 
-        string element_type;
-
-        if (is_type_token(state)) {
-            element_type = token_to_type(current(state).type);
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            element_type = current(state).value;
-            advance(state);
-        }
+        // Use parse_type to support nested generics like List<Pair<int>>
+        string element_type = parse_type(state);
 
         consume(state, TokenType::GT);
 
@@ -119,21 +112,14 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return decl;
     }
 
-    // Pair<T> variable declaration: Pair<int> p = Pair<int>(1, 2);
+    // Pair<T> variable declaration: Pair<int> p = Pair<int>(1, 2); or Pair<List<int>> x = ...;
     if (check(state, TokenType::PAIR)) {
         int start_line = current(state).line;
         advance(state);
         consume(state, TokenType::LT);
 
-        string element_type;
-
-        if (is_type_token(state)) {
-            element_type = token_to_type(current(state).type);
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            element_type = current(state).value;
-            advance(state);
-        }
+        // Use parse_type to support nested generics like Pair<List<int>>
+        string element_type = parse_type(state);
 
         consume(state, TokenType::GT);
 
@@ -147,21 +133,14 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return decl;
     }
 
-    // Tuple<T> variable declaration: Tuple<int> t = Tuple<int>(1, 2, 3);
+    // Tuple<T> variable declaration: Tuple<int> t = Tuple<int>(1, 2, 3); or Tuple<List<int>> x = ...;
     if (check(state, TokenType::TUPLE)) {
         int start_line = current(state).line;
         advance(state);
         consume(state, TokenType::LT);
 
-        string element_type;
-
-        if (is_type_token(state)) {
-            element_type = token_to_type(current(state).type);
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            element_type = current(state).value;
-            advance(state);
-        }
+        // Use parse_type to support nested generics like Tuple<List<int>>
+        string element_type = parse_type(state);
 
         consume(state, TokenType::GT);
 
