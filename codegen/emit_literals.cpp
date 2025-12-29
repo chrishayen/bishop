@@ -11,20 +11,38 @@ using namespace std;
 namespace codegen {
 
 /**
+ * Checks if a character is a valid escape sequence character.
+ * Valid escape characters: n, t, r, ", ', \
+ */
+bool is_escape_char(char c) {
+    return c == 'n' || c == 't' || c == 'r' || c == '"' || c == '\'' || c == '\\';
+}
+
+/**
  * Escapes special characters in a string for C++ string literals.
+ *
+ * Preserves valid escape sequences like \n, \t, \r, \", \', \\
+ * so they are passed through to the C++ compiler for interpretation.
+ * Only escapes backslashes that are NOT part of valid escape sequences.
  */
 string escape_string(const string& value) {
     string result;
     result.reserve(value.size() * 2);
 
-    for (char c : value) {
-        switch (c) {
-            case '"':  result += "\\\""; break;
-            case '\\': result += "\\\\"; break;
-            case '\n': result += "\\n"; break;
-            case '\t': result += "\\t"; break;
-            case '\r': result += "\\r"; break;
-            default:   result += c; break;
+    for (size_t i = 0; i < value.size(); i++) {
+        char c = value[i];
+
+        if (c == '\\' && i + 1 < value.size() && is_escape_char(value[i + 1])) {
+            result += c;
+        } else {
+            switch (c) {
+                case '"':  result += "\\\""; break;
+                case '\\': result += "\\\\"; break;
+                case '\n': result += "\\n"; break;
+                case '\t': result += "\\t"; break;
+                case '\r': result += "\\r"; break;
+                default:   result += c; break;
+            }
         }
     }
 

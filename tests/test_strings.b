@@ -141,3 +141,36 @@ fn test_str_at_returns_string() {
     assert_eq(c, "h");
     assert_eq(c.length(), 1);
 }
+
+fn test_escape_sequence_newline() {
+    s := "hello\nworld";
+    assert_eq(s.length(), 11);
+    assert_eq(s.contains("\n"), true);
+}
+
+fn test_escape_sequence_tab() {
+    s := "hello\tworld";
+    assert_eq(s.length(), 11);
+    assert_eq(s.contains("\t"), true);
+}
+
+fn test_escape_sequence_carriage_return() {
+    s := "hello\rworld";
+    assert_eq(s.length(), 11);
+}
+
+fn test_escape_sequence_backslash() {
+    s := "path\\to\\file";
+    assert_eq(s.length(), 12);
+}
+
+fn test_escape_sequence_double_quote_via_single_quoted() {
+    s := 'say "hello"';
+    dq := '"';
+    assert_eq(s.contains(dq), true);
+}
+
+fn test_escape_sequence_single_quote_in_double_quoted() {
+    s := "it's";
+    assert_eq(s.length(), 4);
+}
