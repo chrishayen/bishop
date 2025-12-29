@@ -22,10 +22,18 @@ string extract_element_type(const string& generic_type, const string& prefix) {
 }
 
 /**
+ * Maps a Bishop type name to its C++ equivalent for variable declarations.
+ * Returns the type without reference suffix (no &).
+ */
+string map_type_for_decl(const string& t);
+
+/**
  * Maps a Bishop type name to its C++ equivalent.
  * Returns the input unchanged if it's a user-defined type (struct).
  * Handles qualified types (module.Type -> module::Type).
  * Handles function types (fn(int, int) -> int -> std::function<int(int, int)>).
+ * For Channel types, returns a reference type (Channel<T>&) suitable for function parameters.
+ * Use map_type_for_decl for variable declarations.
  */
 string map_type(const string& t) {
     if (t == "int") return "int";
@@ -139,6 +147,22 @@ string map_type(const string& t) {
     }
 
     return t;
+}
+
+/**
+ * Maps a Bishop type name to its C++ equivalent for variable declarations.
+ * Unlike map_type(), this strips the reference suffix from Channel types
+ * since variable declarations cannot use reference types.
+ */
+string map_type_for_decl(const string& t) {
+    string mapped = map_type(t);
+
+    // Strip trailing '&' from Channel types for variable declarations
+    if (!mapped.empty() && mapped.back() == '&') {
+        return mapped.substr(0, mapped.size() - 1);
+    }
+
+    return mapped;
 }
 
 } // namespace codegen

@@ -234,13 +234,15 @@ fn test_channel_of_tuple_int() {
     assert_eq(third, 300);
 }
 
+fn list_str_sender(Channel<List<str>> ch, List<str> val) {
+    ch.send(val);
+}
+
 fn test_channel_of_list_str() {
     ch := Channel<List<str>>();
     list := ["hello", "world"];
 
-    go fn() {
-        ch.send(list);
-    }();
+    go list_str_sender(ch, list);
 
     received := ch.recv();
     assert_eq(received.length(), 2);
@@ -248,14 +250,16 @@ fn test_channel_of_list_str() {
     assert_eq(received.get(1), "world");
 }
 
+fn typed_list_sender(Channel<List<int>> ch, List<int> val) {
+    ch.send(val);
+}
+
 // Test typed declaration for Channel with nested generic
 fn test_typed_channel_of_list() {
     Channel<List<int>> ch = Channel<List<int>>();
     list := [42];
 
-    go fn() {
-        ch.send(list);
-    }();
+    go typed_list_sender(ch, list);
 
     received := ch.recv();
     assert_eq(received.get(0), 42);

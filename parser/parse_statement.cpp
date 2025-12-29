@@ -154,6 +154,27 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return decl;
     }
 
+    // Channel<T> variable declaration: Channel<int> ch = Channel<int>(); or Channel<List<int>> x = ...;
+    if (check(state, TokenType::CHANNEL)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Channel<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+
+        auto decl = make_unique<VariableDecl>();
+        decl->type = "Channel<" + element_type + ">";
+        decl->line = start_line;
+        decl->name = consume(state, TokenType::IDENT).value;
+        consume(state, TokenType::ASSIGN);
+        decl->value = parse_expression(state);
+        consume(state, TokenType::SEMICOLON);
+        return decl;
+    }
+
     // inferred variable, assignment, function call, method call, field assignment, or struct-typed variable
     if (check(state, TokenType::IDENT)) {
         Token ident_tok = current(state);
