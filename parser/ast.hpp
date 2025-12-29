@@ -343,6 +343,13 @@ struct FunctionParam {
     string name;   ///< Parameter name
 };
 
+/** @brief Anonymous function expression: fn(params) -> return_type { body } */
+struct LambdaExpr : ASTNode {
+    vector<FunctionParam> params;         ///< Parameter list (can be empty)
+    string return_type;                   ///< Return type (empty for void)
+    vector<unique_ptr<ASTNode>> body;     ///< Function body statements
+};
+
 /** @brief Function definition: fn name(params) -> ret_type { body } */
 struct FunctionDef : ASTNode {
     string name;                          ///< Function name

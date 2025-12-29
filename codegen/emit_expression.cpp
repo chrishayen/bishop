@@ -88,6 +88,10 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return emit_tuple_create(state, *tuple);
     }
 
+    if (auto* lambda = dynamic_cast<const LambdaExpr*>(&node)) {
+        return emit_lambda_expr(state, *lambda);
+    }
+
     if (auto* qref = dynamic_cast<const QualifiedRef*>(&node)) {
         return emit_qualified_ref(*qref);
     }

@@ -147,6 +147,9 @@ TypeInfo check_not_expr(TypeCheckerState& state, const NotExpr& not_expr);
 // Pointer expression type inference (check_binary.cpp)
 TypeInfo check_address_of(TypeCheckerState& state, const AddressOf& addr);
 
+// Lambda expression type inference (check_lambda.cpp)
+TypeInfo check_lambda_expr(TypeCheckerState& state, const LambdaExpr& lambda);
+
 // Concurrency (check_statement.cpp)
 void check_go_spawn(TypeCheckerState& state, const GoSpawn& spawn);
 
