@@ -8,6 +8,8 @@
  * - expr or fail err
  * - expr or { block }
  * - expr or match err { ... }
+ * - expr or continue
+ * - expr or break
  */
 
 #include "parser.hpp"
@@ -76,6 +78,30 @@ unique_ptr<OrBlock> parse_or_block(ParserState& state) {
     }
 
     consume(state, TokenType::RBRACE);
+    return handler;
+}
+
+/**
+ * Parse an or-continue handler: or continue
+ */
+unique_ptr<OrContinue> parse_or_continue(ParserState& state) {
+    int start_line = current(state).line;
+    consume(state, TokenType::CONTINUE);
+
+    auto handler = make_unique<OrContinue>();
+    handler->line = start_line;
+    return handler;
+}
+
+/**
+ * Parse an or-break handler: or break
+ */
+unique_ptr<OrBreak> parse_or_break(ParserState& state) {
+    int start_line = current(state).line;
+    consume(state, TokenType::BREAK);
+
+    auto handler = make_unique<OrBreak>();
+    handler->line = start_line;
     return handler;
 }
 
@@ -153,6 +179,10 @@ unique_ptr<ASTNode> parse_or(ParserState& state) {
         or_expr->handler = parse_or_match(state);
     } else if (check(state, TokenType::LBRACE)) {
         or_expr->handler = parse_or_block(state);
+    } else if (check(state, TokenType::CONTINUE)) {
+        or_expr->handler = parse_or_continue(state);
+    } else if (check(state, TokenType::BREAK)) {
+        or_expr->handler = parse_or_break(state);
     }
 
     return or_expr;

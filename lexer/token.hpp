@@ -180,6 +180,8 @@ enum class TokenType {
     MATCH,
     WITH,
     AS,
+    CONTINUE,
+    BREAK,
 
     // Annotations
     AT,
