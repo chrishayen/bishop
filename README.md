@@ -284,6 +284,7 @@ s := "hello" + " " + "world";
 ```bishop
 s := "hello world";
 
+// Query methods
 s.length();              // -> int: 11
 s.empty();               // -> bool: false
 s.contains("world");     // -> bool: true
@@ -292,6 +293,61 @@ s.ends_with("world");    // -> bool: true
 s.substr(0, 5);          // -> str: "hello"
 s.at(0);                 // -> char: 'h'
 s.find("world");         // -> int: index of substring
+
+// Case transformation
+s.upper();               // -> str: "HELLO WORLD"
+s.lower();               // -> str: "hello world"
+s.capitalize();          // -> str: "Hello world"
+s.title();               // -> str: "Hello World"
+
+// Trimming
+padded := "  hello  ";
+padded.trim();           // -> str: "hello"
+padded.trim_left();      // -> str: "hello  "
+padded.trim_right();     // -> str: "  hello"
+
+// Replace
+s.replace("world", "there");      // -> str: "hello there" (first only)
+s.replace_all("l", "L");          // -> str: "heLLo worLd" (all)
+
+// Reverse and repeat
+s.reverse();             // -> str: "dlrow olleh"
+"ab".repeat(3);          // -> str: "ababab"
+
+// Split
+s.split(" ");            // -> List<str>: ["hello", "world"]
+"a\nb\nc".split_lines(); // -> List<str>: ["a", "b", "c"]
+
+// Padding
+"hi".pad_left(5);        // -> str: "   hi"
+"hi".pad_left(5, '0');   // -> str: "000hi"
+"hi".pad_right(5);       // -> str: "hi   "
+"hi".pad_right(5, '.');  // -> str: "hi..."
+"hi".center(6);          // -> str: "  hi  "
+"hi".center(6, '-');     // -> str: "--hi--"
+
+// Conversions
+"42".to_int();           // -> int: 42
+"3.14".to_float();       // -> f64: 3.14
+```
+
+## Chars
+
+### Char Methods
+
+```bishop
+c := 'A';
+
+// Type checking
+c.is_alpha();            // -> bool: true
+c.is_digit();            // -> bool: false
+c.is_whitespace();       // -> bool: false
+c.is_upper();            // -> bool: true
+c.is_lower();            // -> bool: false
+
+// Case conversion
+c.to_lower();            // -> char: 'a'
+c.to_upper();            // -> char: 'A'
 ```
 
 ## Lists
@@ -339,6 +395,11 @@ nums.set(1, 99);         // replace element at index
 nums.clear();            // remove all elements
 nums.insert(1, 15);      // insert element at index
 nums.remove(1);          // remove element at index
+
+// String list methods (List<str> only)
+parts := ["hello", "world"];
+parts.join(" ");         // -> str: "hello world"
+parts.join("-");         // -> str: "hello-world"
 ```
 
 ## Error Handling

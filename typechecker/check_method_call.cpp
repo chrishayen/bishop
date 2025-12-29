@@ -5,6 +5,7 @@
 
 #include "typechecker.hpp"
 #include "strings.hpp"
+#include "chars.hpp"
 
 using namespace std;
 
@@ -12,12 +13,84 @@ namespace typechecker {
 
 /**
  * Type checks a method call on a string.
+ * Handles optional parameters for padding methods.
  */
 TypeInfo check_str_method(TypeCheckerState& state, const MethodCall& mcall) {
     auto method_info = nog::get_str_method_info(mcall.method_name);
 
     if (!method_info) {
         error(state, "str has no method '" + mcall.method_name + "'", mcall.line);
+        return {"unknown", false, false};
+    }
+
+    const auto& [param_types, return_type] = *method_info;
+
+    // Handle padding methods with optional char parameter
+    bool is_padding_method = (mcall.method_name == "pad_left" ||
+                              mcall.method_name == "pad_right" ||
+                              mcall.method_name == "center");
+
+    if (is_padding_method) {
+        // Accept 1 or 2 arguments for padding methods
+        if (mcall.args.size() < 1 || mcall.args.size() > 2) {
+            error(state, "method '" + mcall.method_name + "' expects 1 or 2 arguments, got " +
+                  to_string(mcall.args.size()), mcall.line);
+        }
+
+        // Check first argument is int
+        if (mcall.args.size() >= 1) {
+            TypeInfo arg_type = infer_type(state, *mcall.args[0]);
+            TypeInfo expected = {"int", false, false};
+
+            if (!types_compatible(expected, arg_type)) {
+                error(state, "argument 1 of method '" + mcall.method_name +
+                      "' expects 'int', got '" + format_type(arg_type) + "'", mcall.line);
+            }
+        }
+
+        // Check optional second argument is char
+        if (mcall.args.size() == 2) {
+            TypeInfo arg_type = infer_type(state, *mcall.args[1]);
+            TypeInfo expected = {"char", false, false};
+
+            if (!types_compatible(expected, arg_type)) {
+                error(state, "argument 2 of method '" + mcall.method_name +
+                      "' expects 'char', got '" + format_type(arg_type) + "'", mcall.line);
+            }
+        }
+
+        return {return_type, false, false};
+    }
+
+    // Standard parameter checking for other methods
+    if (mcall.args.size() != param_types.size()) {
+        error(state, "method '" + mcall.method_name + "' expects " +
+              to_string(param_types.size()) + " arguments, got " +
+              to_string(mcall.args.size()), mcall.line);
+    }
+
+    for (size_t i = 0; i < mcall.args.size() && i < param_types.size(); i++) {
+        TypeInfo arg_type = infer_type(state, *mcall.args[i]);
+        TypeInfo expected = {param_types[i], false, false};
+
+        if (!types_compatible(expected, arg_type)) {
+            error(state, "argument " + to_string(i + 1) + " of method '" +
+                  mcall.method_name + "' expects '" + param_types[i] +
+                  "', got '" + format_type(arg_type) + "'", mcall.line);
+        }
+    }
+
+    return {return_type, false, false};
+}
+
+/**
+ * Type checks a method call on a char.
+ */
+TypeInfo check_char_method(TypeCheckerState& state, const MethodCall& mcall) {
+    auto method_info = nog::get_char_method_info(mcall.method_name);
+
+    if (!method_info) {
+        error(state, "char has no method '" + mcall.method_name + "'", mcall.line);
         return {"unknown", false, false};
     }
 
@@ -121,6 +194,10 @@ TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall) {
 
     if (effective_type.base_type == "str") {
         return check_str_method(state, mcall);
+    }
+
+    if (effective_type.base_type == "char") {
+        return check_char_method(state, mcall);
     }
 
     return check_struct_method(state, mcall, effective_type);

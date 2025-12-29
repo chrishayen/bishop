@@ -78,6 +78,12 @@ std::string emit_list_create(const ListCreate& list);
 std::string emit_list_literal(CodeGenState& state, const ListLiteral& list);
 std::string emit_list_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
 
+// String methods (emit_string.cpp)
+std::string emit_str_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
+
+// Char methods (emit_char.cpp)
+std::string emit_char_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
+
 // Method call (emit_method_call.cpp)
 std::string method_call(const std::string& object, const std::string& method, const std::vector<std::string>& args);
 std::string emit_method_call(CodeGenState& state, const MethodCall& call);

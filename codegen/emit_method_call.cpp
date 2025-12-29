@@ -59,6 +59,26 @@ string emit_method_call(CodeGenState& state, const MethodCall& call) {
         return emit_list_method_call(state, call, obj_str, args);
     }
 
+    // Handle extended string methods
+    if (call.object_type == "str") {
+        string result = emit_str_method_call(state, call, obj_str, args);
+
+        if (!result.empty()) {
+            return result;
+        }
+
+        // Fall through to default handling for basic string methods
+    }
+
+    // Handle char methods
+    if (call.object_type == "char") {
+        string result = emit_char_method_call(state, call, obj_str, args);
+
+        if (!result.empty()) {
+            return result;
+        }
+    }
+
     // Use -> for pointer types (auto-deref like Go)
     if (!call.object_type.empty() && call.object_type.back() == '*') {
         return fmt::format("{}->{}({})", obj_str, call.method_name, fmt::join(args, ", "));

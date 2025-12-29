@@ -161,6 +161,7 @@ TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call);
 
 // Method call type inference (check_method_call.cpp)
 TypeInfo check_str_method(TypeCheckerState& state, const MethodCall& mcall);
+TypeInfo check_char_method(TypeCheckerState& state, const MethodCall& mcall);
 TypeInfo check_struct_method(TypeCheckerState& state, const MethodCall& mcall, const TypeInfo& obj_type);
 TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall);
 
