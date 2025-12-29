@@ -11,3 +11,4 @@
 - when adding or modifying language features, update the Bishop Language Reference in README.md
 - read README.md for the full Bishop Language Reference
 - AST nodes require the line number to be set
+- returning empty values instead of proper errors is usually not ok
