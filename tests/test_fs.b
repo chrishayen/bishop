@@ -85,6 +85,83 @@ fn test_file_handle_open_close() or err {
     _r := fs.remove("test_handle.txt") or fail err;
 }
 
+fn test_file_handle_with_statement() or err {
+    _w := fs.write_file("test_with_handle.txt", "Line 1\nLine 2\nLine 3") or fail err;
+
+    f := fs.open("test_with_handle.txt", "r") or fail err;
+    content := f.read_all() or fail err;
+    assert_eq(true, content.contains("Line 1"));
+    assert_eq(true, content.contains("Line 2"));
+    f.close();
+
+    _r := fs.remove("test_with_handle.txt") or fail err;
+}
+
+fn test_file_handle_read_line() or err {
+    _w := fs.write_file("test_readline.txt", "First\nSecond\nThird") or fail err;
+
+    f := fs.open("test_readline.txt", "r") or fail err;
+    line1 := f.read_line() or fail err;
+    assert_eq("First", line1);
+    line2 := f.read_line() or fail err;
+    assert_eq("Second", line2);
+    f.close();
+
+    _r := fs.remove("test_readline.txt") or fail err;
+}
+
+fn test_file_handle_read_lines() or err {
+    _w := fs.write_file("test_readlines.txt", "One\nTwo\nThree") or fail err;
+
+    f := fs.open("test_readlines.txt", "r") or fail err;
+    lines := f.read_lines() or fail err;
+    assert_eq(3, lines.length());
+    assert_eq("One", lines.get(0));
+    assert_eq("Two", lines.get(1));
+    assert_eq("Three", lines.get(2));
+    f.close();
+
+    _r := fs.remove("test_readlines.txt") or fail err;
+}
+
+fn test_file_handle_write() or err {
+    f := fs.open("test_write_handle.txt", "w") or fail err;
+    _w1 := f.write("Hello ") or fail err;
+    _w2 := f.write("World") or fail err;
+    f.close();
+
+    content := fs.read_file("test_write_handle.txt");
+    assert_eq("Hello World", content);
+
+    _r := fs.remove("test_write_handle.txt") or fail err;
+}
+
+fn test_file_handle_write_line() or err {
+    f := fs.open("test_writeline.txt", "w") or fail err;
+    _w1 := f.write_line("Line A") or fail err;
+    _w2 := f.write_line("Line B") or fail err;
+    f.close();
+
+    content := fs.read_file("test_writeline.txt");
+    assert_eq(true, content.contains("Line A"));
+    assert_eq(true, content.contains("Line B"));
+
+    _r := fs.remove("test_writeline.txt") or fail err;
+}
+
+fn test_file_handle_append_mode() or err {
+    _w := fs.write_file("test_append_handle.txt", "Start") or fail err;
+
+    f := fs.open("test_append_handle.txt", "a") or fail err;
+    _a := f.write("\nAppended") or fail err;
+    f.close();
+
+    content := fs.read_file("test_append_handle.txt");
+    assert_eq("Start\nAppended", content);
+
+    _r := fs.remove("test_append_handle.txt") or fail err;
+}
+
 // ============================================================================
 // Directory Operations Tests
 // ============================================================================
