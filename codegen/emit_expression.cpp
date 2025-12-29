@@ -60,6 +60,10 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return emit_not_expr(state, *expr);
     }
 
+    if (auto* expr = dynamic_cast<const NegateExpr*>(&node)) {
+        return emit_negate_expr(state, *expr);
+    }
+
     if (auto* expr = dynamic_cast<const ParenExpr*>(&node)) {
         return "(" + emit(state, *expr->value) + ")";
     }

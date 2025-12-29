@@ -43,8 +43,34 @@ TypeInfo check_list_literal(TypeCheckerState& state, const ListLiteral& list) {
 
 /**
  * Type checks a method call on a list.
+ * Handles special case for join() which is only available on List<str>.
  */
 TypeInfo check_list_method(TypeCheckerState& state, const MethodCall& mcall, const string& element_type) {
+    // Handle join() specially - only available on List<str>
+    if (mcall.method_name == "join") {
+        if (element_type != "str") {
+            error(state, "join() is only available on List<str>, not List<" + element_type + ">", mcall.line);
+            return {"unknown", false, false};
+        }
+
+        if (mcall.args.size() != 1) {
+            error(state, "method 'join' expects 1 argument, got " +
+                  to_string(mcall.args.size()), mcall.line);
+        }
+
+        if (mcall.args.size() >= 1) {
+            TypeInfo arg_type = infer_type(state, *mcall.args[0]);
+            TypeInfo expected = {"str", false, false};
+
+            if (!types_compatible(expected, arg_type)) {
+                error(state, "argument 1 of method 'join' expects 'str', got '" +
+                      format_type(arg_type) + "'", mcall.line);
+            }
+        }
+
+        return {"str", false, false};
+    }
+
     auto method_info = nog::get_list_method_info(mcall.method_name);
 
     if (!method_info) {
