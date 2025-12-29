@@ -900,18 +900,28 @@ print(result.output);
 #### Environment Variables
 
 ```bishop
-// Get environment variable (returns empty string if not found)
-home := process.env("HOME");
+// Get environment variable (fails if not found)
+home := process.env("HOME") or fail err;
 
-// Set environment variable
-process.set_env("MY_VAR", "value");
+// Get environment variable with default fallback
+token := process.env("API_TOKEN") or "default_value";
+
+// Require environment variable with graceful failure
+token := process.env("GH_TOKEN") or {
+    print("Error: GH_TOKEN environment variable is not set");
+    return;
+};
+
+// Set environment variable (fails if name is empty or system error)
+process.set_env("MY_VAR", "value") or fail err;
 ```
 
 #### Working Directory
 
 ```bishop
-// Get current working directory
-print(process.cwd());
+// Get current working directory (fails if directory was deleted or permission denied)
+dir := process.cwd() or fail err;
+print(dir);
 
 // Change working directory
 process.chdir("/new/dir") or {

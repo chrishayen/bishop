@@ -68,9 +68,9 @@
  * @module process
  * @description Gets an environment variable value.
  * @param name str - Name of the environment variable
- * @returns str - Value of the variable, or empty string if not found
+ * @returns str or err - Value of the variable, or error if not found
  * @example
- * home := process.env("HOME") default "/tmp";
+ * home := process.env("HOME") or "/tmp";
  */
 
 /**
@@ -79,17 +79,19 @@
  * @description Sets an environment variable.
  * @param name str - Name of the environment variable
  * @param value str - Value to set
+ * @returns bool or err - True on success, error on failure
  * @example
- * process.set_env("MY_VAR", "value");
+ * process.set_env("MY_VAR", "value") or fail err;
  */
 
 /**
  * @nog_fn cwd
  * @module process
  * @description Gets the current working directory.
- * @returns str - Current working directory path
+ * @returns str or err - Current working directory path, or error on failure
  * @example
- * print(process.cwd());
+ * dir := process.cwd() or fail err;
+ * print(dir);
  */
 
 /**
@@ -167,27 +169,31 @@ unique_ptr<Program> create_process_module() {
     shell_fn->error_type = "err";
     program->functions.push_back(move(shell_fn));
 
-    // fn env(str name) -> str
+    // fn env(str name) -> str or err
     auto env_fn = make_unique<FunctionDef>();
     env_fn->name = "env";
     env_fn->visibility = Visibility::Public;
     env_fn->params.push_back({"str", "name"});
     env_fn->return_type = "str";
+    env_fn->error_type = "err";
     program->functions.push_back(move(env_fn));
 
-    // fn set_env(str name, str value)
+    // fn set_env(str name, str value) -> bool or err
     auto set_env_fn = make_unique<FunctionDef>();
     set_env_fn->name = "set_env";
     set_env_fn->visibility = Visibility::Public;
     set_env_fn->params.push_back({"str", "name"});
     set_env_fn->params.push_back({"str", "value"});
+    set_env_fn->return_type = "bool";
+    set_env_fn->error_type = "err";
     program->functions.push_back(move(set_env_fn));
 
-    // fn cwd() -> str
+    // fn cwd() -> str or err
     auto cwd_fn = make_unique<FunctionDef>();
     cwd_fn->name = "cwd";
     cwd_fn->visibility = Visibility::Public;
     cwd_fn->return_type = "str";
+    cwd_fn->error_type = "err";
     program->functions.push_back(move(cwd_fn));
 
     // fn chdir(str path) -> bool or err
