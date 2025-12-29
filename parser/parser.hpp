@@ -41,6 +41,7 @@ std::unique_ptr<Program> parse(ParserState& state);
 
 // Token navigation
 Token current(const ParserState& state);
+Token peek(const ParserState& state);
 Token consume(ParserState& state, TokenType type);
 bool check(const ParserState& state, TokenType type);
 void advance(ParserState& state);

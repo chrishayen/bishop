@@ -21,8 +21,8 @@ fn apply_void(fn() action) {
 
 fn test_basic_lambda() {
     // Lambda assigned to variable
-    double := fn(int x) -> int { return x * 2; };
-    result := double(21);
+    doubler := fn(int x) -> int { return x * 2; };
+    result := doubler(21);
     assert_eq(result, 42);
 }
 

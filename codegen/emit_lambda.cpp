@@ -48,4 +48,30 @@ string emit_lambda_expr(CodeGenState& state, const LambdaExpr& lambda) {
     return out;
 }
 
+/**
+ * Emits C++ code for an immediate lambda invocation (or calling a function reference).
+ * Generates code like: (callee)(arg1, arg2, ...)
+ */
+string emit_lambda_call(CodeGenState& state, const LambdaCall& call) {
+    string out = "(";
+    out += emit(state, *call.callee);
+    out += ")(";
+
+    // Emit arguments
+    bool first = true;
+
+    for (const auto& arg : call.args) {
+        if (!first) {
+            out += ", ";
+        }
+        first = false;
+
+        out += emit(state, *arg);
+    }
+
+    out += ")";
+
+    return out;
+}
+
 } // namespace codegen

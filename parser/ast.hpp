@@ -350,6 +350,12 @@ struct LambdaExpr : ASTNode {
     vector<unique_ptr<ASTNode>> body;     ///< Function body statements
 };
 
+/** @brief Immediate invocation of a lambda: fn() { ... }() or expr() */
+struct LambdaCall : ASTNode {
+    unique_ptr<ASTNode> callee;           ///< The expression being called (lambda or expression returning function)
+    vector<unique_ptr<ASTNode>> args;     ///< Arguments to pass
+};
+
 /** @brief Function definition: fn name(params) -> ret_type { body } */
 struct FunctionDef : ASTNode {
     string name;                          ///< Function name

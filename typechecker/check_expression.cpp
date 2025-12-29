@@ -95,6 +95,10 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
         return check_lambda_expr(state, *lambda);
     }
 
+    if (auto* lcall = dynamic_cast<const LambdaCall*>(&expr)) {
+        return check_lambda_call(state, *lcall);
+    }
+
     if (auto* call = dynamic_cast<const FunctionCall*>(&expr)) {
         return check_function_call(state, *call);
     }

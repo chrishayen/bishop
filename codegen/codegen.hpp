@@ -71,6 +71,7 @@ std::string emit_go_spawn(CodeGenState& state, const GoSpawn& spawn);
 
 // Lambda expression (emit_lambda.cpp)
 std::string emit_lambda_expr(CodeGenState& state, const LambdaExpr& lambda);
+std::string emit_lambda_call(CodeGenState& state, const LambdaCall& call);
 
 // Channel (emit_channel.cpp)
 std::string emit_channel_create(const ChannelCreate& channel);

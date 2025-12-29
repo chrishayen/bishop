@@ -149,6 +149,7 @@ TypeInfo check_address_of(TypeCheckerState& state, const AddressOf& addr);
 
 // Lambda expression type inference (check_lambda.cpp)
 TypeInfo check_lambda_expr(TypeCheckerState& state, const LambdaExpr& lambda);
+TypeInfo check_lambda_call(TypeCheckerState& state, const LambdaCall& call);
 
 // Concurrency (check_statement.cpp)
 void check_go_spawn(TypeCheckerState& state, const GoSpawn& spawn);

@@ -91,6 +91,26 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return parse_variable_decl(state);
     }
 
+    // Function-type variable declaration: fn(int, int) -> int op = ...;
+    if (check(state, TokenType::FN) && peek(state).type == TokenType::LPAREN) {
+        int start_line = current(state).line;
+
+        // Parse the function type
+        string fn_type = parse_type(state);
+
+        // Now we should have an identifier for the variable name
+        if (check(state, TokenType::IDENT)) {
+            auto decl = make_unique<VariableDecl>();
+            decl->type = fn_type;
+            decl->line = start_line;
+            decl->name = consume(state, TokenType::IDENT).value;
+            consume(state, TokenType::ASSIGN);
+            decl->value = parse_expression(state);
+            consume(state, TokenType::SEMICOLON);
+            return decl;
+        }
+    }
+
     // List<T> variable declaration: List<int> nums = [1, 2, 3];
     if (check(state, TokenType::LIST)) {
         int start_line = current(state).line;
