@@ -95,20 +95,38 @@ fn test_base64_roundtrip() {
 
 fn test_base64_decode_invalid_length() {
     // Invalid length (not multiple of 4) should fail
-    result := crypto.base64_decode("abc");
-    assert_eq(result is err, true);
+    passed := false;
+
+    result := crypto.base64_decode("abc") or {
+        passed = true;
+        return;
+    };
+
+    assert_eq(passed, true);
 }
 
 fn test_base64_decode_invalid_chars() {
     // Invalid characters should fail
-    result := crypto.base64_decode("!@#$");
-    assert_eq(result is err, true);
+    passed := false;
+
+    result := crypto.base64_decode("!@#$") or {
+        passed = true;
+        return;
+    };
+
+    assert_eq(passed, true);
 }
 
 fn test_base64_decode_invalid_padding() {
-    // Invalid padding should fail
-    result := crypto.base64_decode("abc=");
-    assert_eq(result is err, true);
+    // Padding only (no data) should fail - first chars are invalid
+    passed := false;
+
+    result := crypto.base64_decode("====") or {
+        passed = true;
+        return;
+    };
+
+    assert_eq(passed, true);
 }
 
 // ============================================
@@ -144,14 +162,26 @@ fn test_hex_roundtrip() {
 
 fn test_hex_decode_invalid_length() {
     // Odd-length hex string should fail
-    result := crypto.hex_decode("abc");
-    assert_eq(result is err, true);
+    passed := false;
+
+    result := crypto.hex_decode("abc") or {
+        passed = true;
+        return;
+    };
+
+    assert_eq(passed, true);
 }
 
 fn test_hex_decode_invalid_chars() {
     // Non-hex characters should fail
-    result := crypto.hex_decode("ghij");
-    assert_eq(result is err, true);
+    passed := false;
+
+    result := crypto.hex_decode("ghij") or {
+        passed = true;
+        return;
+    };
+
+    assert_eq(passed, true);
 }
 
 // ============================================
