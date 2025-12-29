@@ -34,21 +34,30 @@ void check_variable_decl_stmt(TypeCheckerState& state, const VariableDecl& decl)
                 error(state, "cannot assign '" + format_type(init_type) + "' to variable of type '" + format_type(expected) + "'", decl.line);
             }
 
-            declare_local(state, decl.name, {decl.type, decl.is_optional, false}, decl.line);
+            TypeInfo type_info = {decl.type, decl.is_optional, false, false, decl.is_const};
+            declare_local(state, decl.name, type_info, decl.line);
         } else {
-            declare_local(state, decl.name, init_type, decl.line);
+            TypeInfo type_info = init_type;
+            type_info.is_const = decl.is_const;
+            declare_local(state, decl.name, type_info, decl.line);
         }
     }
 }
 
 /**
  * Type checks an assignment statement.
+ * Rejects assignment to const variables.
  */
 void check_assignment_stmt(TypeCheckerState& state, const Assignment& assign) {
     const TypeInfo* var = lookup_local(state, assign.name);
 
     if (!var) {
         error(state, "assignment to undefined variable '" + assign.name + "'", assign.line);
+        return;
+    }
+
+    if (var->is_const) {
+        error(state, "cannot assign to const variable '" + assign.name + "'", assign.line);
         return;
     }
 

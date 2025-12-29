@@ -310,7 +310,7 @@ struct UdpSocket {
         try {
             boost::asio::ip::udp::endpoint endpoint(
                 boost::asio::ip::make_address(host),
-                static_cast<boost::asio::ip::port_type>(port)
+                static_cast<unsigned short>(port)
             );
 
             boost::system::error_code ec;
@@ -474,7 +474,7 @@ inline bishop::rt::Result<TcpListener> listen(const std::string& host, int port)
         auto acceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(bishop::rt::io_context());
         boost::asio::ip::tcp::endpoint endpoint(
             boost::asio::ip::make_address(host),
-            static_cast<boost::asio::ip::port_type>(port)
+            static_cast<unsigned short>(port)
         );
 
         acceptor->open(endpoint.protocol());
@@ -536,7 +536,7 @@ inline bishop::rt::Result<UdpSocket> udp_bind(const std::string& host, int port)
         auto socket = std::make_shared<boost::asio::ip::udp::socket>(bishop::rt::io_context());
         boost::asio::ip::udp::endpoint endpoint(
             boost::asio::ip::make_address(host),
-            static_cast<boost::asio::ip::port_type>(port)
+            static_cast<unsigned short>(port)
         );
 
         socket->open(endpoint.protocol());
@@ -559,7 +559,7 @@ inline bishop::rt::Result<UdpSocket> udp_connect(const std::string& host, int po
         auto socket = std::make_shared<boost::asio::ip::udp::socket>(bishop::rt::io_context());
         boost::asio::ip::udp::endpoint endpoint(
             boost::asio::ip::make_address(host),
-            static_cast<boost::asio::ip::port_type>(port)
+            static_cast<unsigned short>(port)
         );
 
         socket->open(boost::asio::ip::udp::v4());

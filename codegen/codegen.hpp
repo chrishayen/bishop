@@ -103,7 +103,7 @@ std::string emit_field_assignment(CodeGenState& state, const FieldAssignment& fa
 std::string generate_statement(CodeGenState& state, const ASTNode& node);
 std::string generate_select(CodeGenState& state, const SelectStmt& stmt);
 std::string generate_with(CodeGenState& state, const WithStmt& stmt);
-std::string variable_decl(const std::string& type, const std::string& name, const std::string& value, bool is_optional = false);
+std::string variable_decl(const std::string& type, const std::string& name, const std::string& value, bool is_optional = false, bool is_const = false);
 std::string return_stmt(const std::string& value);
 std::string assignment(const std::string& name, const std::string& value);
 std::string if_stmt(const std::string& condition, const std::vector<std::string>& then_body, const std::vector<std::string>& else_body);
@@ -131,6 +131,9 @@ std::string struct_def_with_methods(const std::string& name, const std::vector<s
 std::string struct_literal(const std::string& name, const std::vector<std::pair<std::string, std::string>>& field_values);
 std::string field_access(const std::string& object, const std::string& field);
 std::string field_assignment(const std::string& object, const std::string& field, const std::string& value);
+
+// Module-level constant emission (emit_variable.cpp)
+std::string generate_module_constant(CodeGenState& state, const VariableDecl& decl);
 
 // Error emission (emit_error.cpp)
 std::string generate_error(CodeGenState& state, const ErrorDef& def);

@@ -300,11 +300,11 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
                 return parse_struct_literal(state, tok.value + "." + item_name);
             }
 
-            // Check if it's a qualified function reference: module.func (without parens)
-            // This is for passing module functions as arguments
-            auto fref = make_unique<FunctionRef>(tok.value + "." + item_name);
-            fref->line = tok.line;
-            return fref;
+            // Qualified reference without call parens: could be function ref or constant
+            // Use QualifiedRef and let the typechecker determine the type
+            auto qref = make_unique<QualifiedRef>(tok.value, item_name);
+            qref->line = tok.line;
+            return qref;
         }
 
         // Check if it's a struct literal: TypeName { field: value, ... }
