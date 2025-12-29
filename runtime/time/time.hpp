@@ -18,6 +18,34 @@
 namespace bishop_time {
 
 /**
+ * Thread-safe wrapper for localtime.
+ * Uses localtime_r on POSIX systems.
+ */
+inline std::tm safe_localtime(std::time_t time) {
+    std::tm result = {};
+#if defined(_WIN32) || defined(_WIN64)
+    localtime_s(&result, &time);
+#else
+    localtime_r(&time, &result);
+#endif
+    return result;
+}
+
+/**
+ * Thread-safe wrapper for gmtime.
+ * Uses gmtime_r on POSIX systems.
+ */
+inline std::tm safe_gmtime(std::time_t time) {
+    std::tm result = {};
+#if defined(_WIN32) || defined(_WIN64)
+    gmtime_s(&result, &time);
+#else
+    gmtime_r(&time, &result);
+#endif
+    return result;
+}
+
+/**
  * Duration represents a time span in milliseconds.
  * Inspired by std::chrono::duration, providing type-safe time units.
  */
@@ -151,10 +179,11 @@ struct Timestamp {
 
     /**
      * Formats the timestamp using strftime format specifiers.
+     * Note: Always formats in local timezone.
      */
     std::string format(const std::string& fmt) const {
         auto time_t_val = std::chrono::system_clock::to_time_t(time_point);
-        std::tm tm_val = *std::localtime(&time_t_val);
+        std::tm tm_val = safe_localtime(time_t_val);
 
         std::ostringstream oss;
         oss << std::put_time(&tm_val, fmt.c_str());
@@ -236,7 +265,7 @@ struct Timestamp {
         ts.time_point = tp;
 
         auto time_t_val = std::chrono::system_clock::to_time_t(tp);
-        std::tm tm_val = *std::localtime(&time_t_val);
+        std::tm tm_val = safe_localtime(time_t_val);
 
         ts.year = tm_val.tm_year + 1900;
         ts.month = tm_val.tm_mon + 1;
@@ -263,7 +292,7 @@ struct Timestamp {
         ts.time_point = tp;
 
         auto time_t_val = std::chrono::system_clock::to_time_t(tp);
-        std::tm tm_val = *std::gmtime(&time_t_val);
+        std::tm tm_val = safe_gmtime(time_t_val);
 
         ts.year = tm_val.tm_year + 1900;
         ts.month = tm_val.tm_mon + 1;

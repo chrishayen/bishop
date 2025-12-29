@@ -101,6 +101,12 @@ fn test_timestamp_weekday() {
     assert_eq(true, now.weekday <= 6);
 }
 
+fn test_timestamp_millisecond() {
+    now := time.now();
+    assert_eq(true, now.millisecond >= 0);
+    assert_eq(true, now.millisecond <= 999);
+}
+
 // ============================================================
 // Tests for Timestamp arithmetic
 // ============================================================
