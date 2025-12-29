@@ -174,3 +174,42 @@ fn test_escape_sequence_single_quote_in_double_quoted() {
     s := "it's";
     assert_eq(s.length(), 4);
 }
+
+fn test_escape_sequence_backslash_then_newline() {
+    // \\ + \n in source = backslash + newline (2 chars in result)
+    s := "\\\n";
+    assert_eq(s.length(), 2);
+}
+
+fn test_escape_sequence_backslash_then_tab() {
+    // \\ + \t in source = backslash + tab (2 chars in result)
+    s := "\\\t";
+    assert_eq(s.length(), 2);
+}
+
+fn test_escape_sequence_double_backslash() {
+    // \\ + \\ in source = two backslashes (2 chars in result)
+    s := "\\\\";
+    assert_eq(s.length(), 2);
+}
+
+fn test_escape_sequence_multiple_newlines() {
+    // Three newlines
+    s := "\n\n\n";
+    assert_eq(s.length(), 3);
+}
+
+fn test_escape_sequence_backslash_followed_by_letter_n() {
+    // \\ + n (literal) in source = backslash + letter n (2 chars)
+    // This is different from \n which is a newline
+    s := "\\n";
+    assert_eq(s.length(), 2);
+    assert_eq(s.contains("\n"), false);
+}
+
+fn test_escape_sequence_backslash_followed_by_letter_t() {
+    // \\ + t (literal) in source = backslash + letter t (2 chars)
+    s := "\\t";
+    assert_eq(s.length(), 2);
+    assert_eq(s.contains("\t"), false);
+}

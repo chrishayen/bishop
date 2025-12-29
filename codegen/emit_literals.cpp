@@ -33,7 +33,10 @@ string escape_string(const string& value) {
         char c = value[i];
 
         if (c == '\\' && i + 1 < value.size() && is_escape_char(value[i + 1])) {
-            result += c;
+            // Preserve valid escape sequences by copying both characters
+            result += c;             // backslash
+            result += value[i + 1];  // escape character
+            i++;                     // skip the escape character in the next iteration
         } else {
             switch (c) {
                 case '"':  result += "\\\""; break;
