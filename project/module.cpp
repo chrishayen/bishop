@@ -11,6 +11,7 @@
 #include "parser/parser.hpp"
 #include "stdlib/http.hpp"
 #include "stdlib/fs.hpp"
+#include "stdlib/crypto.hpp"
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
 #include <fstream>
@@ -171,6 +172,8 @@ unique_ptr<Module> ModuleManager::create_builtin_module(const string& name) {
         mod->ast = nog::stdlib::create_http_module();
     } else if (name == "fs") {
         mod->ast = nog::stdlib::create_fs_module();
+    } else if (name == "crypto") {
+        mod->ast = nog::stdlib::create_crypto_module();
     } else if (name == "net") {
         mod->ast = nog::stdlib::create_net_module();
     } else if (name == "process") {
