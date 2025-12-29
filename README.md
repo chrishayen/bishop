@@ -1147,6 +1147,113 @@ for arg in args {
 }
 ```
 
+### Regex Module
+
+Regular expression support for pattern matching, searching, and text replacement.
+
+```bishop
+import regex;
+```
+
+#### Compiling Patterns
+
+```bishop
+// Compile a regex pattern (fallible - pattern could be invalid)
+re := regex.compile(r"(\d+)-(\d+)") or {
+    print("Invalid pattern:", err.message);
+    return;
+};
+```
+
+#### Matching
+
+```bishop
+// Full match - entire string must match pattern
+re := regex.compile(r"\d+") or return;
+re.matches("123");       // true
+re.matches("abc123");    // false (not full match)
+
+// Partial match - pattern found anywhere in string
+re.contains("abc123");   // true
+re.contains("abc");      // false
+```
+
+#### Finding Matches
+
+```bishop
+re := regex.compile(r"(\d+)-(\d+)") or return;
+
+// Find first match
+m := re.find("Price: 100-200 dollars");
+if m.found() {
+    print(m.text);       // "100-200"
+    print(m.start);      // 7
+    print(m.end);        // 14
+    print(m.group(1));   // "100"
+    print(m.group(2));   // "200"
+}
+
+// Find all matches
+matches := re.find_all("A: 1-2, B: 3-4");
+for m in matches {
+    print(m.text);       // "1-2", then "3-4"
+}
+```
+
+#### Replacement
+
+```bishop
+re := regex.compile(r"(\d+)-(\d+)") or return;
+
+// Replace first match (supports $1, $2 capture group references)
+re.replace("123-456", "$2-$1");      // "456-123"
+
+// Replace all matches
+re := regex.compile(r"\d+") or return;
+re.replace_all("a1b2c3", "X");       // "aXbXcX"
+```
+
+#### Splitting
+
+```bishop
+// Split by regex pattern (fallible - pattern could be invalid)
+parts := regex.split(r"\s+", "a  b   c") or return;
+// parts == ["a", "b", "c"]
+
+// Split by character class
+parts := regex.split(r"[,;]", "a,b;c") or return;
+// parts == ["a", "b", "c"]
+```
+
+#### regex.Match Fields and Methods
+
+| Field/Method | Type | Description |
+|--------------|------|-------------|
+| `text` | `str` | Matched text (empty if no match) |
+| `start` | `int` | Start index (-1 if no match) |
+| `end` | `int` | End index (-1 if no match) |
+| `groups` | `List<str>` | All capture groups (index 0 is full match) |
+| `found()` | `bool` | Returns true if match was found |
+| `group(int n)` | `str` | Get capture group by index (empty if out of bounds) |
+
+#### regex.Regex Methods
+
+| Method | Description |
+|--------|-------------|
+| `matches(str) -> bool` | True if entire string matches pattern |
+| `contains(str) -> bool` | True if pattern found anywhere |
+| `find(str) -> regex.Match` | First match (or empty Match) |
+| `find_all(str) -> List<regex.Match>` | All matches |
+| `replace(str, str) -> str` | Replace first match |
+| `replace_all(str, str) -> str` | Replace all matches |
+
+#### Module Functions
+
+| Function | Description |
+|----------|-------------|
+| `regex.compile(str) -> regex.Regex or err` | Compile pattern |
+| `regex.split(str, str) -> List<str> or err` | Split text by pattern |
+
 ## Import System
 
 Import modules using dot notation:
