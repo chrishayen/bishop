@@ -64,6 +64,17 @@ string emit_method_call(CodeGenState& state, const MethodCall& call) {
         return emit_list_method_call(state, call, obj_str, args);
     }
 
+    // Handle extended string methods
+    if (call.object_type == "str") {
+        string result = emit_str_method_call(state, call, obj_str, args);
+
+        if (!result.empty()) {
+            return result;
+        }
+
+        // Fall through to default handling for basic string methods
+    }
+
     // Handle Pair methods
     if (call.object_type.rfind("Pair<", 0) == 0) {
         return emit_pair_method_call(state, call, obj_str, args);

@@ -59,6 +59,10 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
         return check_not_expr(state, *not_expr);
     }
 
+    if (auto* negate_expr = dynamic_cast<const NegateExpr*>(&expr)) {
+        return check_negate_expr(state, *negate_expr);
+    }
+
     if (auto* paren = dynamic_cast<const ParenExpr*>(&expr)) {
         if (!paren->value) {
             return {"unknown", false, false};

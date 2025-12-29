@@ -98,6 +98,7 @@ add_library(bishop_lib
     codegen/emit_go_spawn.cpp
     codegen/emit_channel.cpp
     codegen/emit_list.cpp
+    codegen/emit_string.cpp
     codegen/emit_pair.cpp
     codegen/emit_tuple.cpp
     codegen/emit_method_call.cpp
