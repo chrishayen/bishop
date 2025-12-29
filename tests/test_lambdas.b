@@ -124,3 +124,35 @@ fn test_lambda_with_go_capture() {
     val := ch.recv();
     assert_eq(val, 100);
 }
+
+// ============================================
+// Void Lambda as Argument
+// ============================================
+
+fn test_lambda_void_as_argument() {
+    // Void lambda passed to higher-order function
+    counter := 0;
+    apply_void(fn() { counter = counter + 1; });
+    assert_eq(counter, 1);
+}
+
+// ============================================
+// Lambda Call as Statement
+// ============================================
+
+fn test_lambda_call_statement() {
+    // Lambda call used as standalone statement (not assigned)
+    counter := 0;
+    increment := fn() { counter = counter + 1; };
+    increment();
+    increment();
+    assert_eq(counter, 2);
+}
+
+fn test_lambda_call_statement_with_args() {
+    // Lambda call with arguments as statement
+    result := 0;
+    set_value := fn(int x) { result = x; };
+    set_value(42);
+    assert_eq(result, 42);
+}
