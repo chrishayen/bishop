@@ -415,6 +415,52 @@ x := fallible() or match err {
     ParseError => fail err,
     _          => fail ConfigError { message: "unknown", cause: err }
 };
+
+// Continue to next loop iteration on error
+for item in items {
+    result := process(item) or continue;
+    handle(result);
+}
+
+// Break out of loop on error
+while running {
+    data := fetch() or break;
+    process(data);
+}
+```
+
+### Loop Control: `continue` and `break`
+
+Use `continue` to skip to the next iteration and `break` to exit a loop:
+
+```bishop
+for i in 0..10 {
+    if i == 3 {
+        continue;  // skip 3
+    }
+
+    if i == 7 {
+        break;     // stop at 7
+    }
+
+    print(i);
+}
+```
+
+Combined with `or` for error handling in loops:
+
+```bishop
+// Skip items that fail processing
+for item in items {
+    result := process(item) or continue;
+    save(result);
+}
+
+// Stop on first error
+while running {
+    conn := server.accept() or break;
+    handle(conn);
+}
 ```
 
 ### The `default` Keyword
@@ -928,4 +974,4 @@ sleep(100);       // sleep for 100 milliseconds
 
 ## Keywords
 
-`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`
+`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `continue`, `break`
