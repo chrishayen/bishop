@@ -99,6 +99,7 @@ void Lexer::skip_whitespace() {
 /**
  * Reads a double-quoted string literal. Assumes current char is '"'.
  * Consumes characters until the closing quote or end of input.
+ * Handles escape sequences: \n, \t, \r, \\, \"
  */
 Token Lexer::read_string() {
     int start_line = line;
@@ -106,8 +107,24 @@ Token Lexer::read_string() {
     string value;
 
     while (current() != '"' && current() != '\0') {
-        value += current();
-        advance();
+        if (current() == '\\') {
+            advance();  // skip backslash
+            char escaped = current();
+
+            switch (escaped) {
+                case 'n': value += '\n'; break;
+                case 't': value += '\t'; break;
+                case 'r': value += '\r'; break;
+                case '\\': value += '\\'; break;
+                case '"': value += '"'; break;
+                default: value += escaped; break;
+            }
+
+            advance();
+        } else {
+            value += current();
+            advance();
+        }
     }
 
     advance();  // skip closing quote
@@ -117,6 +134,7 @@ Token Lexer::read_string() {
 /**
  * Reads a single-quoted string literal. Assumes current char is '\''.
  * All single-quoted literals produce STRING tokens (same as double-quoted).
+ * Handles escape sequences: \n, \t, \r, \\, \'
  */
 Token Lexer::read_single_quoted() {
     int start_line = line;
@@ -124,8 +142,24 @@ Token Lexer::read_single_quoted() {
     string value;
 
     while (current() != '\'' && current() != '\0') {
-        value += current();
-        advance();
+        if (current() == '\\') {
+            advance();  // skip backslash
+            char escaped = current();
+
+            switch (escaped) {
+                case 'n': value += '\n'; break;
+                case 't': value += '\t'; break;
+                case 'r': value += '\r'; break;
+                case '\\': value += '\\'; break;
+                case '\'': value += '\''; break;
+                default: value += escaped; break;
+            }
+
+            advance();
+        } else {
+            value += current();
+            advance();
+        }
     }
 
     if (current() == '\0') {
