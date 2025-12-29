@@ -57,6 +57,7 @@
 #include "codegen.hpp"
 #include "stdlib/http.hpp"
 #include "stdlib/fs.hpp"
+#include "stdlib/crypto.hpp"
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
 #include "stdlib/random.hpp"
@@ -105,6 +106,13 @@ static bool has_fs_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the crypto module.
+ */
+static bool has_crypto_import(const map<string, const Module*>& imports) {
+    return imports.find("crypto") != imports.end();
+}
+
+/**
  * Checks if the program imports the net module.
  */
 static bool has_net_import(const map<string, const Module*>& imports) {
@@ -143,6 +151,10 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
 
     if (name == "fs") {
         return nog::stdlib::generate_fs_runtime();
+    }
+
+    if (name == "crypto") {
+        return nog::stdlib::generate_crypto_runtime();
     }
 
     if (name == "net") {
@@ -264,6 +276,10 @@ string generate_with_imports(
 
     if (has_fs_import(imports)) {
         out += "#include <bishop/fs.hpp>\n";
+    }
+
+    if (has_crypto_import(imports)) {
+        out += "#include <bishop/crypto.hpp>\n";
     }
 
     if (has_process_import(imports)) {
