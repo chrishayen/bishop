@@ -176,10 +176,15 @@ string emit_str_reverse(const string& obj_str) {
 /**
  * Emits C++ code for the repeat() string method.
  * Repeats the string a specified number of times.
+ * Returns empty string for negative or zero counts.
+ *
+ * @param obj_str The emitted C++ expression for the string object
+ * @param count The emitted C++ expression for the int count (e.g., "3" or "n")
  */
 string emit_str_repeat(const string& obj_str, const string& count) {
     return fmt::format(
         "[](const std::string& s, int n) {{ "
+        "if (n <= 0) return std::string(); "
         "std::string result; "
         "result.reserve(s.size() * n); "
         "for (int i = 0; i < n; ++i) result += s; "

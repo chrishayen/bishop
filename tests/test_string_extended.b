@@ -199,6 +199,12 @@ fn test_str_repeat_empty() {
     assert_eq(s.repeat(5), "");
 }
 
+fn test_str_repeat_variable() {
+    s := "x";
+    n := 4;
+    assert_eq(s.repeat(n), "xxxx");
+}
+
 // ============================================
 // Split Methods
 // ============================================
