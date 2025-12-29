@@ -236,6 +236,12 @@ struct FailStmt : ASTNode {
     unique_ptr<ASTNode> value;     ///< Error message (string) or error literal
 };
 
+/** @brief Continue statement: continue; */
+struct ContinueStmt : ASTNode {};
+
+/** @brief Break statement: break; */
+struct BreakStmt : ASTNode {};
+
 //------------------------------------------------------------------------------
 // Error Handling - Or and Default expressions
 //------------------------------------------------------------------------------
@@ -260,6 +266,12 @@ struct OrFail : ASTNode {
 struct OrBlock : ASTNode {
     vector<unique_ptr<ASTNode>> body; ///< Statements to execute on error
 };
+
+/** @brief Or-continue handler: or continue */
+struct OrContinue : ASTNode {};
+
+/** @brief Or-break handler: or break */
+struct OrBreak : ASTNode {};
 
 /** @brief Or-match handler: or match err { arms } */
 struct OrMatch : ASTNode {
