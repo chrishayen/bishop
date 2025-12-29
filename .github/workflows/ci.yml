@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            g++ \
+            libfmt-dev \
+            libboost-context-dev \
+            libboost-fiber-dev
+
+      - name: Install tomlplusplus
+        run: |
+          git clone --depth 1 https://github.com/marzer/tomlplusplus.git /tmp/tomlplusplus
+          cd /tmp/tomlplusplus
+          sudo mkdir -p /usr/local/include
+          sudo cp -r include/toml++ /usr/local/include/
+          sudo mkdir -p /usr/local/lib/cmake/tomlplusplus
+          cat << 'EOF' | sudo tee /usr/local/lib/cmake/tomlplusplus/tomlplusplusConfig.cmake
+          add_library(tomlplusplus::tomlplusplus INTERFACE IMPORTED)
+          target_include_directories(tomlplusplus::tomlplusplus INTERFACE /usr/local/include)
+          EOF
+
+      - name: Build
+        run: make build
+
+      - name: Run tests
+        run: make test
+
+      - name: Upload bishop binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: bishop-linux
+          path: build/bishop
+
+      - name: Upload runtime libraries
+        uses: actions/upload-artifact@v4
+        with:
+          name: bishop-runtime
+          path: |
+            build/lib/*.a
+            build/include/
