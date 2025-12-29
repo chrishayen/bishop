@@ -620,6 +620,62 @@ fs.is_dir("path");       // -> bool (true if path is a directory)
 fs.read_dir("path");     // -> str (newline-separated filenames)
 ```
 
+### Crypto Module
+
+```bishop
+import crypto;
+```
+
+#### Hashing
+
+```bishop
+crypto.md5("data");       // -> str (32 hex chars)
+crypto.sha1("data");      // -> str (40 hex chars)
+crypto.sha256("data");    // -> str (64 hex chars)
+crypto.sha512("data");    // -> str (128 hex chars)
+```
+
+#### HMAC
+
+```bishop
+crypto.hmac_sha256("key", "data");  // -> str (64 hex chars)
+```
+
+#### Base64 Encoding
+
+```bishop
+crypto.base64_encode("data");  // -> str
+
+decoded := crypto.base64_decode("SGVsbG8=") or {
+    print("decode error");
+    return;
+};
+```
+
+#### Hex Encoding
+
+```bishop
+crypto.hex_encode("data");  // -> str
+
+decoded := crypto.hex_decode("48656c6c6f") or {
+    print("decode error");
+    return;
+};
+```
+
+#### UUID Generation
+
+```bishop
+id := crypto.uuid();                    // random v4 UUID
+id5 := crypto.uuid_v5("dns", "example.com");  // deterministic v5 UUID
+```
+
+#### Random Bytes
+
+```bishop
+bytes := crypto.random_bytes(32);  // -> List<int> (32 random bytes)
+```
+
 ### Example: Static File Server
 
 ```bishop
