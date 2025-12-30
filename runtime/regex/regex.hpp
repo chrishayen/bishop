@@ -19,6 +19,10 @@ namespace regex {
 /**
  * Match result structure containing match details.
  * text is the matched text, start/end are positions, groups contains capture groups.
+ *
+ * Note: start/end positions use int, which is suitable for strings up to ~2GB.
+ * This module is designed for reasonably-sized strings; extremely large strings
+ * (>2GB on 32-bit or >INT_MAX bytes) may have incorrect position values.
  */
 struct Match {
     std::string text;
@@ -243,6 +247,9 @@ private:
 /**
  * Compile a regular expression pattern.
  * Returns Result with Regex or error if pattern is invalid.
+ *
+ * Uses ECMAScript regex syntax (the default for std::regex), which is similar to
+ * JavaScript regex. See: https://en.cppreference.com/w/cpp/regex/ecmascript
  */
 inline bishop::rt::Result<Regex> compile(const std::string& pattern) {
     try {
@@ -296,10 +303,6 @@ inline bishop::rt::Result<std::vector<std::string>> split(const std::string& pat
 
         // Add any remaining text after the last match (including empty trailing string)
         result.push_back(text.substr(last_end));
-
-        if (result.empty()) {
-            result.push_back(text);
-        }
 
         return result;
     } catch (const std::regex_error& e) {
