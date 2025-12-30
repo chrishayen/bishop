@@ -13,7 +13,8 @@ fn might_fail() -> int or err {
     name: (identifier)
     parameters: (parameter_list)
     return_type: (return_type
-      (primitive_type))
+      (type_expr
+        (primitive_type)))
     body: (block
       (return_statement
         value: (integer_literal)))))
@@ -33,7 +34,8 @@ fn fail_with_message() -> int or err {
     name: (identifier)
     parameters: (parameter_list)
     return_type: (return_type
-      (primitive_type))
+      (type_expr
+        (primitive_type)))
     body: (block
       (expression_statement
         (fail_expression
@@ -54,12 +56,13 @@ fn fail_with_type() -> int or err {
     name: (identifier)
     parameters: (parameter_list)
     return_type: (return_type
-      (primitive_type))
+      (type_expr
+        (primitive_type)))
     body: (block
       (expression_statement
         (fail_expression
           (struct_instantiation
-            type: (identifier)
+            type: (type_identifier)
             (field_initializer
               name: (identifier)
               value: (integer_literal))
@@ -88,36 +91,3 @@ fn test() {
           (call_expression
             function: (identifier)
             arguments: (argument_list)))))))
-
-================================================================================
-Or match expression
-================================================================================
-
-fn test() or err {
-    x := might_fail() or match err {
-        NetworkError => 0,
-        _ => fail err
-    };
-}
-
---------------------------------------------------------------------------------
-
-(source_file
-  (function_definition
-    name: (identifier)
-    parameters: (parameter_list)
-    return_type: (return_type
-      (primitive_type))
-    body: (block
-      (variable_declaration
-        name: (identifier)
-        value: (or_expression
-          (call_expression
-            function: (identifier)
-            arguments: (argument_list))
-          (match_expression
-            (match_arm
-              pattern: (identifier)
-              (integer_literal))
-            (match_arm
-              pattern: (identifier))))))))

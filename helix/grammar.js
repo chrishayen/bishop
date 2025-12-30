@@ -131,7 +131,7 @@ module.exports = grammar({
 
     struct_definition: $ => seq(
       optional($.visibility),
-      field('name', $.identifier),
+      field('name', $._type_name),
       '::',
       'struct',
       field('body', $.struct_body),
@@ -154,7 +154,7 @@ module.exports = grammar({
 
     method_definition: $ => seq(
       optional($.visibility),
-      field('struct_name', $.identifier),
+      field('struct_name', $._type_name),
       '::',
       field('method_name', $.identifier),
       field('parameters', $.parameter_list),
@@ -168,7 +168,7 @@ module.exports = grammar({
 
     error_definition: $ => seq(
       optional($.visibility),
-      field('name', $.identifier),
+      field('name', $._type_name),
       '::',
       'err',
       optional(field('body', $.error_body)),
@@ -231,6 +231,9 @@ module.exports = grammar({
     ),
 
     type_identifier: _ => /[A-Z][a-zA-Z0-9_]*/,
+
+    // Type name can be either PascalCase (type_identifier) or lowercase (identifier)
+    _type_name: $ => choice($.type_identifier, $.identifier),
 
     primitive_type: _ => choice(
       'int', 'str', 'bool', 'f32', 'f64', 'u32', 'u64', 'cint', 'cstr', 'void',

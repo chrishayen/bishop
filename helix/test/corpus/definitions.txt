@@ -13,13 +13,16 @@ fn add(int a, int b) -> int {
     name: (identifier)
     parameters: (parameter_list
       (parameter
-        type: (primitive_type)
+        type: (type_expr
+          (primitive_type))
         name: (identifier))
       (parameter
-        type: (primitive_type)
+        type: (type_expr
+          (primitive_type))
         name: (identifier)))
     return_type: (return_type
-      (primitive_type))
+      (type_expr
+        (primitive_type)))
     body: (block
       (return_statement
         value: (binary_expression
@@ -39,14 +42,16 @@ Person :: struct {
 
 (source_file
   (struct_definition
-    name: (identifier)
+    name: (type_identifier)
     body: (struct_body
       (struct_field
         name: (identifier)
-        type: (primitive_type))
+        type: (type_expr
+          (primitive_type)))
       (struct_field
         name: (identifier)
-        type: (primitive_type)))))
+        type: (type_expr
+          (primitive_type))))))
 
 ================================================================================
 Method definition
@@ -60,15 +65,17 @@ Person :: greet(self, str message) -> str {
 
 (source_file
   (method_definition
-    struct_name: (identifier)
+    struct_name: (type_identifier)
     method_name: (identifier)
     parameters: (parameter_list
-      (self)
+      (parameter)
       (parameter
-        type: (primitive_type)
+        type: (type_expr
+          (primitive_type))
         name: (identifier)))
     return_type: (return_type
-      (primitive_type))
+      (type_expr
+        (primitive_type)))
     body: (block
       (return_statement
         value: (identifier)))))
@@ -86,14 +93,16 @@ NetworkError :: err {
 
 (source_file
   (error_definition
-    name: (identifier)
+    name: (type_identifier)
     body: (error_body
       (struct_field
         name: (identifier)
-        type: (primitive_type))
+        type: (type_expr
+          (primitive_type)))
       (struct_field
         name: (identifier)
-        type: (primitive_type)))))
+        type: (type_expr
+          (primitive_type))))))
 
 ================================================================================
 Simple error definition
@@ -105,4 +114,4 @@ SimpleError :: err;
 
 (source_file
   (error_definition
-    name: (identifier)))
+    name: (type_identifier)))

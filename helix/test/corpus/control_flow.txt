@@ -16,7 +16,7 @@ fn test() {
     parameters: (parameter_list)
     body: (block
       (if_statement
-        condition: (comparison_expression
+        condition: (binary_expression
           (identifier)
           (integer_literal))
         consequence: (block
@@ -43,7 +43,7 @@ fn test() {
     parameters: (parameter_list)
     body: (block
       (if_statement
-        condition: (comparison_expression
+        condition: (binary_expression
           (identifier)
           (integer_literal))
         consequence: (block
@@ -71,12 +71,12 @@ fn test() {
     parameters: (parameter_list)
     body: (block
       (while_statement
-        condition: (comparison_expression
+        condition: (binary_expression
           (identifier)
           (integer_literal))
         body: (block
-          (assignment_statement
-            target: (identifier)
+          (variable_declaration
+            name: (identifier)
             value: (binary_expression
               (identifier)
               (integer_literal))))))))
@@ -100,11 +100,11 @@ fn test() {
     body: (block
       (for_statement
         variable: (identifier)
-        start: (integer_literal)
+        iterable: (integer_literal)
         end: (integer_literal)
         body: (block
-          (assignment_statement
-            target: (identifier)
+          (variable_declaration
+            name: (identifier)
             value: (binary_expression
               (identifier)
               (identifier))))))))

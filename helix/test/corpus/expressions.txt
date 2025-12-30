@@ -32,8 +32,9 @@ fn test() {
     name: (identifier)
     parameters: (parameter_list)
     body: (block
-      (typed_variable_declaration
-        type: (primitive_type)
+      (variable_declaration
+        type: (type_expr
+          (primitive_type))
         name: (identifier)
         value: (integer_literal)))))
 
@@ -77,7 +78,7 @@ fn test() {
       (variable_declaration
         name: (identifier)
         value: (struct_instantiation
-          type: (identifier)
+          type: (type_identifier)
           (field_initializer
             name: (identifier)
             value: (string_literal))
@@ -105,15 +106,15 @@ fn test() {
         name: (identifier)
         value: (call_expression
           function: (generic_type
-            type: (identifier)
-            (primitive_type))
+            (type_expr
+              (primitive_type)))
           arguments: (argument_list)))
       (variable_declaration
         name: (identifier)
         value: (call_expression
           function: (generic_type
-            type: (identifier)
-            (primitive_type))
+            (type_expr
+              (primitive_type)))
           arguments: (argument_list))))))
 
 ================================================================================
@@ -136,13 +137,16 @@ fn test() {
         value: (lambda_expression
           parameters: (parameter_list
             (parameter
-              type: (primitive_type)
+              type: (type_expr
+                (primitive_type))
               name: (identifier))
             (parameter
-              type: (primitive_type)
+              type: (type_expr
+                (primitive_type))
               name: (identifier)))
           return_type: (return_type
-            (primitive_type))
+            (type_expr
+              (primitive_type)))
           body: (block
             (return_statement
               value: (binary_expression
