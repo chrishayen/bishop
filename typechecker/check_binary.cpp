@@ -25,6 +25,26 @@ TypeInfo check_binary_expr(TypeCheckerState& state, const BinaryExpr& bin) {
         return {"str", false, false};
     }
 
+    // Duration + Duration -> Duration
+    // Duration - Duration -> Duration
+    if ((left_type.base_type == "time.Duration" && right_type.base_type == "time.Duration") &&
+        (bin.op == "+" || bin.op == "-")) {
+        return {"time.Duration", false, false};
+    }
+
+    // Timestamp + Duration -> Timestamp
+    // Timestamp - Duration -> Timestamp
+    if ((left_type.base_type == "time.Timestamp" && right_type.base_type == "time.Duration") &&
+        (bin.op == "+" || bin.op == "-")) {
+        return {"time.Timestamp", false, false};
+    }
+
+    // Timestamp - Timestamp -> Duration
+    if (left_type.base_type == "time.Timestamp" && right_type.base_type == "time.Timestamp" &&
+        bin.op == "-") {
+        return {"time.Duration", false, false};
+    }
+
     if (left_type.base_type != right_type.base_type) {
         error(state, "type mismatch in binary expression: '" + format_type(left_type) + "' " + bin.op +
               " '" + format_type(right_type) + "'", bin.line);

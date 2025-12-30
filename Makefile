@@ -41,6 +41,7 @@ install: build
 	@cp $(BUILD_DIR)/include/bishop/net.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/net.hpp.gch ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/process.hpp ~/.local/include/bishop/
+	@cp $(BUILD_DIR)/include/bishop/time.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/math.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/random.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/algo.hpp ~/.local/include/bishop/

@@ -60,6 +60,7 @@
 #include "stdlib/crypto.hpp"
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
+#include "stdlib/time.hpp"
 #include "stdlib/math.hpp"
 #include "stdlib/random.hpp"
 #include "stdlib/algo.hpp"
@@ -129,6 +130,13 @@ static bool has_process_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the time module.
+ */
+static bool has_time_import(const map<string, const Module*>& imports) {
+    return imports.find("time") != imports.end();
+}
+
+/**
  * Checks if the program imports the math module.
  */
 static bool has_math_import(const map<string, const Module*>& imports) {
@@ -186,6 +194,10 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
 
     if (name == "process") {
         return nog::stdlib::generate_process_runtime();
+    }
+
+    if (name == "time") {
+        return nog::stdlib::generate_time_runtime();
     }
 
     if (name == "math") {
@@ -315,6 +327,10 @@ string generate_with_imports(
 
     if (has_process_import(imports)) {
         out += "#include <bishop/process.hpp>\n";
+    }
+
+    if (has_time_import(imports)) {
+        out += "#include <bishop/time.hpp>\n";
     }
 
     if (has_math_import(imports)) {

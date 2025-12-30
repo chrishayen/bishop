@@ -14,6 +14,7 @@
 #include "stdlib/crypto.hpp"
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
+#include "stdlib/time.hpp"
 #include "stdlib/math.hpp"
 #include "stdlib/random.hpp"
 #include "stdlib/algo.hpp"
@@ -181,6 +182,8 @@ unique_ptr<Module> ModuleManager::create_builtin_module(const string& name) {
         mod->ast = nog::stdlib::create_net_module();
     } else if (name == "process") {
         mod->ast = nog::stdlib::create_process_module();
+    } else if (name == "time") {
+        mod->ast = nog::stdlib::create_time_module();
     } else if (name == "math") {
         mod->ast = nog::stdlib::create_math_module();
     } else if (name == "random") {

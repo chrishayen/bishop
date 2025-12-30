@@ -168,7 +168,15 @@ string emit(CodeGenState& state, const ASTNode& node) {
         size_t dot_pos = struct_name.find('.');
 
         if (dot_pos != string::npos) {
-            struct_name = struct_name.substr(0, dot_pos) + "::" + struct_name.substr(dot_pos + 1);
+            string module_name = struct_name.substr(0, dot_pos);
+            string type_name = struct_name.substr(dot_pos + 1);
+
+            // Map 'time' module to 'bishop_time' to avoid conflict with C time()
+            if (module_name == "time") {
+                module_name = "bishop_time";
+            }
+
+            struct_name = module_name + "::" + type_name;
         }
 
         return struct_literal(struct_name, field_values);
