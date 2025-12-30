@@ -28,9 +28,11 @@ string emit_function_ref(const FunctionRef& ref) {
         string module_name = func_name.substr(0, dot_pos);
         string fn_name = func_name.substr(dot_pos + 1);
 
-        // Map 'time' module to 'bishop_time' to avoid conflict with C time()
+        // Map module names that conflict with C/C++ identifiers
         if (module_name == "time") {
             module_name = "bishop_time";
+        } else if (module_name == "log") {
+            module_name = "bishop_log";
         }
 
         func_name = module_name + "::" + fn_name;
@@ -45,9 +47,11 @@ string emit_function_ref(const FunctionRef& ref) {
 string emit_qualified_ref(const QualifiedRef& ref) {
     string module_name = ref.module_name;
 
-    // Map 'time' module to 'bishop_time' to avoid conflict with C time()
+    // Map module names that conflict with C/C++ identifiers
     if (module_name == "time") {
         module_name = "bishop_time";
+    } else if (module_name == "log") {
+        module_name = "bishop_log";
     }
 
     return module_name + "::" + ref.name;

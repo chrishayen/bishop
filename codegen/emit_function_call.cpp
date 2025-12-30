@@ -75,6 +75,8 @@ string emit_function_call(CodeGenState& state, const FunctionCall& call) {
             module_name = "bishop_random";
         } else if (module_name == "sync") {
             module_name = "bsync";
+        } else if (module_name == "log") {
+            module_name = "bishop_log";
         }
 
         func_name = module_name + "::" + fn_name;
@@ -93,6 +95,8 @@ string emit_function_call(CodeGenState& state, const FunctionCall& call) {
                 module_name = "bishop_random";
             } else if (module_name == "sync") {
                 module_name = "bsync";
+            } else if (module_name == "log") {
+                module_name = "bishop_log";
             }
 
             func_name = module_name + "::" + fn_name;

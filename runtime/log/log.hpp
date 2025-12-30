@@ -24,7 +24,7 @@
 #include <vector>
 #include <memory>
 
-namespace log {
+namespace bishop_log {
 
 // Log level constants
 constexpr int DEBUG = 0;
@@ -305,4 +305,4 @@ inline void add_file_level(const std::string& path, int level) {
     state.file_outputs.push_back(std::move(fo));
 }
 
-}  // namespace log
+}  // namespace bishop_log
