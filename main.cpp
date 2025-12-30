@@ -157,7 +157,15 @@ TranspileResult transpile(const string& source, const string& filename, bool tes
     TranspileResult result;
 
     Lexer lexer(source);
-    auto tokens = lexer.tokenize();
+    vector<Token> tokens;
+
+    try {
+        tokens = lexer.tokenize();
+    } catch (const runtime_error& e) {
+        cerr << filename << ": lexer error: " << e.what() << endl;
+        return result;
+    }
+
     ParserState state(tokens);
 
     unique_ptr<Program> ast;

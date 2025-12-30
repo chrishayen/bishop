@@ -44,6 +44,8 @@ std::string generate_extern_declarations(const std::unique_ptr<Program>& program
 
 // Type utilities (emit_type.cpp)
 std::string map_type(const std::string& t);
+std::string map_type_for_decl(const std::string& t);
+std::string extract_element_type(const std::string& generic_type, const std::string& prefix);
 
 // Expression emission (emit_expression.cpp)
 std::string emit(CodeGenState& state, const ASTNode& node);

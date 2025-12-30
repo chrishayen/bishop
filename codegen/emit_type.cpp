@@ -6,16 +6,34 @@
  */
 
 #include "codegen.hpp"
+#include "common/type_utils.hpp"
+#include <cassert>
 
 using namespace std;
 
 namespace codegen {
 
 /**
+ * Extracts the element type from a generic type string using proper bracket matching.
+ * Delegates to the shared implementation in common/type_utils.hpp.
+ */
+string extract_element_type(const string& generic_type, const string& prefix) {
+    return bishop::extract_element_type(generic_type, prefix);
+}
+
+/**
+ * Maps a Bishop type name to its C++ equivalent for variable declarations.
+ * Returns the type without reference suffix (no &).
+ */
+string map_type_for_decl(const string& t);
+
+/**
  * Maps a Bishop type name to its C++ equivalent.
  * Returns the input unchanged if it's a user-defined type (struct).
  * Handles qualified types (module.Type -> module::Type).
  * Handles function types (fn(int, int) -> int -> std::function<int(int, int)>).
+ * For Channel types, returns a reference type (Channel<T>&) suitable for function parameters.
+ * Use map_type_for_decl for variable declarations.
  */
 string map_type(const string& t) {
     if (t == "int") return "int";
@@ -32,25 +50,22 @@ string map_type(const string& t) {
 
     // Handle Channel<T> types: Channel<int> -> bishop::rt::Channel<int>&
     if (t.rfind("Channel<", 0) == 0 && t.back() == '>') {
-        size_t start = 8;
-        size_t end = t.find('>', start);
-        string element_type = t.substr(start, end - start);
+        string element_type = extract_element_type(t, "Channel<");
+        assert(!element_type.empty() && "malformed Channel type passed typechecker");
         return "bishop::rt::Channel<" + map_type(element_type) + ">&";
     }
 
     // Handle List<T> types: List<int> -> std::vector<int>
     if (t.rfind("List<", 0) == 0 && t.back() == '>') {
-        size_t start = 5;
-        size_t end = t.find('>', start);
-        string element_type = t.substr(start, end - start);
+        string element_type = extract_element_type(t, "List<");
+        assert(!element_type.empty() && "malformed List type passed typechecker");
         return "std::vector<" + map_type(element_type) + ">";
     }
 
     // Handle Pair<T> types: Pair<int> -> std::pair<int, int>
     if (t.rfind("Pair<", 0) == 0 && t.back() == '>') {
-        size_t start = 5;
-        size_t end = t.find('>', start);
-        string element_type = t.substr(start, end - start);
+        string element_type = extract_element_type(t, "Pair<");
+        assert(!element_type.empty() && "malformed Pair type passed typechecker");
         string cpp_type = map_type(element_type);
         return "std::pair<" + cpp_type + ", " + cpp_type + ">";
     }
@@ -58,9 +73,8 @@ string map_type(const string& t) {
     // Handle Tuple<T> types: Tuple<int> -> std::vector<int>
     // We use vector for homogeneous tuples since all elements are the same type
     if (t.rfind("Tuple<", 0) == 0 && t.back() == '>') {
-        size_t start = 6;
-        size_t end = t.find('>', start);
-        string element_type = t.substr(start, end - start);
+        string element_type = extract_element_type(t, "Tuple<");
+        assert(!element_type.empty() && "malformed Tuple type passed typechecker");
         return "std::vector<" + map_type(element_type) + ">";
     }
 
@@ -141,6 +155,22 @@ string map_type(const string& t) {
     }
 
     return t;
+}
+
+/**
+ * Maps a Bishop type name to its C++ equivalent for variable declarations.
+ * Unlike map_type(), this strips the reference suffix from Channel types
+ * since variable declarations cannot use reference types.
+ */
+string map_type_for_decl(const string& t) {
+    string mapped = map_type(t);
+
+    // Strip trailing '&' from Channel types for variable declarations
+    if (!mapped.empty() && mapped.back() == '&') {
+        return mapped.substr(0, mapped.size() - 1);
+    }
+
+    return mapped;
 }
 
 } // namespace codegen

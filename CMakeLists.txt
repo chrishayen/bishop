@@ -112,6 +112,7 @@ add_library(bishop_lib
     stdlib/net.cpp
     stdlib/process.cpp
     stdlib/time.cpp
+    stdlib/random.cpp
 )
 target_link_libraries(bishop_lib fmt::fmt tomlplusplus::tomlplusplus)
 target_include_directories(bishop_lib PUBLIC ${llhttp_SOURCE_DIR}/include)
@@ -153,6 +154,9 @@ add_custom_target(bishop_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/time/time.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/time.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/random/random.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/random.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/fiber_asio/round_robin.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/fiber_asio/round_robin.hpp
