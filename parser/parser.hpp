@@ -48,6 +48,8 @@ void advance(ParserState& state);
 
 // Type utilities (parse_type.cpp)
 bool is_type_token(const ParserState& state);
+bool is_type_keyword_token(const ParserState& state);
+std::string get_type_keyword_name(const ParserState& state);
 std::string token_to_type(TokenType type);
 std::string parse_type(ParserState& state);
 

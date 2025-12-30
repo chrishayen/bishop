@@ -127,6 +127,10 @@ Token Lexer::read_string() {
         }
     }
 
+    if (current() == '\0') {
+        throw runtime_error("Unterminated string literal at line " + to_string(start_line));
+    }
+
     advance();  // skip closing quote
     return {TokenType::STRING, value, start_line};
 }

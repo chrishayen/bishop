@@ -51,16 +51,6 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return addr;
     }
 
-    // Handle unary negation: -expr
-    if (check(state, TokenType::MINUS)) {
-        int start_line = current(state).line;
-        advance(state);
-        auto negate = make_unique<NegateExpr>();
-        negate->value = parse_primary(state);
-        negate->line = start_line;
-        return negate;
-    }
-
     // Handle anonymous function (lambda): fn(params) -> return_type { body }
     if (check(state, TokenType::FN)) {
         int start_line = current(state).line;
@@ -104,6 +94,7 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         consume(state, TokenType::RBRACE);
         return lambda;
     }
+
 
     // Parenthesized expression: (expr)
     if (check(state, TokenType::LPAREN)) {
@@ -296,11 +287,23 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         Token tok = current(state);
         advance(state);
 
-        // Check for qualified reference: module.item (e.g., math.add)
+        // Check for qualified reference: module.item (e.g., math.add, random.int)
         if (check(state, TokenType::DOT) && is_imported_module(state, tok.value)) {
             advance(state);
-            Token item_tok = consume(state, TokenType::IDENT);
-            string item_name = item_tok.value;
+
+            // Allow type keywords as function names (e.g., random.int, random.float)
+            string item_name;
+
+            if (check(state, TokenType::IDENT)) {
+                item_name = current(state).value;
+                advance(state);
+            } else if (is_type_keyword_token(state)) {
+                item_name = get_type_keyword_name(state);
+                advance(state);
+            } else {
+                Token err_tok = current(state);
+                throw runtime_error("expected identifier or type name after '.' at line " + to_string(err_tok.line));
+            }
 
             // Check if it's a qualified function call: module.func(args)
             if (check(state, TokenType::LPAREN)) {

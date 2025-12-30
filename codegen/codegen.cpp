@@ -60,6 +60,7 @@
 #include "stdlib/crypto.hpp"
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
+#include "stdlib/random.hpp"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
@@ -126,6 +127,13 @@ static bool has_process_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the random module.
+ */
+static bool has_random_import(const map<string, const Module*>& imports) {
+    return imports.find("random") != imports.end();
+}
+
+/**
  * Checks if the program uses channels (requires boost fiber).
  */
 static bool uses_channels(const Program& program) {
@@ -162,6 +170,10 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
 
     if (name == "process") {
         return nog::stdlib::generate_process_runtime();
+    }
+
+    if (name == "random") {
+        return nog::stdlib::generate_random_runtime();
     }
 
     string out = "namespace " + name + " {\n\n";
@@ -279,6 +291,10 @@ string generate_with_imports(
 
     if (has_process_import(imports)) {
         out += "#include <bishop/process.hpp>\n";
+    }
+
+    if (has_random_import(imports)) {
+        out += "#include <bishop/random.hpp>\n";
     }
 
     if (uses_channels(*program)) {

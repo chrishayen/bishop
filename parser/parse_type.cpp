@@ -27,6 +27,36 @@ bool is_type_token(const ParserState& state) {
 }
 
 /**
+ * Checks if current token is a type keyword that can be used as a member/function name.
+ * Used by both parse_primary and parse_postfix to recognize module function calls
+ * like random.int() or random.float().
+ */
+bool is_type_keyword_token(const ParserState& state) {
+    TokenType t = current(state).type;
+    return t == TokenType::TYPE_INT || t == TokenType::TYPE_STR ||
+           t == TokenType::TYPE_BOOL ||
+           t == TokenType::TYPE_F32 || t == TokenType::TYPE_F64 ||
+           t == TokenType::TYPE_U32 || t == TokenType::TYPE_U64;
+}
+
+/**
+ * Returns the name of the current type keyword token.
+ * Precondition: is_type_keyword_token(state) must be true.
+ */
+string get_type_keyword_name(const ParserState& state) {
+    switch (current(state).type) {
+        case TokenType::TYPE_INT: return "int";
+        case TokenType::TYPE_STR: return "str";
+        case TokenType::TYPE_BOOL: return "bool";
+        case TokenType::TYPE_F32: return "f32";
+        case TokenType::TYPE_F64: return "f64";
+        case TokenType::TYPE_U32: return "u32";
+        case TokenType::TYPE_U64: return "u64";
+        default: return "";
+    }
+}
+
+/**
  * Converts a type token to its string representation.
  */
 string token_to_type(TokenType type) {
