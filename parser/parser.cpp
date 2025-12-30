@@ -25,6 +25,17 @@ Token current(const ParserState& state) {
 }
 
 /**
+ * Returns the next token (lookahead), or EOF_TOKEN if past end.
+ */
+Token peek(const ParserState& state) {
+    if (state.pos + 1 >= state.tokens.size()) {
+        return {TokenType::EOF_TOKEN, "", 0};
+    }
+
+    return state.tokens[state.pos + 1];
+}
+
+/**
  * Checks if current token matches the given type.
  */
 bool check(const ParserState& state, TokenType type) {

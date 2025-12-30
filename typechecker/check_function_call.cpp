@@ -71,8 +71,30 @@ TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call) 
     if (const TypeInfo* local = lookup_local(state, call.name)) {
         TypeInfo local_type = *local;
 
-        if (local_type.base_type.rfind("fn(", 0) == 0) {
-            size_t arrow_pos = local_type.base_type.find(" -> ");
+        // Use the shared helper to parse parameter types from the function type
+        auto param_types_opt = parse_function_type_params(local_type.base_type);
+
+        if (param_types_opt) {
+            vector<string> param_types = *param_types_opt;
+
+            // Check argument count
+            if (call.args.size() != param_types.size()) {
+                error(state, "function '" + call.name + "' expects " + to_string(param_types.size()) + " arguments, got " + to_string(call.args.size()), call.line);
+            }
+
+            // Check argument types
+            for (size_t i = 0; i < call.args.size() && i < param_types.size(); i++) {
+                TypeInfo arg_type = infer_type(state, *call.args[i]);
+
+                if (!types_compatible({param_types[i], false, false}, arg_type)) {
+                    error(state, "argument " + to_string(i + 1) + " of function '" + call.name +
+                          "' expects '" + param_types[i] + "', got '" + format_type(arg_type) + "'", call.line);
+                }
+            }
+
+            // Extract return type (after " -> ")
+            size_t params_end = local_type.base_type.find(')');
+            size_t arrow_pos = local_type.base_type.find(" -> ", params_end);
 
             if (arrow_pos != string::npos) {
                 string ret_type = local_type.base_type.substr(arrow_pos + 4);

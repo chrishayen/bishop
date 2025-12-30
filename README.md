@@ -161,6 +161,61 @@ fn apply_op(int x, int y, fn(int, int) -> int op) -> int {
 result := apply_op(3, 4, add);  // result = 7
 ```
 
+### Anonymous Functions (Lambdas)
+
+Anonymous functions can be defined inline using `fn` without a name:
+
+```bishop
+// Basic anonymous function
+doubler := fn(int x) -> int { return x * 2; };
+result := doubler(21);  // 42
+
+// No parameters
+get_value := fn() -> int { return 42; };
+
+// Void return (no return type)
+action := fn() { print("Hello"); };
+
+// Multiple parameters
+add := fn(int a, int b) -> int { return a + b; };
+```
+
+#### Lambdas as Arguments
+
+Pass lambdas directly to higher-order functions:
+
+```bishop
+fn apply_op(int x, int y, fn(int, int) -> int op) -> int {
+    return op(x, y);
+}
+
+result := apply_op(3, 4, fn(int a, int b) -> int { return a + b; });  // 7
+```
+
+#### Closures
+
+Lambdas capture variables from their enclosing scope:
+
+```bishop
+multiplier := 10;
+scale := fn(int x) -> int { return x * multiplier; };
+result := scale(4);  // 40
+```
+
+#### Lambdas with Goroutines
+
+Use lambdas with `go` for concurrent execution:
+
+```bishop
+ch := Channel<int>();
+
+go fn() {
+    ch.send(42);
+}();
+
+val := ch.recv();  // 42
+```
+
 ## Structs
 
 ### Definition

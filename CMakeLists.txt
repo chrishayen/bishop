@@ -74,6 +74,7 @@ add_library(bishop_lib
     typechecker/tuples.cpp
     typechecker/check_pair.cpp
     typechecker/check_tuple.cpp
+    typechecker/check_lambda.cpp
     codegen/codegen.cpp
     codegen/emit_type.cpp
     codegen/emit_expression.cpp
@@ -96,6 +97,7 @@ add_library(bishop_lib
     codegen/emit_refs.cpp
     codegen/emit_binary.cpp
     codegen/emit_go_spawn.cpp
+    codegen/emit_lambda.cpp
     codegen/emit_channel.cpp
     codegen/emit_list.cpp
     codegen/emit_string.cpp

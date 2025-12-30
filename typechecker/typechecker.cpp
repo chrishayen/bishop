@@ -8,6 +8,7 @@
 
 #include "typechecker.hpp"
 #include "common/type_utils.hpp"
+#include <optional>
 
 using namespace std;
 
@@ -321,6 +322,70 @@ bool types_compatible(const TypeInfo& expected, const TypeInfo& actual) {
     }
 
     return expected.base_type == actual.base_type;
+}
+
+/**
+ * Parses parameter types from a function type string.
+ * Format: fn(type1, type2) -> return_type
+ * Returns an empty optional if the function type is invalid.
+ */
+optional<vector<string>> parse_function_type_params(const string& fn_type) {
+    if (fn_type.substr(0, 3) != "fn(") {
+        return nullopt;
+    }
+
+    size_t params_start = 3;  // After "fn("
+    size_t params_end = fn_type.find(')');
+
+    if (params_end == string::npos) {
+        return nullopt;
+    }
+
+    string params_str = fn_type.substr(params_start, params_end - params_start);
+    vector<string> param_types;
+
+    if (params_str.empty()) {
+        return param_types;
+    }
+
+    size_t pos = 0;
+
+    while (pos < params_str.length()) {
+        // Skip whitespace
+        while (pos < params_str.length() && params_str[pos] == ' ') {
+            pos++;
+        }
+
+        size_t comma_pos = params_str.find(',', pos);
+
+        if (comma_pos == string::npos) {
+            string type = params_str.substr(pos);
+            // Trim trailing whitespace
+            while (!type.empty() && type.back() == ' ') {
+                type.pop_back();
+            }
+
+            if (!type.empty()) {
+                param_types.push_back(type);
+            }
+
+            break;
+        } else {
+            string type = params_str.substr(pos, comma_pos - pos);
+            // Trim whitespace
+            while (!type.empty() && type.back() == ' ') {
+                type.pop_back();
+            }
+
+            if (!type.empty()) {
+                param_types.push_back(type);
+            }
+
+            pos = comma_pos + 1;
+        }
+    }
+
+    return param_types;
 }
 
 /**
