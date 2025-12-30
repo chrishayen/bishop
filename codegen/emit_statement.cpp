@@ -69,21 +69,7 @@ string generate_statement(CodeGenState& state, const ASTNode& node) {
             return function_call(call->name, args) + ";";
         }
 
-        vector<string> args;
-
-        for (const auto& arg : call->args) {
-            args.push_back(emit(state, *arg));
-        }
-
-        // Handle qualified function call: module.func -> module::func
-        string func_name = call->name;
-        size_t dot_pos = func_name.find('.');
-
-        if (dot_pos != string::npos) {
-            func_name = func_name.substr(0, dot_pos) + "::" + func_name.substr(dot_pos + 1);
-        }
-
-        return function_call(func_name, args) + ";";
+        return emit_function_call(state, *call) + ";";
     }
 
     if (auto* stmt = dynamic_cast<const IfStmt*>(&node)) {

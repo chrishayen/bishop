@@ -15,6 +15,7 @@
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
 #include "stdlib/regex.hpp"
+#include "stdlib/random.hpp"
 #include <fstream>
 #include <sstream>
 
@@ -181,6 +182,8 @@ unique_ptr<Module> ModuleManager::create_builtin_module(const string& name) {
         mod->ast = nog::stdlib::create_process_module();
     } else if (name == "regex") {
         mod->ast = nog::stdlib::create_regex_module();
+    } else if (name == "random") {
+        mod->ast = nog::stdlib::create_random_module();
     } else {
         return nullptr;
     }
