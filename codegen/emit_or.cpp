@@ -190,6 +190,9 @@ string emit_or_expr(CodeGenState& state, const OrExpr& expr) {
  *
  * For Pair and Tuple get() methods, generates proper bounds-checking code
  * that uses the fallback value for out-of-bounds access.
+ *
+ * For general expressions, uses bishop::truthy() to check falsiness,
+ * which handles strings, containers, numerics, bools, and optionals.
  */
 string emit_default_expr(CodeGenState& state, const DefaultExpr& expr) {
     string fallback = emit(state, *expr.fallback);
@@ -219,9 +222,11 @@ string emit_default_expr(CodeGenState& state, const DefaultExpr& expr) {
         }
     }
 
-    // Default behavior: use ternary for falsy check
-    string value = emit(state, *expr.expr);
-    return fmt::format("({} ? {} : {})", value, value, fallback);
+    // Use bishop::truthy() for universal falsy checking
+    // Wrap in lambda to avoid double-evaluation of expr
+    string expr_str = emit(state, *expr.expr);
+    return fmt::format("[&]() {{ auto _v = {}; return bishop::truthy(_v) ? _v : {}; }}()",
+                       expr_str, fallback);
 }
 
 } // namespace codegen

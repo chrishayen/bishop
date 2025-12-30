@@ -151,3 +151,50 @@ T* arena_new(Args&&... args) {
 namespace bishop::rt {
     inline void sleep(int ms) { sleep_ms(ms); }
 }
+
+// ============================================================================
+// Truthy/Falsy Value Checking (for default expressions)
+// ============================================================================
+
+namespace bishop {
+
+namespace detail {
+    // SFINAE helper to detect if type has .empty() method
+    template<typename T, typename = void>
+    struct has_empty : std::false_type {};
+
+    template<typename T>
+    struct has_empty<T, std::void_t<decltype(std::declval<T>().empty())>> : std::true_type {};
+
+    template<typename T>
+    inline constexpr bool has_empty_v = has_empty<T>::value;
+}
+
+/**
+ * Check if a value is "truthy" (non-falsy).
+ * Used by the default keyword to determine if fallback should be used.
+ *
+ * Falsy values:
+ * - Empty strings and containers (via .empty())
+ * - Zero for arithmetic types
+ * - False for bool
+ * - None/nullopt for optional types
+ */
+template<typename T>
+inline bool truthy(const T& value) {
+    if constexpr (std::is_same_v<std::decay_t<T>, bool>) {
+        // bool: false is falsy
+        return value;
+    } else if constexpr (std::is_arithmetic_v<std::decay_t<T>>) {
+        // Numeric types: zero is falsy
+        return value != 0;
+    } else if constexpr (detail::has_empty_v<std::decay_t<T>>) {
+        // Containers/strings with .empty(): empty is falsy
+        return !value.empty();
+    } else {
+        // For other types (optional, etc), use implicit bool conversion
+        return static_cast<bool>(value);
+    }
+}
+
+}  // namespace bishop
