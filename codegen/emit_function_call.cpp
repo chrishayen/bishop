@@ -76,6 +76,23 @@ string emit_function_call(CodeGenState& state, const FunctionCall& call) {
         }
 
         func_name = module_name + "::" + fn_name;
+    } else {
+        // Check if this is a using alias for a function
+        const CodeGenUsingAlias* alias = get_using_alias(state, call.name);
+
+        if (alias) {
+            string module_name = alias->module_alias;
+            string fn_name = escape_reserved_name(alias->member_name);
+
+            // Map module names that conflict with C/C++ identifiers
+            if (module_name == "time") {
+                module_name = "bishop_time";
+            } else if (module_name == "random") {
+                module_name = "bishop_random";
+            }
+
+            func_name = module_name + "::" + fn_name;
+        }
     }
 
     return function_call(func_name, args);

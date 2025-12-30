@@ -41,6 +41,20 @@ string emit(CodeGenState& state, const ASTNode& node) {
     }
 
     if (auto* ref = dynamic_cast<const VariableRef*>(&node)) {
+        // Check if this is a using alias for a constant
+        const CodeGenUsingAlias* alias = get_using_alias(state, ref->name);
+
+        if (alias) {
+            string module_name = alias->module_alias;
+
+            // Map module names that conflict with C/C++ identifiers
+            if (module_name == "random") {
+                module_name = "bishop_random";
+            }
+
+            return module_name + "::" + alias->member_name;
+        }
+
         return variable_ref(ref->name);
     }
 
@@ -171,12 +185,28 @@ string emit(CodeGenState& state, const ASTNode& node) {
             string module_name = struct_name.substr(0, dot_pos);
             string type_name = struct_name.substr(dot_pos + 1);
 
-            // Map 'time' module to 'bishop_time' to avoid conflict with C time()
+            // Map module names that conflict with C/C++ identifiers
             if (module_name == "time") {
                 module_name = "bishop_time";
             }
 
             struct_name = module_name + "::" + type_name;
+        } else {
+            // Check if this is a using alias for a struct
+            const CodeGenUsingAlias* alias = get_using_alias(state, lit->struct_name);
+
+            if (alias) {
+                string module_name = alias->module_alias;
+
+                // Map module names that conflict with C/C++ identifiers
+                if (module_name == "time") {
+                    module_name = "bishop_time";
+                } else if (module_name == "random") {
+                    module_name = "bishop_random";
+                }
+
+                struct_name = module_name + "::" + alias->member_name;
+            }
         }
 
         return struct_literal(struct_name, field_values);

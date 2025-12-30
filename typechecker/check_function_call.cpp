@@ -151,6 +151,80 @@ TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call) 
         return {ext->return_type, false, false};
     }
 
+    // Check using aliases for unqualified function calls
+    const ResolvedUsingAlias* alias = get_using_alias(state, call.name);
+
+    if (alias && alias->member_type == "function") {
+        const FunctionDef* func = get_qualified_function(state, alias->module_alias, alias->member_name);
+
+        if (func) {
+            if (call.args.size() != func->params.size()) {
+                error(state, "function '" + call.name + "' expects " + to_string(func->params.size()) + " arguments, got " + to_string(call.args.size()), call.line);
+            }
+
+            for (size_t i = 0; i < call.args.size() && i < func->params.size(); i++) {
+                TypeInfo arg_type = infer_type(state, *call.args[i]);
+                TypeInfo param_type = {func->params[i].type, false, false};
+
+                if (!types_compatible(param_type, arg_type)) {
+                    error(state, "argument " + to_string(i + 1) + " of function '" + call.name +
+                          "' expects '" + format_type(param_type) + "', got '" + format_type(arg_type) + "'", call.line);
+                }
+            }
+
+            bool fallible = !func->error_type.empty();
+
+            if (func->return_type.empty()) {
+                return TypeInfo{"void", false, true, fallible};
+            }
+
+            // Qualify return type if it's a struct from the module
+            string return_type = func->return_type;
+
+            if (!is_primitive_type(return_type) && return_type.find('.') == string::npos) {
+                // Check if this type is a struct in the module
+                const StructDef* ret_struct = get_qualified_struct(state, alias->module_alias, return_type);
+
+                if (ret_struct) {
+                    return_type = alias->module_alias + "." + return_type;
+                }
+            }
+
+            return TypeInfo{return_type, false, false, fallible};
+        }
+    }
+
+    if (alias && alias->member_type == "extern") {
+        // Look up the extern function in the imported module
+        auto it = state.imported_modules.find(alias->module_alias);
+
+        if (it != state.imported_modules.end()) {
+            for (const auto& e : it->second->ast->externs) {
+                if (e->name == alias->member_name && e->visibility != Visibility::Private) {
+                    if (call.args.size() != e->params.size()) {
+                        error(state, "function '" + call.name + "' expects " + to_string(e->params.size()) + " arguments, got " + to_string(call.args.size()), call.line);
+                    }
+
+                    for (size_t i = 0; i < call.args.size() && i < e->params.size(); i++) {
+                        TypeInfo arg_type = infer_type(state, *call.args[i]);
+                        TypeInfo param_type = {e->params[i].type, false, false};
+
+                        if (!types_compatible(param_type, arg_type)) {
+                            error(state, "argument " + to_string(i + 1) + " of function '" + call.name +
+                                  "' expects '" + format_type(param_type) + "', got '" + format_type(arg_type) + "'", call.line);
+                        }
+                    }
+
+                    if (e->return_type.empty() || e->return_type == "void") {
+                        return {"void", false, true};
+                    }
+
+                    return {e->return_type, false, false};
+                }
+            }
+        }
+    }
+
     error(state, "undefined function '" + call.name + "'", call.line);
     return {"unknown", false, false};
 }

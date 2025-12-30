@@ -295,6 +295,9 @@ string generate_with_imports(
         state.extern_functions[ext->name] = ext.get();
     }
 
+    // Collect using aliases for code generation
+    collect_using_aliases(state, *program);
+
     string out;
 
     if (has_http_import(imports)) {

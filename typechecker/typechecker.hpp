@@ -46,6 +46,17 @@ struct TypeInfo {
 };
 
 /**
+ * @brief Represents a using alias resolved at typechecker time.
+ */
+struct ResolvedUsingAlias {
+    std::string local_name;    ///< Name available in local scope
+    std::string module_alias;  ///< Module the member comes from
+    std::string member_name;   ///< Original member name in module
+    std::string member_type;   ///< "function", "struct", "constant", or "extern"
+    TypeInfo type_info;        ///< For constants, the resolved type
+};
+
+/**
  * @brief Type checker state passed to all checking functions.
  */
 struct TypeCheckerState {
@@ -55,6 +66,7 @@ struct TypeCheckerState {
     std::map<std::string, const FunctionDef*> functions;
     std::map<std::string, const ExternFunctionDef*> extern_functions;
     std::map<std::string, TypeInfo> module_constants;  ///< Module-level const declarations
+    std::vector<ResolvedUsingAlias> using_aliases;     ///< Using aliases from using statements
     /**
      * Local variables are tracked with a lexical scope stack.
      *
@@ -104,6 +116,10 @@ void collect_methods(TypeCheckerState& state, const Program& program);
 void collect_functions(TypeCheckerState& state, const Program& program);
 void collect_extern_functions(TypeCheckerState& state, const Program& program);
 void collect_constants(TypeCheckerState& state, const Program& program);
+void collect_using_aliases(TypeCheckerState& state, const Program& program);
+
+// Using alias lookup (typechecker.cpp)
+const ResolvedUsingAlias* get_using_alias(const TypeCheckerState& state, const std::string& name);
 
 // Function/method checking (check_function.cpp)
 void check_method(TypeCheckerState& state, const MethodDef& method);

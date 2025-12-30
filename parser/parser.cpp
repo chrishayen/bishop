@@ -92,6 +92,11 @@ unique_ptr<Program> parse(ParserState& state) {
         program->imports.push_back(parse_import(state));
     }
 
+    // Parse using statements (must come after imports)
+    while (check(state, TokenType::USING)) {
+        program->usings.push_back(parse_using(state));
+    }
+
     while (!check(state, TokenType::EOF_TOKEN)) {
         // Collect any doc comments before the definition
         string doc = collect_doc_comments(state);

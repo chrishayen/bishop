@@ -1563,6 +1563,53 @@ testlib.greet();
 result := testlib.add(2, 3);
 ```
 
+### Using
+
+The `using` keyword brings module members into the local namespace, allowing unqualified access:
+
+#### Selective Imports
+
+```bishop
+import log;
+using log.info, log.debug, log.warn, log.error;
+
+fn main() {
+    info("Application started");
+    warn("This is a warning");
+    error("Something went wrong");
+}
+```
+
+#### Wildcard Imports
+
+```bishop
+import math;
+using math.*;
+
+fn main() {
+    x := sin(PI / 2.0);  // all math members available
+    y := sqrt(16.0);
+}
+```
+
+#### With Structs
+
+```bishop
+import mymodule;
+using mymodule.Point, mymodule.make_point;
+
+fn main() {
+    p := Point { x: 10, y: 20 };  // struct literal works
+    q := make_point(5, 15);       // function call works
+}
+```
+
+Notes:
+- `using` statements must appear after `import` statements
+- Wildcard imports (`using module.*`) bring all public members into scope
+- Qualified access (`module.member`) still works alongside `using`
+- Using aliases resolve at compile time with no runtime overhead
+
 ## Visibility
 
 Use `@private` to restrict visibility to the current file:
@@ -1644,4 +1691,4 @@ sleep(100);       // sleep for 100 milliseconds
 
 ## Keywords
 
-`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `Pair`, `Tuple`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`
+`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `using`, `select`, `case`, `Channel`, `List`, `Pair`, `Tuple`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`

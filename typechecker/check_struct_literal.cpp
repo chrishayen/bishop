@@ -13,7 +13,18 @@ namespace typechecker {
  * Infers the type of a struct literal expression.
  */
 TypeInfo check_struct_literal(TypeCheckerState& state, const StructLiteral& lit) {
-    const StructDef* sdef = get_struct(state, lit.struct_name);
+    string struct_name = lit.struct_name;
+    const StructDef* sdef = get_struct(state, struct_name);
+
+    // If not found, check if it's a using alias for a struct
+    if (!sdef) {
+        const ResolvedUsingAlias* alias = get_using_alias(state, struct_name);
+
+        if (alias && alias->member_type == "struct") {
+            struct_name = alias->module_alias + "." + alias->member_name;
+            sdef = get_struct(state, struct_name);
+        }
+    }
 
     if (!sdef) {
         error(state, "unknown struct '" + lit.struct_name + "'", lit.line);
@@ -43,7 +54,7 @@ TypeInfo check_struct_literal(TypeCheckerState& state, const StructLiteral& lit)
         }
     }
 
-    return {lit.struct_name, false, false};
+    return {struct_name, false, false};
 }
 
 } // namespace typechecker

@@ -59,6 +59,19 @@ struct ImportStmt : ASTNode {
     }
 };
 
+/** @brief A single member being brought into scope by a using statement */
+struct UsingMember {
+    string module_alias;  ///< Module alias (e.g., "log")
+    string member_name;   ///< Member name within module (e.g., "info", or "*" for wildcard)
+};
+
+/** @brief Using statement: using log.info, log.debug; or using log.*; */
+struct UsingStmt : ASTNode {
+    vector<UsingMember> members;  ///< List of members to bring into scope
+    bool is_wildcard = false;     ///< True if using module.* syntax
+    string wildcard_module;       ///< Module alias for wildcard import
+};
+
 //------------------------------------------------------------------------------
 // Literals - Constant values in source code
 //------------------------------------------------------------------------------
@@ -451,6 +464,7 @@ struct FieldAccess : ASTNode {
 /** @brief The complete program: all structs, functions, and methods */
 struct Program : ASTNode {
     vector<unique_ptr<ImportStmt>> imports;           ///< All import statements
+    vector<unique_ptr<UsingStmt>> usings;             ///< All using statements
     vector<unique_ptr<StructDef>> structs;            ///< All struct definitions
     vector<unique_ptr<ErrorDef>> errors;              ///< All error type definitions
     vector<unique_ptr<FunctionDef>> functions;        ///< All function definitions

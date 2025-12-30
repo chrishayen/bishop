@@ -89,6 +89,7 @@ bool check(TypeCheckerState& state, const Program& program, const string& fname)
     collect_functions(state, program);
     collect_extern_functions(state, program);
     collect_constants(state, program);
+    collect_using_aliases(state, program);
 
     for (const auto& method : program.methods) {
         check_method(state, *method);
@@ -556,6 +557,164 @@ const TypeInfo* get_qualified_constant(const TypeCheckerState& state, const stri
             cached.base_type = c->type;
             cached.is_const = true;
             return &cached;
+        }
+    }
+
+    return nullptr;
+}
+
+/**
+ * Collects all using statement aliases into the using_aliases vector.
+ * Validates that each member exists in the imported module and is public.
+ */
+void collect_using_aliases(TypeCheckerState& state, const Program& program) {
+    for (const auto& using_stmt : program.usings) {
+        if (using_stmt->is_wildcard) {
+            // Wildcard import: using module.*;
+            const string& module_alias = using_stmt->wildcard_module;
+            auto it = state.imported_modules.find(module_alias);
+
+            if (it == state.imported_modules.end()) {
+                error(state, "using: module '" + module_alias + "' is not imported", using_stmt->line);
+                continue;
+            }
+
+            const Module* mod = it->second;
+
+            // Add all public functions
+            for (const auto* func : mod->get_public_functions()) {
+                ResolvedUsingAlias alias;
+                alias.local_name = func->name;
+                alias.module_alias = module_alias;
+                alias.member_name = func->name;
+                alias.member_type = "function";
+                state.using_aliases.push_back(alias);
+            }
+
+            // Add all public structs
+            for (const auto* s : mod->get_public_structs()) {
+                ResolvedUsingAlias alias;
+                alias.local_name = s->name;
+                alias.module_alias = module_alias;
+                alias.member_name = s->name;
+                alias.member_type = "struct";
+                state.using_aliases.push_back(alias);
+            }
+
+            // Add all public constants (module-level consts are always public currently)
+            for (const auto& c : mod->ast->constants) {
+                ResolvedUsingAlias alias;
+                alias.local_name = c->name;
+                alias.module_alias = module_alias;
+                alias.member_name = c->name;
+                alias.member_type = "constant";
+                alias.type_info.base_type = c->type;
+                alias.type_info.is_const = true;
+                state.using_aliases.push_back(alias);
+            }
+
+            // Add all public extern functions
+            for (const auto& e : mod->ast->externs) {
+                if (e->visibility == Visibility::Private) continue;
+
+                ResolvedUsingAlias alias;
+                alias.local_name = e->name;
+                alias.module_alias = module_alias;
+                alias.member_name = e->name;
+                alias.member_type = "extern";
+                state.using_aliases.push_back(alias);
+            }
+        } else {
+            // Selective imports: using module.member, module.member2;
+            for (const auto& member : using_stmt->members) {
+                const string& module_alias = member.module_alias;
+                const string& member_name = member.member_name;
+
+                auto it = state.imported_modules.find(module_alias);
+
+                if (it == state.imported_modules.end()) {
+                    error(state, "using: module '" + module_alias + "' is not imported", using_stmt->line);
+                    continue;
+                }
+
+                const Module* mod = it->second;
+                bool found = false;
+
+                // Check if it's a function
+                const FunctionDef* func = get_qualified_function(state, module_alias, member_name);
+
+                if (func) {
+                    ResolvedUsingAlias alias;
+                    alias.local_name = member_name;
+                    alias.module_alias = module_alias;
+                    alias.member_name = member_name;
+                    alias.member_type = "function";
+                    state.using_aliases.push_back(alias);
+                    found = true;
+                }
+
+                // Check if it's a struct
+                if (!found) {
+                    const StructDef* s = get_qualified_struct(state, module_alias, member_name);
+
+                    if (s) {
+                        ResolvedUsingAlias alias;
+                        alias.local_name = member_name;
+                        alias.module_alias = module_alias;
+                        alias.member_name = member_name;
+                        alias.member_type = "struct";
+                        state.using_aliases.push_back(alias);
+                        found = true;
+                    }
+                }
+
+                // Check if it's a constant
+                if (!found) {
+                    const TypeInfo* c = get_qualified_constant(state, module_alias, member_name);
+
+                    if (c) {
+                        ResolvedUsingAlias alias;
+                        alias.local_name = member_name;
+                        alias.module_alias = module_alias;
+                        alias.member_name = member_name;
+                        alias.member_type = "constant";
+                        alias.type_info = *c;
+                        state.using_aliases.push_back(alias);
+                        found = true;
+                    }
+                }
+
+                // Check if it's an extern function
+                if (!found) {
+                    for (const auto& e : mod->ast->externs) {
+                        if (e->name == member_name && e->visibility != Visibility::Private) {
+                            ResolvedUsingAlias alias;
+                            alias.local_name = member_name;
+                            alias.module_alias = module_alias;
+                            alias.member_name = member_name;
+                            alias.member_type = "extern";
+                            state.using_aliases.push_back(alias);
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found) {
+                    error(state, "using: member '" + member_name + "' not found in module '" + module_alias + "'", using_stmt->line);
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Looks up a using alias by local name.
+ */
+const ResolvedUsingAlias* get_using_alias(const TypeCheckerState& state, const string& name) {
+    for (const auto& alias : state.using_aliases) {
+        if (alias.local_name == name) {
+            return &alias;
         }
     }
 

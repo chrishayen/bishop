@@ -13,10 +13,24 @@ namespace parser {
 
 /**
  * Checks if the given name is a known struct type.
+ * Also checks using aliases that point to structs.
  */
 bool is_struct_type(const ParserState& state, const string& name) {
     for (const auto& s : state.struct_names) {
         if (s == name) return true;
+    }
+
+    // Check if name is a using alias (parser can't fully resolve types,
+    // but we check if the name appears in using_aliases)
+    for (const auto& alias : state.using_aliases) {
+        if (alias.local_name == name) return true;
+    }
+
+    // If there's a wildcard import, we can't know all available names at parse time.
+    // In this case, assume any PascalCase identifier followed by { could be a struct.
+    // The typechecker will validate if it's actually a valid struct.
+    if (state.has_wildcard_using && !name.empty() && isupper(name[0])) {
+        return true;
     }
 
     return false;
