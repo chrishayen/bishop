@@ -968,9 +968,9 @@ server := net.listen("127.0.0.1", 8080) or {
     return;
 };
 
-with server {
+with server as s {
     while true {
-        conn := server.accept() or continue;
+        conn := s.accept() or continue;
 
         go fn() {
             data := conn.read(1024) or return;
