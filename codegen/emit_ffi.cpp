@@ -39,7 +39,7 @@ string generate_extern_declarations(const unique_ptr<Program>& program) {
             }
         }
 
-        out += ");\n";
+        out += ") noexcept;\n";
     }
 
     out += "}\n\n";
