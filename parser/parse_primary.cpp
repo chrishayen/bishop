@@ -51,16 +51,6 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return addr;
     }
 
-    // Handle unary negation: -expr
-    if (check(state, TokenType::MINUS)) {
-        int start_line = current(state).line;
-        advance(state);
-        auto negate = make_unique<NegateExpr>();
-        negate->value = parse_primary(state);
-        negate->line = start_line;
-        return negate;
-    }
-
     // Parenthesized expression: (expr)
     if (check(state, TokenType::LPAREN)) {
         Token lparen = consume(state, TokenType::LPAREN);
@@ -77,21 +67,14 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return group;
     }
 
-    // Handle channel creation: Channel<int>()
+    // Handle channel creation: Channel<int>() or Channel<List<int>>()
     if (check(state, TokenType::CHANNEL)) {
         int start_line = current(state).line;
         advance(state);
         consume(state, TokenType::LT);
 
-        string element_type;
-
-        if (is_type_token(state)) {
-            element_type = token_to_type(current(state).type);
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            element_type = current(state).value;
-            advance(state);
-        }
+        // Use parse_type to support nested generics like Channel<List<int>>
+        string element_type = parse_type(state);
 
         consume(state, TokenType::GT);
         consume(state, TokenType::LPAREN);
@@ -103,21 +86,14 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return channel;
     }
 
-    // Handle list creation: List<int>()
+    // Handle list creation: List<int>() or List<Pair<int>>()
     if (check(state, TokenType::LIST)) {
         int start_line = current(state).line;
         advance(state);
         consume(state, TokenType::LT);
 
-        string element_type;
-
-        if (is_type_token(state)) {
-            element_type = token_to_type(current(state).type);
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            element_type = current(state).value;
-            advance(state);
-        }
+        // Use parse_type to support nested generics like List<Pair<int>>
+        string element_type = parse_type(state);
 
         consume(state, TokenType::GT);
         consume(state, TokenType::LPAREN);
@@ -129,21 +105,14 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return list;
     }
 
-    // Handle pair creation: Pair<int>(a, b)
+    // Handle pair creation: Pair<int>(a, b) or Pair<List<int>>(a, b)
     if (check(state, TokenType::PAIR)) {
         int start_line = current(state).line;
         advance(state);
         consume(state, TokenType::LT);
 
-        string element_type;
-
-        if (is_type_token(state)) {
-            element_type = token_to_type(current(state).type);
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            element_type = current(state).value;
-            advance(state);
-        }
+        // Use parse_type to support nested generics like Pair<List<int>>
+        string element_type = parse_type(state);
 
         consume(state, TokenType::GT);
         consume(state, TokenType::LPAREN);
@@ -164,21 +133,14 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return pair;
     }
 
-    // Handle tuple creation: Tuple<int>(v1, v2, ...) up to 5 elements
+    // Handle tuple creation: Tuple<int>(v1, v2, ...) or Tuple<List<int>>(...) up to 5 elements
     if (check(state, TokenType::TUPLE)) {
         int start_line = current(state).line;
         advance(state);
         consume(state, TokenType::LT);
 
-        string element_type;
-
-        if (is_type_token(state)) {
-            element_type = token_to_type(current(state).type);
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            element_type = current(state).value;
-            advance(state);
-        }
+        // Use parse_type to support nested generics like Tuple<List<int>>
+        string element_type = parse_type(state);
 
         consume(state, TokenType::GT);
         consume(state, TokenType::LPAREN);
@@ -280,11 +242,23 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         Token tok = current(state);
         advance(state);
 
-        // Check for qualified reference: module.item (e.g., math.add)
+        // Check for qualified reference: module.item (e.g., math.add, random.int)
         if (check(state, TokenType::DOT) && is_imported_module(state, tok.value)) {
             advance(state);
-            Token item_tok = consume(state, TokenType::IDENT);
-            string item_name = item_tok.value;
+
+            // Allow type keywords as function names (e.g., random.int, random.float)
+            string item_name;
+
+            if (check(state, TokenType::IDENT)) {
+                item_name = current(state).value;
+                advance(state);
+            } else if (is_type_keyword_token(state)) {
+                item_name = get_type_keyword_name(state);
+                advance(state);
+            } else {
+                Token err_tok = current(state);
+                throw runtime_error("expected identifier or type name after '.' at line " + to_string(err_tok.line));
+            }
 
             // Check if it's a qualified function call: module.func(args)
             if (check(state, TokenType::LPAREN)) {

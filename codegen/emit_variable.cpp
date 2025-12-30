@@ -14,9 +14,10 @@ namespace codegen {
  * Emits a variable declaration: type name = value;
  * Uses 'auto' for inferred types, std::optional<T> for optional types.
  * Prepends 'const' for constant declarations.
+ * Uses map_type_for_decl to strip reference suffixes from Channel types.
  */
 string variable_decl(const string& type, const string& name, const string& value, bool is_optional, bool is_const) {
-    string t = type.empty() ? "auto" : map_type(type);
+    string t = type.empty() ? "auto" : map_type_for_decl(type);
     string const_prefix = is_const ? "const " : "";
 
     if (is_optional) {
@@ -43,10 +44,11 @@ string assignment(const string& name, const string& value) {
 /**
  * Generates a module-level constant declaration.
  * Emits: static const type name = value;
+ * Uses map_type_for_decl to strip reference suffixes from Channel types.
  */
 string generate_module_constant(CodeGenState& state, const VariableDecl& decl) {
     string val_str = emit(state, *decl.value);
-    string t = decl.type.empty() ? "auto" : map_type(decl.type);
+    string t = decl.type.empty() ? "auto" : map_type_for_decl(decl.type);
 
     if (decl.is_optional) {
         return fmt::format("static const std::optional<{}> {} = {};\n", t, decl.name, val_str);

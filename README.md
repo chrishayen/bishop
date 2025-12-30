@@ -968,9 +968,9 @@ server := net.listen("127.0.0.1", 8080) or {
     return;
 };
 
-with server {
+with server as s {
     while true {
-        conn := server.accept() or continue;
+        conn := s.accept() or continue;
 
         go fn() {
             data := conn.read(1024) or return;
@@ -1263,6 +1263,86 @@ fn main() {
     print("Circumference:", circle_circumference(radius));
 }
 ```
+
+### Random Module
+
+```bishop
+import random;
+```
+
+#### Random Integers
+
+```bishop
+// Random integer in inclusive range [min, max]
+dice := random.int(1, 6);
+print(dice);  // 1-6
+```
+
+#### Random Floats
+
+```bishop
+// Random float in [0.0, 1.0)
+chance := random.float();
+
+// Random float in [min, max)
+temp := random.float_range(-10.0, 40.0);
+```
+
+#### Random Booleans
+
+```bishop
+// Random boolean with 50/50 probability
+coin := random.bool();
+
+// Random boolean with specified probability (10% true)
+rare := random.bool_prob(0.1);
+```
+
+#### List Operations
+
+```bishop
+items := ["a", "b", "c", "d", "e"];
+
+// Random element from string list (fails on empty list)
+pick := random.choice(items) or return;
+
+// Random element from int list (fails on empty list)
+nums := [10, 20, 30];
+num := random.choice_int(nums) or return;
+
+// Shuffle in place
+random.shuffle(items);
+random.shuffle_int(nums);
+
+// Sample n unique elements
+sampled := random.sample(items, 2);
+sampled_nums := random.sample_int(nums, 2);
+```
+
+#### Seeding for Reproducibility
+
+```bishop
+// Seed for deterministic sequences
+random.seed(42);
+print(random.int(1, 100));  // always same sequence with seed 42
+```
+
+#### Random Module Functions
+
+| Function | Description |
+|----------|-------------|
+| `int(min, max) -> int` | Random integer in [min, max] inclusive |
+| `float() -> f64` | Random float in [0.0, 1.0) |
+| `float_range(min, max) -> f64` | Random float in [min, max) |
+| `bool() -> bool` | Random boolean (50/50) |
+| `bool_prob(p) -> bool` | Random boolean with probability p |
+| `choice(list) -> str or err` | Random element from string list |
+| `choice_int(list) -> int or err` | Random element from int list |
+| `shuffle(list)` | Shuffle string list in place |
+| `shuffle_int(list)` | Shuffle int list in place |
+| `sample(list, n) -> List<str>` | Sample n elements from string list |
+| `sample_int(list, n) -> List<int>` | Sample n elements from int list |
+| `seed(n)` | Seed generator for deterministic sequences |
 
 ## Import System
 
