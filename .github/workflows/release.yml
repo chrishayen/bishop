@@ -85,6 +85,7 @@ jobs:
           cp build/include/bishop/http.hpp "${PKG_DIR}/usr/local/include/bishop/"
           cp build/include/bishop/http.hpp.gch "${PKG_DIR}/usr/local/include/bishop/"
           cp build/include/bishop/fs.hpp "${PKG_DIR}/usr/local/include/bishop/"
+          cp build/include/bishop/crypto.hpp "${PKG_DIR}/usr/local/include/bishop/"
           cp build/include/bishop/net.hpp "${PKG_DIR}/usr/local/include/bishop/"
           cp build/include/bishop/net.hpp.gch "${PKG_DIR}/usr/local/include/bishop/"
           cp build/include/bishop/process.hpp "${PKG_DIR}/usr/local/include/bishop/"

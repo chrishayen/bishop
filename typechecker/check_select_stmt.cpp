@@ -26,9 +26,13 @@ void check_select_stmt(TypeCheckerState& state, const SelectStmt& select_stmt) {
             continue;
         }
 
-        size_t start = 8;
-        size_t end = channel_type.base_type.find('>', start);
-        string element_type = channel_type.base_type.substr(start, end - start);
+        string element_type = extract_element_type(channel_type.base_type, "Channel<");
+
+        if (element_type.empty()) {
+            error(state, "malformed Channel type '" + channel_type.base_type + "'", select_case->line);
+            pop_scope(state);
+            continue;
+        }
 
         if (select_case->operation == "recv" && !select_case->binding_name.empty()) {
             declare_local(state, select_case->binding_name, {element_type, false, false}, select_case->line);

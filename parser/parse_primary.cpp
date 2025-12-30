@@ -121,21 +121,14 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return group;
     }
 
-    // Handle channel creation: Channel<int>()
+    // Handle channel creation: Channel<int>() or Channel<List<int>>()
     if (check(state, TokenType::CHANNEL)) {
         int start_line = current(state).line;
         advance(state);
         consume(state, TokenType::LT);
 
-        string element_type;
-
-        if (is_type_token(state)) {
-            element_type = token_to_type(current(state).type);
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            element_type = current(state).value;
-            advance(state);
-        }
+        // Use parse_type to support nested generics like Channel<List<int>>
+        string element_type = parse_type(state);
 
         consume(state, TokenType::GT);
         consume(state, TokenType::LPAREN);
@@ -147,21 +140,14 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return channel;
     }
 
-    // Handle list creation: List<int>()
+    // Handle list creation: List<int>() or List<Pair<int>>()
     if (check(state, TokenType::LIST)) {
         int start_line = current(state).line;
         advance(state);
         consume(state, TokenType::LT);
 
-        string element_type;
-
-        if (is_type_token(state)) {
-            element_type = token_to_type(current(state).type);
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            element_type = current(state).value;
-            advance(state);
-        }
+        // Use parse_type to support nested generics like List<Pair<int>>
+        string element_type = parse_type(state);
 
         consume(state, TokenType::GT);
         consume(state, TokenType::LPAREN);
@@ -173,21 +159,14 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return list;
     }
 
-    // Handle pair creation: Pair<int>(a, b)
+    // Handle pair creation: Pair<int>(a, b) or Pair<List<int>>(a, b)
     if (check(state, TokenType::PAIR)) {
         int start_line = current(state).line;
         advance(state);
         consume(state, TokenType::LT);
 
-        string element_type;
-
-        if (is_type_token(state)) {
-            element_type = token_to_type(current(state).type);
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            element_type = current(state).value;
-            advance(state);
-        }
+        // Use parse_type to support nested generics like Pair<List<int>>
+        string element_type = parse_type(state);
 
         consume(state, TokenType::GT);
         consume(state, TokenType::LPAREN);
@@ -208,21 +187,14 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return pair;
     }
 
-    // Handle tuple creation: Tuple<int>(v1, v2, ...) up to 5 elements
+    // Handle tuple creation: Tuple<int>(v1, v2, ...) or Tuple<List<int>>(...) up to 5 elements
     if (check(state, TokenType::TUPLE)) {
         int start_line = current(state).line;
         advance(state);
         consume(state, TokenType::LT);
 
-        string element_type;
-
-        if (is_type_token(state)) {
-            element_type = token_to_type(current(state).type);
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            element_type = current(state).value;
-            advance(state);
-        }
+        // Use parse_type to support nested generics like Tuple<List<int>>
+        string element_type = parse_type(state);
 
         consume(state, TokenType::GT);
         consume(state, TokenType::LPAREN);
