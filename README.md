@@ -1170,14 +1170,14 @@ x := math.abs(-5.5);           // 5.5
 y := math.abs_int(-5);         // 5
 
 // Min/max
-smaller := math.min(3.0, 7.0);     // 3.0
-smaller := math.min_int(3, 7);     // 3
-larger := math.max(3.0, 7.0);      // 7.0
-larger := math.max_int(3, 7);      // 7
+smaller := math.min(3.0, 7.0);         // 3.0
+smaller_int := math.min_int(3, 7);     // 3
+larger := math.max(3.0, 7.0);          // 7.0
+larger_int := math.max_int(3, 7);      // 7
 
 // Clamp (constrain value to range)
-c := math.clamp(15.0, 0.0, 10.0);      // 10.0
-c := math.clamp_int(15, 0, 10);        // 10
+c := math.clamp(15.0, 0.0, 10.0);          // 10.0
+c_int := math.clamp_int(15, 0, 10);        // 10
 ```
 
 #### Rounding Functions
@@ -1192,13 +1192,13 @@ t := math.trunc(-3.7);     // -3.0 (round toward zero)
 #### Power and Root Functions
 
 ```bishop
-p := math.pow(2.0, 10.0);  // 1024.0 (exponentiation)
-s := math.sqrt(16.0);      // 4.0 (square root)
-c := math.cbrt(27.0);      // 3.0 (cube root)
-e := math.exp(1.0);        // 2.718... (e^x)
-l := math.log(math.E);     // 1.0 (natural log)
-l := math.log10(100.0);    // 2.0 (base-10 log)
-l := math.log2(8.0);       // 3.0 (base-2 log)
+p := math.pow(2.0, 10.0);      // 1024.0 (exponentiation)
+s := math.sqrt(16.0);          // 4.0 (square root)
+cb := math.cbrt(27.0);         // 3.0 (cube root)
+e := math.exp(1.0);            // 2.718... (e^x)
+ln := math.log(math.E);        // 1.0 (natural log)
+log10_val := math.log10(100.0); // 2.0 (base-10 log)
+log2_val := math.log2(8.0);    // 3.0 (base-2 log)
 ```
 
 #### Trigonometric Functions
@@ -1210,10 +1210,10 @@ c := math.cos(0.0);            // 1.0
 t := math.tan(math.PI / 4.0);  // 1.0
 
 // Inverse trig functions
-a := math.asin(1.0);           // PI/2
-a := math.acos(1.0);           // 0.0
-a := math.atan(1.0);           // PI/4
-a := math.atan2(1.0, 1.0);     // PI/4 (y/x with quadrant)
+asin_val := math.asin(1.0);           // PI/2
+acos_val := math.acos(1.0);           // 0.0
+atan_val := math.atan(1.0);           // PI/4
+atan2_val := math.atan2(1.0, 1.0);    // PI/4 (y/x with quadrant)
 ```
 
 #### Hyperbolic Functions
@@ -1233,9 +1233,9 @@ if math.is_inf(result) { print("Infinite"); }
 if math.is_finite(result) { print("Valid number"); }
 
 // Sign of a number (-1, 0, or 1)
-s := math.sign(-5.0);  // -1
-s := math.sign(0.0);   // 0
-s := math.sign(5.0);   // 1
+s_neg := math.sign(-5.0);   // -1
+s_zero := math.sign(0.0);   // 0
+s_pos := math.sign(5.0);    // 1
 
 // Greatest common divisor
 g := math.gcd(12, 8);  // 4

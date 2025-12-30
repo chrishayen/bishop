@@ -35,9 +35,9 @@ constexpr double E = 2.71828182845904523536;
 constexpr double INF = std::numeric_limits<double>::infinity();
 
 /**
- * Not a Number (NaN).
- * Note: Named NAN_ to avoid conflict with C macro NAN.
- * Accessed via math.NAN in Bishop.
+ * Not a Number (NaN) constant.
+ * Any existing C macro NAN is undefined and then redefined as an inline variable.
+ * Accessed as math.NAN in Bishop.
  */
 inline double get_nan() {
     return std::nan("");
@@ -97,6 +97,7 @@ inline int64_t max_int(int64_t a, int64_t b) {
 
 /**
  * Clamps a value between a minimum and maximum.
+ * Note: If x is NaN, returns NaN (IEEE 754 comparisons with NaN return false).
  */
 inline double clamp(double x, double min_val, double max_val) {
     if (x < min_val) {
