@@ -16,6 +16,7 @@
 #include "stdlib/process.hpp"
 #include "stdlib/math.hpp"
 #include "stdlib/random.hpp"
+#include "stdlib/algo.hpp"
 #include <fstream>
 #include <sstream>
 
@@ -184,6 +185,8 @@ unique_ptr<Module> ModuleManager::create_builtin_module(const string& name) {
         mod->ast = nog::stdlib::create_math_module();
     } else if (name == "random") {
         mod->ast = nog::stdlib::create_random_module();
+    } else if (name == "algo") {
+        mod->ast = nog::stdlib::create_algo_module();
     } else {
         return nullptr;
     }

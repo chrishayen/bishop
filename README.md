@@ -1399,6 +1399,177 @@ print(random.int(1, 100));  // always same sequence with seed 42
 | `sample_int(list, n) -> List<int>` | Sample n elements from int list |
 | `seed(n)` | Seed generator for deterministic sequences |
 
+### Algo Module
+
+```bishop
+import algo;
+```
+
+Provides algorithms for sorting, searching, aggregation, predicates, and transformations on lists.
+
+#### Sorting (in-place)
+
+```bishop
+nums := [3, 1, 4, 1, 5];
+algo.sort_int(nums);       // [1, 1, 3, 4, 5]
+algo.sort_desc_int(nums);  // [5, 4, 3, 1, 1]
+
+names := ["charlie", "alice", "bob"];
+algo.sort_str(names);      // ["alice", "bob", "charlie"]
+algo.sort_desc_str(names); // ["charlie", "bob", "alice"]
+
+vals := [3.14, 1.41, 2.72];
+algo.sort_float(vals);       // [1.41, 2.72, 3.14]
+algo.sort_desc_float(vals);  // [3.14, 2.72, 1.41]
+```
+
+#### Min/Max
+
+```bishop
+nums := [3, 1, 4, 1, 5];
+min_val := algo.min_int(nums) or return;  // 1
+max_val := algo.max_int(nums) or return;  // 5
+
+vals := [3.14, 1.41, 2.72];
+min_f := algo.min_float(vals) or return;  // 1.41
+max_f := algo.max_float(vals) or return;  // 3.14
+
+names := ["charlie", "alice", "bob"];
+min_s := algo.min_str(names) or return;  // "alice"
+max_s := algo.max_str(names) or return;  // "charlie"
+```
+
+#### Aggregation
+
+```bishop
+nums := [1, 2, 3, 4, 5];
+total := algo.sum_int(nums);      // 15
+prod := algo.product_int(nums);   // 120
+avg := algo.average_int(nums) or return;  // 3.0
+
+vals := [1.5, 2.5, 3.0];
+total_f := algo.sum_float(vals);      // 7.0
+prod_f := algo.product_float(vals);   // 11.25
+avg_f := algo.average_float(vals) or return;  // 2.333...
+```
+
+#### Predicates (with lambdas)
+
+```bishop
+nums := [1, 2, 3, 4, 5];
+
+// Check all elements
+all_positive := algo.all_int(nums, fn(int x) -> bool { return x > 0; });  // true
+
+// Check any element
+has_large := algo.any_int(nums, fn(int x) -> bool { return x > 10; });  // false
+
+// Check no elements match
+no_negative := algo.none_int(nums, fn(int x) -> bool { return x < 0; });  // true
+
+// Count matching elements
+count := algo.count_int(nums, fn(int x) -> bool { return x > 2; });  // 3
+
+// Find first matching element
+found := algo.find_int(nums, fn(int x) -> bool { return x > 3; }) or return;  // 4
+
+// Find index of first match
+idx := algo.find_index_int(nums, fn(int x) -> bool { return x == 3; });  // 2
+
+// String predicates
+names := ["alice", "bob", "charlie"];
+has_long := algo.any_str(names, fn(str s) -> bool { return s.length() > 5; });  // true
+```
+
+#### Transformations
+
+```bishop
+nums := [1, 2, 3];
+
+// Map: transform each element
+doubled := algo.map_int(nums, fn(int x) -> int { return x * 2; });  // [2, 4, 6]
+
+// Filter: keep matching elements
+large := algo.filter_int(nums, fn(int x) -> bool { return x > 1; });  // [2, 3]
+
+// Reduce: accumulate to single value
+sum := algo.reduce_int(nums, fn(int a, int b) -> int { return a + b; }, 0);  // 6
+
+// String transformations
+names := ["a", "b", "c"];
+upper := algo.map_str(names, fn(str s) -> str { return s.upper(); });  // ["A", "B", "C"]
+joined := algo.reduce_str(names, fn(str a, str b) -> str { return a + b; }, "");  // "abc"
+```
+
+#### Reordering
+
+```bishop
+nums := [1, 2, 3, 4, 5];
+
+// Reverse in place
+algo.reverse_int(nums);  // [5, 4, 3, 2, 1]
+
+// Get reversed copy
+rev := algo.reversed_int(nums);  // returns reversed copy, original unchanged
+
+// Rotate left by n positions
+nums := [1, 2, 3, 4, 5];
+algo.rotate_int(nums, 2);  // [3, 4, 5, 1, 2]
+
+// Get unique elements (preserves order)
+dups := [1, 2, 1, 3, 2];
+uniq := algo.unique_int(dups);  // [1, 2, 3]
+```
+
+#### Algo Module Functions
+
+| Function | Description |
+|----------|-------------|
+| `sort_int(list)` | Sort integer list ascending (in-place) |
+| `sort_desc_int(list)` | Sort integer list descending (in-place) |
+| `sort_str(list)` | Sort string list ascending (in-place) |
+| `sort_desc_str(list)` | Sort string list descending (in-place) |
+| `sort_float(list)` | Sort float list ascending (in-place) |
+| `sort_desc_float(list)` | Sort float list descending (in-place) |
+| `min_int(list) -> int or err` | Minimum value in integer list |
+| `max_int(list) -> int or err` | Maximum value in integer list |
+| `min_float(list) -> f64 or err` | Minimum value in float list |
+| `max_float(list) -> f64 or err` | Maximum value in float list |
+| `min_str(list) -> str or err` | Minimum string (lexicographic) |
+| `max_str(list) -> str or err` | Maximum string (lexicographic) |
+| `sum_int(list) -> int` | Sum of integers (0 for empty) |
+| `sum_float(list) -> f64` | Sum of floats (0.0 for empty) |
+| `product_int(list) -> int` | Product of integers (1 for empty) |
+| `product_float(list) -> f64` | Product of floats (1.0 for empty) |
+| `average_int(list) -> f64 or err` | Average of integers |
+| `average_float(list) -> f64 or err` | Average of floats |
+| `all_int(list, fn) -> bool` | True if all satisfy predicate |
+| `any_int(list, fn) -> bool` | True if any satisfies predicate |
+| `none_int(list, fn) -> bool` | True if none satisfy predicate |
+| `count_int(list, fn) -> int` | Count of matching elements |
+| `find_int(list, fn) -> int or err` | First matching element |
+| `find_index_int(list, fn) -> int` | Index of first match (-1 if none) |
+| `all_str(list, fn) -> bool` | True if all strings satisfy predicate |
+| `any_str(list, fn) -> bool` | True if any string satisfies predicate |
+| `none_str(list, fn) -> bool` | True if no strings satisfy predicate |
+| `count_str(list, fn) -> int` | Count of matching strings |
+| `find_str(list, fn) -> str or err` | First matching string |
+| `find_index_str(list, fn) -> int` | Index of first matching string |
+| `map_int(list, fn) -> List<int>` | Transform each integer |
+| `map_str(list, fn) -> List<str>` | Transform each string |
+| `filter_int(list, fn) -> List<int>` | Keep matching integers |
+| `filter_str(list, fn) -> List<str>` | Keep matching strings |
+| `reduce_int(list, fn, init) -> int` | Reduce integers to single value |
+| `reduce_str(list, fn, init) -> str` | Reduce strings to single value |
+| `reverse_int(list)` | Reverse integer list (in-place) |
+| `reverse_str(list)` | Reverse string list (in-place) |
+| `reversed_int(list) -> List<int>` | Reversed copy of integers |
+| `reversed_str(list) -> List<str>` | Reversed copy of strings |
+| `rotate_int(list, n)` | Rotate integers left by n (in-place) |
+| `rotate_str(list, n)` | Rotate strings left by n (in-place) |
+| `unique_int(list) -> List<int>` | Unique integers (order preserved) |
+| `unique_str(list) -> List<str>` | Unique strings (order preserved) |
+
 ## Import System
 
 Import modules using dot notation:
