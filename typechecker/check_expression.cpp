@@ -133,6 +133,19 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
             }
         }
 
+        // If this is an OrBlock, typecheck its body with 'err' in scope
+        if (auto* or_block = dynamic_cast<const OrBlock*>(or_expr->handler.get())) {
+            push_scope(state);
+            // Add 'err' to scope - it's the error type from the fallible expression
+            declare_local(state, "err", {"err", false, false}, or_expr->line);
+
+            for (const auto& stmt : or_block->body) {
+                check_statement(state, *stmt);
+            }
+
+            pop_scope(state);
+        }
+
         // The result type is the unwrapped (non-fallible) type
         expr_type.is_fallible = false;
         return expr_type;
