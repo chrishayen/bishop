@@ -394,6 +394,7 @@ inline bishop::rt::Result<Timestamp> parse(const std::string& str, const std::st
     // format string; unspecified fields remain 0 (e.g., midnight for time,
     // January for month, year 1900 for year).
     std::tm tm_val = {};
+    tm_val.tm_isdst = -1;  // Let mktime determine DST automatically
     std::istringstream iss(str);
     iss >> std::get_time(&tm_val, fmt.c_str());
 
