@@ -10,10 +10,192 @@ using namespace std;
 namespace typechecker {
 
 /**
+ * Checks if a function name is a built-in assertion function.
+ */
+static bool is_assertion_function(const string& name) {
+    return name == "assert_eq" || name == "assert_ne" ||
+           name == "assert_true" || name == "assert_false" ||
+           name == "assert_gt" || name == "assert_gte" ||
+           name == "assert_lt" || name == "assert_lte" ||
+           name == "assert_contains" ||
+           name == "assert_starts_with" || name == "assert_ends_with" ||
+           name == "assert_near";
+}
+
+/**
+ * Type-checks a built-in assertion function call.
+ * Returns true if the assertion is valid, false if there's an error.
+ */
+static bool check_assertion_call(TypeCheckerState& state, const FunctionCall& call) {
+    const string& name = call.name;
+
+    // assert_eq, assert_ne: two arguments of compatible types
+    if (name == "assert_eq" || name == "assert_ne") {
+        if (call.args.size() != 2) {
+            error(state, name + " expects 2 arguments, got " + to_string(call.args.size()), call.line);
+            return false;
+        }
+
+        TypeInfo type_a = infer_type(state, *call.args[0]);
+        TypeInfo type_b = infer_type(state, *call.args[1]);
+
+        if (!types_compatible(type_a, type_b)) {
+            error(state, name + " arguments must have compatible types, got '" +
+                  format_type(type_a) + "' and '" + format_type(type_b) + "'", call.line);
+            return false;
+        }
+
+        return true;
+    }
+
+    // assert_true, assert_false: single boolean argument
+    if (name == "assert_true" || name == "assert_false") {
+        if (call.args.size() != 1) {
+            error(state, name + " expects 1 argument, got " + to_string(call.args.size()), call.line);
+            return false;
+        }
+
+        TypeInfo arg_type = infer_type(state, *call.args[0]);
+
+        if (arg_type.base_type != "bool") {
+            error(state, name + " expects bool argument, got '" + format_type(arg_type) + "'", call.line);
+            return false;
+        }
+
+        return true;
+    }
+
+    // assert_gt, assert_gte, assert_lt, assert_lte: two comparable numeric arguments
+    if (name == "assert_gt" || name == "assert_gte" ||
+        name == "assert_lt" || name == "assert_lte") {
+        if (call.args.size() != 2) {
+            error(state, name + " expects 2 arguments, got " + to_string(call.args.size()), call.line);
+            return false;
+        }
+
+        TypeInfo type_a = infer_type(state, *call.args[0]);
+        TypeInfo type_b = infer_type(state, *call.args[1]);
+
+        if (!types_compatible(type_a, type_b)) {
+            error(state, name + " arguments must have compatible types, got '" +
+                  format_type(type_a) + "' and '" + format_type(type_b) + "'", call.line);
+            return false;
+        }
+
+        return true;
+    }
+
+    // assert_contains(item, list): item type must match list element type
+    if (name == "assert_contains") {
+        if (call.args.size() != 2) {
+            error(state, "assert_contains expects 2 arguments, got " + to_string(call.args.size()), call.line);
+            return false;
+        }
+
+        TypeInfo item_type = infer_type(state, *call.args[0]);
+        TypeInfo list_type = infer_type(state, *call.args[1]);
+
+        // Check if second argument is a list
+        if (list_type.base_type.rfind("List<", 0) != 0) {
+            error(state, "assert_contains second argument must be a List, got '" +
+                  format_type(list_type) + "'", call.line);
+            return false;
+        }
+
+        // Extract element type from List<T>
+        size_t start = 5;  // "List<"
+        size_t end = list_type.base_type.rfind('>');
+        string element_type = list_type.base_type.substr(start, end - start);
+
+        if (!types_compatible({element_type, false, false}, item_type)) {
+            error(state, "assert_contains item type '" + format_type(item_type) +
+                  "' doesn't match list element type '" + element_type + "'", call.line);
+            return false;
+        }
+
+        return true;
+    }
+
+    // assert_starts_with, assert_ends_with: prefix/suffix is first, string is second
+    if (name == "assert_starts_with" || name == "assert_ends_with") {
+        if (call.args.size() != 2) {
+            error(state, name + " expects 2 arguments, got " + to_string(call.args.size()), call.line);
+            return false;
+        }
+
+        TypeInfo prefix_type = infer_type(state, *call.args[0]);
+        TypeInfo str_type = infer_type(state, *call.args[1]);
+
+        if (prefix_type.base_type != "str") {
+            error(state, name + " first argument must be str, got '" +
+                  format_type(prefix_type) + "'", call.line);
+            return false;
+        }
+
+        if (str_type.base_type != "str") {
+            error(state, name + " second argument must be str, got '" +
+                  format_type(str_type) + "'", call.line);
+            return false;
+        }
+
+        return true;
+    }
+
+    // assert_near(actual, expected, epsilon): all three must be floats
+    if (name == "assert_near") {
+        if (call.args.size() != 3) {
+            error(state, "assert_near expects 3 arguments (actual, expected, epsilon), got " +
+                  to_string(call.args.size()), call.line);
+            return false;
+        }
+
+        TypeInfo actual_type = infer_type(state, *call.args[0]);
+        TypeInfo expected_type = infer_type(state, *call.args[1]);
+        TypeInfo epsilon_type = infer_type(state, *call.args[2]);
+
+        // Allow int or float for actual and expected (they can be compared)
+        bool actual_is_numeric = (actual_type.base_type == "f64" || actual_type.base_type == "f32" ||
+                                  actual_type.base_type == "int");
+        bool expected_is_numeric = (expected_type.base_type == "f64" || expected_type.base_type == "f32" ||
+                                    expected_type.base_type == "int");
+        bool epsilon_is_numeric = (epsilon_type.base_type == "f64" || epsilon_type.base_type == "f32" ||
+                                   epsilon_type.base_type == "int");
+
+        if (!actual_is_numeric) {
+            error(state, "assert_near first argument must be numeric, got '" +
+                  format_type(actual_type) + "'", call.line);
+            return false;
+        }
+
+        if (!expected_is_numeric) {
+            error(state, "assert_near second argument must be numeric, got '" +
+                  format_type(expected_type) + "'", call.line);
+            return false;
+        }
+
+        if (!epsilon_is_numeric) {
+            error(state, "assert_near third argument (epsilon) must be numeric, got '" +
+                  format_type(epsilon_type) + "'", call.line);
+            return false;
+        }
+
+        return true;
+    }
+
+    return true;
+}
+
+/**
  * Infers the type of a function call expression.
  */
 TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call) {
-    if (call.name == "assert_eq" || call.name == "print") {
+    // Handle built-in assertion functions
+    if (is_assertion_function(call.name)) {
+        check_assertion_call(state, call);
+        return {"void", false, true};
+    }
+
+    if (call.name == "print") {
         // Still infer types for arguments (to populate object_type on MethodCalls)
         for (const auto& arg : call.args) {
             infer_type(state, *arg);
@@ -149,6 +331,80 @@ TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call) 
         }
 
         return {ext->return_type, false, false};
+    }
+
+    // Check using aliases for unqualified function calls
+    const ResolvedUsingAlias* alias = get_using_alias(state, call.name);
+
+    if (alias && alias->member_type == "function") {
+        const FunctionDef* func = get_qualified_function(state, alias->module_alias, alias->member_name);
+
+        if (func) {
+            if (call.args.size() != func->params.size()) {
+                error(state, "function '" + call.name + "' expects " + to_string(func->params.size()) + " arguments, got " + to_string(call.args.size()), call.line);
+            }
+
+            for (size_t i = 0; i < call.args.size() && i < func->params.size(); i++) {
+                TypeInfo arg_type = infer_type(state, *call.args[i]);
+                TypeInfo param_type = {func->params[i].type, false, false};
+
+                if (!types_compatible(param_type, arg_type)) {
+                    error(state, "argument " + to_string(i + 1) + " of function '" + call.name +
+                          "' expects '" + format_type(param_type) + "', got '" + format_type(arg_type) + "'", call.line);
+                }
+            }
+
+            bool fallible = !func->error_type.empty();
+
+            if (func->return_type.empty()) {
+                return TypeInfo{"void", false, true, fallible};
+            }
+
+            // Qualify return type if it's a struct from the module
+            string return_type = func->return_type;
+
+            if (!is_primitive_type(return_type) && return_type.find('.') == string::npos) {
+                // Check if this type is a struct in the module
+                const StructDef* ret_struct = get_qualified_struct(state, alias->module_alias, return_type);
+
+                if (ret_struct) {
+                    return_type = alias->module_alias + "." + return_type;
+                }
+            }
+
+            return TypeInfo{return_type, false, false, fallible};
+        }
+    }
+
+    if (alias && alias->member_type == "extern") {
+        // Look up the extern function in the imported module
+        auto it = state.imported_modules.find(alias->module_alias);
+
+        if (it != state.imported_modules.end()) {
+            for (const auto& e : it->second->ast->externs) {
+                if (e->name == alias->member_name && e->visibility != Visibility::Private) {
+                    if (call.args.size() != e->params.size()) {
+                        error(state, "function '" + call.name + "' expects " + to_string(e->params.size()) + " arguments, got " + to_string(call.args.size()), call.line);
+                    }
+
+                    for (size_t i = 0; i < call.args.size() && i < e->params.size(); i++) {
+                        TypeInfo arg_type = infer_type(state, *call.args[i]);
+                        TypeInfo param_type = {e->params[i].type, false, false};
+
+                        if (!types_compatible(param_type, arg_type)) {
+                            error(state, "argument " + to_string(i + 1) + " of function '" + call.name +
+                                  "' expects '" + format_type(param_type) + "', got '" + format_type(arg_type) + "'", call.line);
+                        }
+                    }
+
+                    if (e->return_type.empty() || e->return_type == "void") {
+                        return {"void", false, true};
+                    }
+
+                    return {e->return_type, false, false};
+                }
+            }
+        }
     }
 
     error(state, "undefined function '" + call.name + "'", call.line);

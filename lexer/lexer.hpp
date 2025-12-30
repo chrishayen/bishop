@@ -47,8 +47,10 @@ private:
     char peek();          ///< Returns next character or '\0' at end
     void advance();       ///< Moves to next character, tracking newlines
     void skip_whitespace();   ///< Skips spaces, tabs, newlines
-    Token read_string();         ///< Reads a double-quoted string literal
-    Token read_single_quoted();  ///< Reads a single-quoted string literal
-    Token read_identifier();  ///< Reads identifier or keyword
+    Token read_string();             ///< Reads a double-quoted string literal
+    Token read_single_quoted();      ///< Reads a single-quoted string literal
+    Token read_raw_string();         ///< Reads a raw double-quoted string (r"...")
+    Token read_raw_single_quoted();  ///< Reads a raw single-quoted string (r'...')
+    Token read_identifier();         ///< Reads identifier or keyword
     Token read_number();      ///< Reads integer or float literal
 };

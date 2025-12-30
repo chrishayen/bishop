@@ -146,9 +146,11 @@ string map_type(const string& t) {
         string module_name = t.substr(0, dot_pos);
         string type_name = t.substr(dot_pos + 1);
 
-        // Map 'time' module to 'bishop_time' to avoid conflict with C time()
+        // Map module names that conflict with C/C++ identifiers
         if (module_name == "time") {
             module_name = "bishop_time";
+        } else if (module_name == "log") {
+            module_name = "bishop_log";
         }
 
         return module_name + "::" + type_name;

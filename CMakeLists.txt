@@ -113,9 +113,13 @@ add_library(bishop_lib
     stdlib/crypto.cpp
     stdlib/net.cpp
     stdlib/process.cpp
+    stdlib/regex.cpp
     stdlib/time.cpp
     stdlib/math.cpp
     stdlib/random.cpp
+    stdlib/log.cpp
+    stdlib/sync.cpp
+    stdlib/json.cpp
     stdlib/algo.cpp
 )
 target_link_libraries(bishop_lib fmt::fmt tomlplusplus::tomlplusplus)
@@ -156,6 +160,9 @@ add_custom_target(bishop_runtime_headers ALL
         ${CMAKE_SOURCE_DIR}/runtime/process/process.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/process.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/regex/regex.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/regex.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/time/time.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/time.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
@@ -164,6 +171,15 @@ add_custom_target(bishop_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/random/random.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/random.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/log/log.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/log.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/sync/sync.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/sync.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/json/json.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/json.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/algo/algo.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/algo.hpp

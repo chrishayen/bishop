@@ -213,3 +213,55 @@ fn test_escape_sequence_backslash_followed_by_letter_t() {
     assert_eq(s.length(), 2);
     assert_eq(s.contains("\t"), false);
 }
+
+// Raw string literal tests (r"..." and r'...')
+
+fn test_raw_string_basic() {
+    s := r"hello";
+    assert_eq(s, "hello");
+}
+
+fn test_raw_string_single_quoted() {
+    s := r'hello';
+    assert_eq(s, "hello");
+}
+
+fn test_raw_string_backslash_not_escaped() {
+    s := r"hello\nworld";
+    assert_eq(s.length(), 12);  // \n is 2 chars, not newline
+    assert_eq(s.contains("\\n"), true);
+}
+
+fn test_raw_string_backslash_single_quoted() {
+    s := r'path\to\file';
+    assert_eq(s.length(), 12);
+    assert_eq(s.contains("\\"), true);
+}
+
+fn test_raw_string_with_backslashes() {
+    s := r"path\to\file";
+    assert_eq(s.contains("\\"), true);
+}
+
+fn test_raw_string_regex_pattern() {
+    s := r"\d+\.\d+";
+    assert_eq(s.length(), 8);
+}
+
+fn test_raw_string_windows_path() {
+    s := r"C:\Users\name\file.txt";
+    assert_eq(s.contains("\\"), true);
+    assert_eq(s.starts_with("C:"), true);
+}
+
+fn test_raw_string_empty() {
+    s := r"";
+    assert_eq(s.empty(), true);
+}
+
+fn test_raw_string_concat() {
+    a := r"hello\n";
+    b := r"world\n";
+    c := a + b;
+    assert_eq(c, "hello\\nworld\\n");
+}

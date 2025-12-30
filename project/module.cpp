@@ -14,9 +14,13 @@
 #include "stdlib/crypto.hpp"
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
+#include "stdlib/regex.hpp"
 #include "stdlib/time.hpp"
 #include "stdlib/math.hpp"
 #include "stdlib/random.hpp"
+#include "stdlib/log.hpp"
+#include "stdlib/sync.hpp"
+#include "stdlib/json.hpp"
 #include "stdlib/algo.hpp"
 #include <fstream>
 #include <sstream>
@@ -182,12 +186,20 @@ unique_ptr<Module> ModuleManager::create_builtin_module(const string& name) {
         mod->ast = nog::stdlib::create_net_module();
     } else if (name == "process") {
         mod->ast = nog::stdlib::create_process_module();
+    } else if (name == "regex") {
+        mod->ast = nog::stdlib::create_regex_module();
     } else if (name == "time") {
         mod->ast = nog::stdlib::create_time_module();
     } else if (name == "math") {
         mod->ast = nog::stdlib::create_math_module();
     } else if (name == "random") {
         mod->ast = nog::stdlib::create_random_module();
+    } else if (name == "log") {
+        mod->ast = nog::stdlib::create_log_module();
+    } else if (name == "sync") {
+        mod->ast = nog::stdlib::create_sync_module();
+    } else if (name == "json") {
+        mod->ast = nog::stdlib::create_json_module();
     } else if (name == "algo") {
         mod->ast = nog::stdlib::create_algo_module();
     } else {

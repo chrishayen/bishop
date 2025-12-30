@@ -49,6 +49,7 @@ static unordered_map<string, TokenType> keywords = {
     {"const", TokenType::CONST},
     {"continue", TokenType::CONTINUE},
     {"break", TokenType::BREAK},
+    {"using", TokenType::USING},
     {"int", TokenType::TYPE_INT},
     {"str", TokenType::TYPE_STR},
     {"bool", TokenType::TYPE_BOOL},
@@ -175,8 +176,53 @@ Token Lexer::read_single_quoted() {
 }
 
 /**
+ * Reads a raw double-quoted string literal. Assumes current char is '"'.
+ * No escape sequence processing - backslashes are kept as-is.
+ */
+Token Lexer::read_raw_string() {
+    int start_line = line;
+    advance();  // skip opening quote
+    string value;
+
+    while (current() != '"' && current() != '\0') {
+        value += current();
+        advance();
+    }
+
+    if (current() == '\0') {
+        throw runtime_error("Unterminated raw string literal at line " + to_string(start_line));
+    }
+
+    advance();  // skip closing quote
+    return {TokenType::STRING, value, start_line};
+}
+
+/**
+ * Reads a raw single-quoted string literal. Assumes current char is '\''.
+ * No escape sequence processing - backslashes are kept as-is.
+ */
+Token Lexer::read_raw_single_quoted() {
+    int start_line = line;
+    advance();  // skip opening quote
+    string value;
+
+    while (current() != '\'' && current() != '\0') {
+        value += current();
+        advance();
+    }
+
+    if (current() == '\0') {
+        throw runtime_error("Unterminated raw string literal at line " + to_string(start_line));
+    }
+
+    advance();  // skip closing quote
+    return {TokenType::STRING, value, start_line};
+}
+
+/**
  * Reads an identifier or keyword. Identifiers start with a letter or underscore
  * and contain letters, digits, or underscores. Checks against keyword table.
+ * Special case: 'r' followed by a quote is a raw string literal.
  */
 Token Lexer::read_identifier() {
     int start_line = line;
@@ -184,6 +230,15 @@ Token Lexer::read_identifier() {
     while (isalnum(current()) || current() == '_') {
         value += current();
         advance();
+    }
+
+    // Check for raw string literals: r"..." or r'...'
+    if (value == "r") {
+        if (current() == '"') {
+            return read_raw_string();
+        } else if (current() == '\'') {
+            return read_raw_single_quoted();
+        }
     }
 
     auto it = keywords.find(value);

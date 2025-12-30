@@ -60,9 +60,13 @@
 #include "stdlib/crypto.hpp"
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
+#include "stdlib/regex.hpp"
 #include "stdlib/time.hpp"
 #include "stdlib/math.hpp"
 #include "stdlib/random.hpp"
+#include "stdlib/sync.hpp"
+#include "stdlib/json.hpp"
+#include "stdlib/log.hpp"
 #include "stdlib/algo.hpp"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -130,6 +134,13 @@ static bool has_process_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the regex module.
+ */
+static bool has_regex_import(const map<string, const Module*>& imports) {
+    return imports.find("regex") != imports.end();
+}
+
+/**
  * Checks if the program imports the time module.
  */
 static bool has_time_import(const map<string, const Module*>& imports) {
@@ -148,6 +159,27 @@ static bool has_math_import(const map<string, const Module*>& imports) {
  */
 static bool has_random_import(const map<string, const Module*>& imports) {
     return imports.find("random") != imports.end();
+}
+
+/**
+ * Checks if the program imports the log module.
+ */
+static bool has_log_import(const map<string, const Module*>& imports) {
+    return imports.find("log") != imports.end();
+}
+
+/**
+ * Checks if the program imports the sync module.
+ */
+static bool has_sync_import(const map<string, const Module*>& imports) {
+    return imports.find("sync") != imports.end();
+}
+
+/**
+ * Checks if the program imports the json module.
+ */
+static bool has_json_import(const map<string, const Module*>& imports) {
+    return imports.find("json") != imports.end();
 }
 
 /**
@@ -196,6 +228,10 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
         return nog::stdlib::generate_process_runtime();
     }
 
+    if (name == "regex") {
+        return nog::stdlib::generate_regex_runtime();
+    }
+
     if (name == "time") {
         return nog::stdlib::generate_time_runtime();
     }
@@ -206,6 +242,18 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
 
     if (name == "random") {
         return nog::stdlib::generate_random_runtime();
+    }
+
+    if (name == "sync") {
+        return nog::stdlib::generate_sync_runtime();
+    }
+
+    if (name == "json") {
+        return nog::stdlib::generate_json_runtime();
+    }
+
+    if (name == "log") {
+        return nog::stdlib::generate_log_runtime();
     }
 
     if (name == "algo") {
@@ -307,6 +355,9 @@ string generate_with_imports(
         state.extern_functions[ext->name] = ext.get();
     }
 
+    // Collect using aliases for code generation
+    collect_using_aliases(state, *program);
+
     string out;
 
     if (has_http_import(imports)) {
@@ -329,6 +380,10 @@ string generate_with_imports(
         out += "#include <bishop/process.hpp>\n";
     }
 
+    if (has_regex_import(imports)) {
+        out += "#include <bishop/regex.hpp>\n";
+    }
+
     if (has_time_import(imports)) {
         out += "#include <bishop/time.hpp>\n";
     }
@@ -339,6 +394,18 @@ string generate_with_imports(
 
     if (has_random_import(imports)) {
         out += "#include <bishop/random.hpp>\n";
+    }
+
+    if (has_log_import(imports)) {
+        out += "#include <bishop/log.hpp>\n";
+    }
+
+    if (has_sync_import(imports)) {
+        out += "#include <bishop/sync.hpp>\n";
+    }
+
+    if (has_json_import(imports)) {
+        out += "#include <bishop/json.hpp>\n";
     }
 
     if (has_algo_import(imports)) {
@@ -354,11 +421,116 @@ string generate_with_imports(
     out += generate_extern_declarations(program);
 
     if (test_mode) {
+        out += "#include <cmath>\n\n";
         out += "int _failures = 0;\n\n";
+
+        // assert_eq: a == b
         out += "template<typename T, typename U>\n";
         out += "void _assert_eq(T a, U b, int line) {\n";
         out += "\tif (a != b) {\n";
         out += "\t\tstd::cerr << \"line \" << line << \": FAIL: \" << a << \" != \" << b << std::endl;\n";
+        out += "\t\t_failures++;\n";
+        out += "\t}\n";
+        out += "}\n\n";
+
+        // assert_ne: a != b
+        out += "template<typename T, typename U>\n";
+        out += "void _assert_ne(T a, U b, int line) {\n";
+        out += "\tif (a == b) {\n";
+        out += "\t\tstd::cerr << \"line \" << line << \": FAIL: expected not equal, but both are \" << a << std::endl;\n";
+        out += "\t\t_failures++;\n";
+        out += "\t}\n";
+        out += "}\n\n";
+
+        // assert_true: condition is true
+        out += "void _assert_true(bool condition, int line) {\n";
+        out += "\tif (!condition) {\n";
+        out += "\t\tstd::cerr << \"line \" << line << \": FAIL: expected true, got false\" << std::endl;\n";
+        out += "\t\t_failures++;\n";
+        out += "\t}\n";
+        out += "}\n\n";
+
+        // assert_false: condition is false
+        out += "void _assert_false(bool condition, int line) {\n";
+        out += "\tif (condition) {\n";
+        out += "\t\tstd::cerr << \"line \" << line << \": FAIL: expected false, got true\" << std::endl;\n";
+        out += "\t\t_failures++;\n";
+        out += "\t}\n";
+        out += "}\n\n";
+
+        // assert_gt: a > b
+        out += "template<typename T, typename U>\n";
+        out += "void _assert_gt(T a, U b, int line) {\n";
+        out += "\tif (!(a > b)) {\n";
+        out += "\t\tstd::cerr << \"line \" << line << \": FAIL: expected \" << a << \" > \" << b << std::endl;\n";
+        out += "\t\t_failures++;\n";
+        out += "\t}\n";
+        out += "}\n\n";
+
+        // assert_gte: a >= b
+        out += "template<typename T, typename U>\n";
+        out += "void _assert_gte(T a, U b, int line) {\n";
+        out += "\tif (!(a >= b)) {\n";
+        out += "\t\tstd::cerr << \"line \" << line << \": FAIL: expected \" << a << \" >= \" << b << std::endl;\n";
+        out += "\t\t_failures++;\n";
+        out += "\t}\n";
+        out += "}\n\n";
+
+        // assert_lt: a < b
+        out += "template<typename T, typename U>\n";
+        out += "void _assert_lt(T a, U b, int line) {\n";
+        out += "\tif (!(a < b)) {\n";
+        out += "\t\tstd::cerr << \"line \" << line << \": FAIL: expected \" << a << \" < \" << b << std::endl;\n";
+        out += "\t\t_failures++;\n";
+        out += "\t}\n";
+        out += "}\n\n";
+
+        // assert_lte: a <= b
+        out += "template<typename T, typename U>\n";
+        out += "void _assert_lte(T a, U b, int line) {\n";
+        out += "\tif (!(a <= b)) {\n";
+        out += "\t\tstd::cerr << \"line \" << line << \": FAIL: expected \" << a << \" <= \" << b << std::endl;\n";
+        out += "\t\t_failures++;\n";
+        out += "\t}\n";
+        out += "}\n\n";
+
+        // assert_contains: item is in collection
+        out += "template<typename T, typename C>\n";
+        out += "void _assert_contains(T item, C& collection, int line) {\n";
+        out += "\tbool found = false;\n";
+        out += "\tfor (const auto& elem : collection) {\n";
+        out += "\t\tif (elem == item) {\n";
+        out += "\t\t\tfound = true;\n";
+        out += "\t\t\tbreak;\n";
+        out += "\t\t}\n";
+        out += "\t}\n";
+        out += "\tif (!found) {\n";
+        out += "\t\tstd::cerr << \"line \" << line << \": FAIL: collection does not contain \" << item << std::endl;\n";
+        out += "\t\t_failures++;\n";
+        out += "\t}\n";
+        out += "}\n\n";
+
+        // assert_starts_with: str starts with prefix
+        out += "void _assert_starts_with(const std::string& prefix, const std::string& str, int line) {\n";
+        out += "\tif (str.rfind(prefix, 0) != 0) {\n";
+        out += "\t\tstd::cerr << \"line \" << line << \": FAIL: \\\"\" << str << \"\\\" does not start with \\\"\" << prefix << \"\\\"\" << std::endl;\n";
+        out += "\t\t_failures++;\n";
+        out += "\t}\n";
+        out += "}\n\n";
+
+        // assert_ends_with: str ends with suffix
+        out += "void _assert_ends_with(const std::string& suffix, const std::string& str, int line) {\n";
+        out += "\tif (str.length() < suffix.length() || str.compare(str.length() - suffix.length(), suffix.length(), suffix) != 0) {\n";
+        out += "\t\tstd::cerr << \"line \" << line << \": FAIL: \\\"\" << str << \"\\\" does not end with \\\"\" << suffix << \"\\\"\" << std::endl;\n";
+        out += "\t\t_failures++;\n";
+        out += "\t}\n";
+        out += "}\n\n";
+
+        // assert_near: actual is within epsilon of expected
+        out += "template<typename T, typename U, typename E>\n";
+        out += "void _assert_near(T actual, U expected, E epsilon, int line) {\n";
+        out += "\tif (std::abs(static_cast<double>(actual) - static_cast<double>(expected)) > static_cast<double>(epsilon)) {\n";
+        out += "\t\tstd::cerr << \"line \" << line << \": FAIL: \" << actual << \" is not within \" << epsilon << \" of \" << expected << std::endl;\n";
         out += "\t\t_failures++;\n";
         out += "\t}\n";
         out += "}\n\n";

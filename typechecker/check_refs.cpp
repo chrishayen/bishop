@@ -11,7 +11,7 @@ namespace typechecker {
 
 /**
  * Infers the type of a variable reference.
- * Checks local scope first, then module-level constants.
+ * Checks local scope first, then module-level constants, then using aliases.
  */
 TypeInfo check_variable_ref(TypeCheckerState& state, const VariableRef& var) {
     const TypeInfo* local = lookup_local(state, var.name);
@@ -25,6 +25,19 @@ TypeInfo check_variable_ref(TypeCheckerState& state, const VariableRef& var) {
 
     if (module_const) {
         return *module_const;
+    }
+
+    // Check using aliases
+    const ResolvedUsingAlias* alias = get_using_alias(state, var.name);
+
+    if (alias) {
+        if (alias->member_type == "constant") {
+            return alias->type_info;
+        } else if (alias->member_type == "function" || alias->member_type == "extern") {
+            return {"fn:" + alias->module_alias + "." + alias->member_name, false, false};
+        } else if (alias->member_type == "struct") {
+            return {alias->module_alias + "." + alias->member_name, false, false};
+        }
     }
 
     error(state, "undefined variable '" + var.name + "'", var.line);
@@ -50,12 +63,19 @@ TypeInfo check_function_ref(TypeCheckerState& state, const FunctionRef& fref) {
         return {"fn:" + fref.name, false, false};
     }
 
-    if (state.functions.find(fref.name) == state.functions.end()) {
-        error(state, "undefined function '" + fref.name + "'", fref.line);
-        return {"unknown", false, false};
+    if (state.functions.find(fref.name) != state.functions.end()) {
+        return {"fn:" + fref.name, false, false};
     }
 
-    return {"fn:" + fref.name, false, false};
+    // Check using aliases for functions
+    const ResolvedUsingAlias* alias = get_using_alias(state, fref.name);
+
+    if (alias && (alias->member_type == "function" || alias->member_type == "extern")) {
+        return {"fn:" + alias->module_alias + "." + alias->member_name, false, false};
+    }
+
+    error(state, "undefined function '" + fref.name + "'", fref.line);
+    return {"unknown", false, false};
 }
 
 /**

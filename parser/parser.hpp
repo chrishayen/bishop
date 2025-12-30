@@ -19,12 +19,23 @@
  * Contains the token stream, current position, and lookup tables
  * for struct/function names and imported modules.
  */
+/**
+ * @brief Tracks a using alias: local_name -> (module, member)
+ */
+struct UsingAlias {
+    std::string local_name;    ///< Name available in local scope
+    std::string module_alias;  ///< Module the member comes from
+    std::string member_name;   ///< Original member name in module
+};
+
 struct ParserState {
     const std::vector<Token>& tokens;
     size_t pos = 0;
     std::vector<std::string> struct_names;
     std::vector<std::string> function_names;
     std::vector<std::string> imported_modules;
+    std::vector<UsingAlias> using_aliases;  ///< Aliases from using statements
+    bool has_wildcard_using = false;        ///< True if any using module.* was parsed
 
     explicit ParserState(const std::vector<Token>& toks) : tokens(toks) {}
 };
@@ -64,9 +75,12 @@ std::unique_ptr<ErrorDef> parse_error_def(ParserState& state, const std::string&
 // Import utilities (parse_import.cpp)
 bool is_imported_module(const ParserState& state, const std::string& name);
 bool is_function_name(const ParserState& state, const std::string& name);
+bool is_using_alias(const ParserState& state, const std::string& name);
+const UsingAlias* get_using_alias(const ParserState& state, const std::string& name);
 void prescan_definitions(ParserState& state);
 std::string collect_doc_comments(ParserState& state);
 std::unique_ptr<ImportStmt> parse_import(ParserState& state);
+std::unique_ptr<UsingStmt> parse_using(ParserState& state);
 
 // Function parsing (parse_function.cpp)
 Visibility parse_visibility(ParserState& state);

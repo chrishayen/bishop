@@ -404,6 +404,26 @@ json := "{\"name\": \"Alice\", \"age\": 30}";
 
 Both quote styles produce the same `str` type.
 
+### Raw String Literals
+
+Raw strings are prefixed with `r` and do not process escape sequences. Backslashes are kept as literal characters, making them ideal for regex patterns and file paths:
+
+```bishop
+// Raw double-quoted
+pattern := r"\d+\.\d+";     // Contains literal backslash-d, backslash-dot
+path := r"C:\Users\name";   // Windows path with literal backslashes
+
+// Raw single-quoted
+regex := r'\w+@\w+\.\w+';   // Email pattern
+```
+
+Raw strings are especially useful with the regex module:
+
+```bishop
+import regex;
+re := regex.compile(r"(\d{4})-(\d{2})-(\d{2})") or return;  // Date pattern
+```
+
 ### String Methods
 
 ```bishop
@@ -1202,6 +1222,122 @@ for arg in args {
 }
 ```
 
+### Regex Module
+
+Regular expression support for pattern matching, searching, and text replacement.
+
+```bishop
+import regex;
+```
+
+#### Compiling Patterns
+
+```bishop
+// Compile a regex pattern (fallible - pattern could be invalid)
+re := regex.compile(r"(\d+)-(\d+)") or {
+    print("Invalid pattern:", err.message);
+    return;
+};
+```
+
+#### Matching
+
+```bishop
+// Full match - entire string must match pattern
+re := regex.compile(r"\d+") or return;
+re.matches("123");       // true
+re.matches("abc123");    // false (not full match)
+
+// Partial match - pattern found anywhere in string
+re.contains("abc123");   // true
+re.contains("abc");      // false
+```
+
+#### Finding Matches
+
+```bishop
+re := regex.compile(r"(\d+)-(\d+)") or return;
+
+// Find first match
+m := re.find("Price: 100-200 dollars");
+if m.found() {
+    print(m.text);       // "100-200"
+    print(m.start);      // 7
+    print(m.end);        // 14
+    print(m.group(1));   // "100"
+    print(m.group(2));   // "200"
+}
+
+// Find all matches
+matches := re.find_all("A: 1-2, B: 3-4");
+for m in matches {
+    print(m.text);       // "1-2", then "3-4"
+}
+```
+
+#### Replacement
+
+Replacement strings support capture group references:
+- `$0` - Full match
+- `$1` to `$99` - Capture groups
+- `$$` - Literal dollar sign
+
+```bishop
+re := regex.compile(r"(\d+)-(\d+)") or return;
+
+// Replace first match (supports $0-$99 capture group references)
+re.replace("123-456", "$2-$1");      // "456-123"
+re.replace("123-456", "[$0]");       // "[123-456]"
+
+// Replace all matches
+re := regex.compile(r"\d+") or return;
+re.replace_all("a1b2c3", "X");       // "aXbXcX"
+
+// Use $$ for literal dollar sign
+re.replace("price: 100", "$$");      // "price: $"
+```
+
+#### Splitting
+
+```bishop
+// Split by regex pattern (fallible - pattern could be invalid)
+parts := regex.split(r"\s+", "a  b   c") or return;
+// parts == ["a", "b", "c"]
+
+// Split by character class
+parts := regex.split(r"[,;]", "a,b;c") or return;
+// parts == ["a", "b", "c"]
+```
+
+#### regex.Match Fields and Methods
+
+| Field/Method | Type | Description |
+|--------------|------|-------------|
+| `text` | `str` | Matched text (empty if no match) |
+| `start` | `int` | Start index (-1 if no match) |
+| `end` | `int` | End index (-1 if no match) |
+| `groups` | `List<str>` | All capture groups (index 0 is full match) |
+| `found()` | `bool` | Returns true if match was found |
+| `group(int n)` | `str` | Get capture group by index (empty if out of bounds) |
+
+#### regex.Regex Methods
+
+| Method | Description |
+|--------|-------------|
+| `matches(str) -> bool` | True if entire string matches pattern |
+| `contains(str) -> bool` | True if pattern found anywhere |
+| `find(str) -> regex.Match` | First match (or empty Match) |
+| `find_all(str) -> List<regex.Match>` | All matches |
+| `replace(str, str) -> str` | Replace first match |
+| `replace_all(str, str) -> str` | Replace all matches |
+
+#### Module Functions
+
+| Function | Description |
+|----------|-------------|
+| `regex.compile(str) -> regex.Regex or err` | Compile pattern |
+| `regex.split(str, str) -> List<str> or err` | Split text by pattern |
+
 ### Math Module
 
 ```bishop
@@ -1734,6 +1870,53 @@ testlib.greet();
 result := testlib.add(2, 3);
 ```
 
+### Using
+
+The `using` keyword brings module members into the local namespace, allowing unqualified access:
+
+#### Selective Imports
+
+```bishop
+import log;
+using log.info, log.debug, log.warn, log.error;
+
+fn main() {
+    info("Application started");
+    warn("This is a warning");
+    error("Something went wrong");
+}
+```
+
+#### Wildcard Imports
+
+```bishop
+import math;
+using math.*;
+
+fn main() {
+    x := sin(PI / 2.0);  // all math members available
+    y := sqrt(16.0);
+}
+```
+
+#### With Structs
+
+```bishop
+import mymodule;
+using mymodule.Point, mymodule.make_point;
+
+fn main() {
+    p := Point { x: 10, y: 20 };  // struct literal works
+    q := make_point(5, 15);       // function call works
+}
+```
+
+Notes:
+- `using` statements must appear after `import` statements
+- Wildcard imports (`using module.*`) bring all public members into scope
+- Qualified access (`module.member`) still works alongside `using`
+- Using aliases resolve at compile time with no runtime overhead
+
 ## Visibility
 
 Use `@private` to restrict visibility to the current file:
@@ -1809,10 +1992,69 @@ fn add(int a, int b) -> int {
 ```bishop
 print("Hello");
 print("Multiple", "args");
-assert_eq(a, b);  // test mode only
 sleep(100);       // sleep for 100 milliseconds
+```
+
+## Test Assertions
+
+Test assertions are available only in test mode (`./bishop test`). They provide informative error messages with line numbers on failure.
+
+### Equality Assertions
+
+```bishop
+assert_eq(a, b);   // a == b
+assert_ne(a, b);   // a != b
+```
+
+### Boolean Assertions
+
+```bishop
+assert_true(condition);   // condition is true
+assert_false(condition);  // condition is false
+```
+
+### Comparison Assertions
+
+```bishop
+assert_gt(a, b);   // a > b
+assert_gte(a, b);  // a >= b
+assert_lt(a, b);   // a < b
+assert_lte(a, b);  // a <= b
+```
+
+### Collection Assertions
+
+```bishop
+nums := [1, 2, 3];
+assert_contains(2, nums);  // 2 is in nums
+```
+
+### String Assertions
+
+```bishop
+s := "hello world";
+assert_starts_with("hello", s);  // s starts with "hello"
+assert_ends_with("world", s);    // s ends with "world"
+```
+
+### Float Comparison
+
+```bishop
+pi := 3.14159;
+assert_near(pi, 3.14, 0.01);  // pi is within 0.01 of 3.14
+```
+
+### Example Test
+
+```bishop
+fn test_math() {
+    assert_eq(1 + 1, 2);
+    assert_ne(1, 2);
+    assert_true(5 > 3);
+    assert_gt(10, 5);
+}
 ```
 
 ## Keywords
 
-`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `select`, `case`, `Channel`, `List`, `Pair`, `Tuple`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`
+`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `using`, `select`, `case`, `Channel`, `List`, `Pair`, `Tuple`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`

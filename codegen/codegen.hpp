@@ -15,6 +15,15 @@
 #include "project/module.hpp"
 
 /**
+ * @brief Tracks a using alias for code generation.
+ */
+struct CodeGenUsingAlias {
+    std::string local_name;    ///< Name available in local scope
+    std::string module_alias;  ///< Module the member comes from
+    std::string member_name;   ///< Original member name in module
+};
+
+/**
  * @brief Code generator state passed to all generation functions.
  *
  * Contains mode flags and context needed during code generation.
@@ -25,6 +34,7 @@ struct CodeGenState {
     const Program* current_program = nullptr;
     std::map<std::string, const Module*> imported_modules;
     std::map<std::string, const ExternFunctionDef*> extern_functions;
+    std::vector<CodeGenUsingAlias> using_aliases;  ///< Using aliases from using statements
 };
 
 namespace codegen {
@@ -61,6 +71,8 @@ std::string none_literal();
 std::string variable_ref(const std::string& name);
 std::string emit_function_ref(const FunctionRef& ref);
 std::string emit_qualified_ref(const QualifiedRef& ref);
+const CodeGenUsingAlias* get_using_alias(const CodeGenState& state, const std::string& name);
+void collect_using_aliases(CodeGenState& state, const Program& program);
 
 // Binary expressions (emit_binary.cpp)
 std::string binary_expr(const std::string& left, const std::string& op, const std::string& right);
@@ -121,6 +133,17 @@ std::string for_range_stmt(const std::string& var, const std::string& start, con
 std::string for_each_stmt(const std::string& var, const std::string& collection, const std::vector<std::string>& body);
 std::string print_multi(const std::vector<std::string>& args);
 std::string assert_eq(const std::string& a, const std::string& b, int line);
+std::string assert_ne(const std::string& a, const std::string& b, int line);
+std::string assert_true(const std::string& condition, int line);
+std::string assert_false(const std::string& condition, int line);
+std::string assert_gt(const std::string& a, const std::string& b, int line);
+std::string assert_gte(const std::string& a, const std::string& b, int line);
+std::string assert_lt(const std::string& a, const std::string& b, int line);
+std::string assert_lte(const std::string& a, const std::string& b, int line);
+std::string assert_contains(const std::string& item, const std::string& collection, int line);
+std::string assert_starts_with(const std::string& prefix, const std::string& str, int line);
+std::string assert_ends_with(const std::string& suffix, const std::string& str, int line);
+std::string assert_near(const std::string& actual, const std::string& expected, const std::string& epsilon, int line);
 
 // Function emission (emit_function.cpp)
 struct FunctionParam {

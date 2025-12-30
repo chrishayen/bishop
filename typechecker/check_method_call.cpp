@@ -125,8 +125,9 @@ TypeInfo check_struct_method(TypeCheckerState& state, const MethodCall& mcall, c
         }
     }
 
-    return method->return_type.empty() ? TypeInfo{"void", false, true}
-                                       : TypeInfo{method->return_type, false, false};
+    bool fallible = !method->error_type.empty();
+    return method->return_type.empty() ? TypeInfo{"void", false, true, fallible}
+                                       : TypeInfo{method->return_type, false, false, fallible};
 }
 
 /**
