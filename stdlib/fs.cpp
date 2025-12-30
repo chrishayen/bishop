@@ -237,12 +237,13 @@
 /**
  * @nog_fn join
  * @module fs
- * @description Joins path components together.
- * @param args str... - Path components to join
+ * @description Joins two path components together.
+ * @param a str - First path component
+ * @param b str - Second path component
  * @returns str - Joined path
  * @example
  * import fs;
- * path := fs.join("dir", "subdir", "file.txt");
+ * path := fs.join(fs.join("dir", "subdir"), "file.txt");
  */
 
 /**

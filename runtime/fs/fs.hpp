@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <random>
 #include <chrono>
+#include <limits>
 
 namespace fs {
 
@@ -427,9 +428,25 @@ inline bishop::rt::Result<std::vector<std::string>> list_dir(const std::string& 
     }
 
     std::vector<std::string> entries;
+    std::error_code ec;
+    std::filesystem::directory_iterator it(path, ec);
 
-    for (const auto& entry : std::filesystem::directory_iterator(path)) {
-        entries.push_back(entry.path().filename().string());
+    if (ec) {
+        return bishop::rt::Result<std::vector<std::string>>::error(
+            bishop::rt::Error("Failed to list directory: " + path + " - " + ec.message())
+        );
+    }
+
+    std::filesystem::directory_iterator end;
+
+    for (; it != end; it.increment(ec)) {
+        if (ec) {
+            return bishop::rt::Result<std::vector<std::string>>::error(
+                bishop::rt::Error("Failed to list directory: " + path + " - " + ec.message())
+            );
+        }
+
+        entries.push_back(it->path().filename().string());
     }
 
     return bishop::rt::Result<std::vector<std::string>>::ok(entries);
@@ -643,16 +660,18 @@ inline bool is_absolute(const std::string& path) {
  * Converts a path to an absolute path.
  */
 inline bishop::rt::Result<std::string> absolute(const std::string& path) {
-    std::error_code ec;
-    std::filesystem::path abs = std::filesystem::absolute(path, ec);
-
-    if (ec) {
+    try {
+        std::filesystem::path abs = std::filesystem::absolute(path);
+        return bishop::rt::Result<std::string>::ok(abs.string());
+    } catch (const std::filesystem::filesystem_error& e) {
         return bishop::rt::Result<std::string>::error(
-            bishop::rt::Error("Failed to get absolute path: " + path + " - " + ec.message())
+            bishop::rt::Error("Failed to get absolute path: " + path + " - " + std::string(e.what()))
+        );
+    } catch (const std::exception& e) {
+        return bishop::rt::Result<std::string>::error(
+            bishop::rt::Error("Failed to get absolute path: " + path + " - " + std::string(e.what()))
         );
     }
-
-    return bishop::rt::Result<std::string>::ok(abs.string());
 }
 
 /**
@@ -693,17 +712,29 @@ inline bishop::rt::Result<FileInfo> stat(const std::string& path) {
     info.is_symlink = std::filesystem::is_symlink(path, ec);
 
     if (info.is_file) {
-        info.size = static_cast<int>(std::filesystem::file_size(path, ec));
+        auto file_size = std::filesystem::file_size(path, ec);
+
+        if (!ec) {
+            // Check for overflow before casting to int
+            if (file_size > static_cast<std::uintmax_t>(std::numeric_limits<int>::max())) {
+                return bishop::rt::Result<FileInfo>::error(
+                    bishop::rt::Error("File size exceeds maximum int value (> 2GB): " + path)
+                );
+            }
+
+            info.size = static_cast<int>(file_size);
+        }
     }
 
     auto ftime = std::filesystem::last_write_time(path, ec);
 
     if (!ec) {
-        // Convert file_time_type to system_clock for older C++ standards
-        auto duration = ftime.time_since_epoch();
-        auto secs = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-        // Approximate epoch offset between file_clock and system_clock
-        // This is platform-specific but works for most systems
+        // Convert file_time_type to system_clock-aligned time point
+        auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+            ftime - decltype(ftime)::clock::now() + std::chrono::system_clock::now());
+        auto secs = std::chrono::time_point_cast<std::chrono::seconds>(sctp)
+                        .time_since_epoch()
+                        .count();
         info.modified = static_cast<int>(secs);
     }
 
@@ -720,6 +751,13 @@ inline bishop::rt::Result<int> file_size(const std::string& path) {
     if (ec) {
         return bishop::rt::Result<int>::error(
             bishop::rt::Error("Failed to get file size: " + path + " - " + ec.message())
+        );
+    }
+
+    // Check for overflow before casting to int
+    if (size > static_cast<std::uintmax_t>(std::numeric_limits<int>::max())) {
+        return bishop::rt::Result<int>::error(
+            bishop::rt::Error("File size exceeds maximum int value (> 2GB): " + path)
         );
     }
 
@@ -741,14 +779,30 @@ inline bishop::rt::Result<std::vector<DirEntry>> walk(const std::string& path) {
     }
 
     std::vector<DirEntry> entries;
+    std::error_code ec;
+    std::filesystem::recursive_directory_iterator it(path, ec);
 
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
+    if (ec) {
+        return bishop::rt::Result<std::vector<DirEntry>>::error(
+            bishop::rt::Error("Failed to walk directory: " + path + " - " + ec.message())
+        );
+    }
+
+    std::filesystem::recursive_directory_iterator end;
+
+    for (; it != end; it.increment(ec)) {
+        if (ec) {
+            return bishop::rt::Result<std::vector<DirEntry>>::error(
+                bishop::rt::Error("Failed to walk directory: " + path + " - " + ec.message())
+            );
+        }
+
         DirEntry de;
-        de.path = entry.path().string();
-        de.name = entry.path().filename().string();
-        de.is_dir = entry.is_directory();
-        de.is_file = entry.is_regular_file();
-        de.is_symlink = entry.is_symlink();
+        de.path = it->path().string();
+        de.name = it->path().filename().string();
+        de.is_dir = it->is_directory();
+        de.is_file = it->is_regular_file();
+        de.is_symlink = it->is_symlink();
         entries.push_back(de);
     }
 
@@ -761,9 +815,18 @@ inline bishop::rt::Result<std::vector<DirEntry>> walk(const std::string& path) {
 
 /**
  * Creates a unique temporary file path.
+ * The file is created atomically to prevent TOCTOU race conditions.
  */
 inline bishop::rt::Result<std::string> temp_file() {
-    std::filesystem::path temp_dir = std::filesystem::temp_directory_path();
+    std::filesystem::path temp_dir_path;
+
+    try {
+        temp_dir_path = std::filesystem::temp_directory_path();
+    } catch (const std::filesystem::filesystem_error& e) {
+        return bishop::rt::Result<std::string>::error(
+            bishop::rt::Error("Failed to get temp directory: " + std::string(e.what()))
+        );
+    }
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -771,9 +834,16 @@ inline bishop::rt::Result<std::string> temp_file() {
 
     for (int i = 0; i < 100; ++i) {
         std::string name = "bishop_tmp_" + std::to_string(dis(gen));
-        std::filesystem::path temp_path = temp_dir / name;
+        std::filesystem::path temp_path = temp_dir_path / name;
 
-        if (!std::filesystem::exists(temp_path)) {
+        // Create the file atomically to prevent TOCTOU race conditions
+        std::ofstream temp_file_stream(
+            temp_path,
+            std::ios::binary | std::ios::trunc | std::ios::out
+        );
+
+        if (temp_file_stream) {
+            temp_file_stream.close();
             return bishop::rt::Result<std::string>::ok(temp_path.string());
         }
     }
@@ -787,7 +857,15 @@ inline bishop::rt::Result<std::string> temp_file() {
  * Creates a unique temporary directory.
  */
 inline bishop::rt::Result<std::string> temp_dir() {
-    std::filesystem::path temp_base = std::filesystem::temp_directory_path();
+    std::filesystem::path temp_base;
+
+    try {
+        temp_base = std::filesystem::temp_directory_path();
+    } catch (const std::filesystem::filesystem_error& e) {
+        return bishop::rt::Result<std::string>::error(
+            bishop::rt::Error("Failed to get temp directory: " + std::string(e.what()))
+        );
+    }
 
     std::random_device rd;
     std::mt19937 gen(rd());
