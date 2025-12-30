@@ -15,6 +15,7 @@
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
 #include "stdlib/regex.hpp"
+#include "stdlib/time.hpp"
 #include "stdlib/math.hpp"
 #include "stdlib/random.hpp"
 #include <fstream>
@@ -183,6 +184,8 @@ unique_ptr<Module> ModuleManager::create_builtin_module(const string& name) {
         mod->ast = nog::stdlib::create_process_module();
     } else if (name == "regex") {
         mod->ast = nog::stdlib::create_regex_module();
+    } else if (name == "time") {
+        mod->ast = nog::stdlib::create_time_module();
     } else if (name == "math") {
         mod->ast = nog::stdlib::create_math_module();
     } else if (name == "random") {

@@ -61,6 +61,7 @@
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
 #include "stdlib/regex.hpp"
+#include "stdlib/time.hpp"
 #include "stdlib/math.hpp"
 #include "stdlib/random.hpp"
 #include <fmt/format.h>
@@ -136,6 +137,13 @@ static bool has_regex_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the time module.
+ */
+static bool has_time_import(const map<string, const Module*>& imports) {
+    return imports.find("time") != imports.end();
+}
+
+/**
  * Checks if the program imports the math module.
  */
 static bool has_math_import(const map<string, const Module*>& imports) {
@@ -190,6 +198,10 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
 
     if (name == "regex") {
         return nog::stdlib::generate_regex_runtime();
+    }
+
+    if (name == "time") {
+        return nog::stdlib::generate_time_runtime();
     }
 
     if (name == "math") {
@@ -319,6 +331,10 @@ string generate_with_imports(
 
     if (has_regex_import(imports)) {
         out += "#include <bishop/regex.hpp>\n";
+    }
+
+    if (has_time_import(imports)) {
+        out += "#include <bishop/time.hpp>\n";
     }
 
     if (has_math_import(imports)) {

@@ -25,7 +25,15 @@ string emit_function_ref(const FunctionRef& ref) {
     size_t dot_pos = func_name.find('.');
 
     if (dot_pos != string::npos) {
-        func_name = func_name.substr(0, dot_pos) + "::" + func_name.substr(dot_pos + 1);
+        string module_name = func_name.substr(0, dot_pos);
+        string fn_name = func_name.substr(dot_pos + 1);
+
+        // Map 'time' module to 'bishop_time' to avoid conflict with C time()
+        if (module_name == "time") {
+            module_name = "bishop_time";
+        }
+
+        func_name = module_name + "::" + fn_name;
     }
 
     return func_name;
@@ -35,7 +43,14 @@ string emit_function_ref(const FunctionRef& ref) {
  * Emits a qualified reference: module.name -> module::name.
  */
 string emit_qualified_ref(const QualifiedRef& ref) {
-    return ref.module_name + "::" + ref.name;
+    string module_name = ref.module_name;
+
+    // Map 'time' module to 'bishop_time' to avoid conflict with C time()
+    if (module_name == "time") {
+        module_name = "bishop_time";
+    }
+
+    return module_name + "::" + ref.name;
 }
 
 } // namespace codegen
