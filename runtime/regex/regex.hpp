@@ -118,6 +118,16 @@ struct Regex {
 
             base_offset += static_cast<int>(match.position(0)) + static_cast<int>(match[0].length());
             search_start = match.suffix().first;
+
+            // Prevent infinite loop on zero-width matches by ensuring progress
+            if (match[0].length() == 0) {
+                if (search_start == text.cend()) {
+                    break;
+                }
+
+                ++search_start;
+                ++base_offset;
+            }
         }
 
         return results;
@@ -155,6 +165,17 @@ struct Regex {
             result += match.prefix().str();
             result += expand_replacement(replacement, match);
             search_start = match.suffix().first;
+
+            // Avoid infinite loop on zero-width matches by ensuring progress.
+            if (match.length(0) == 0) {
+                if (search_start == text.cend()) {
+                    break;
+                }
+
+                // Consume one character that would otherwise be added in the final suffix.
+                result += *search_start;
+                ++search_start;
+            }
         }
 
         result += std::string(search_start, text.cend());
@@ -261,6 +282,16 @@ inline bishop::rt::Result<std::vector<std::string>> split(const std::string& pat
 
             last_end = match_start + match[0].length();
             search_start = match.suffix().first;
+
+            // Prevent infinite loop on zero-width matches by ensuring progress
+            if (match[0].length() == 0) {
+                if (search_start == text.cend()) {
+                    break;
+                }
+
+                ++search_start;
+                ++last_end;
+            }
         }
 
         // Add any remaining text after the last match (including empty trailing string)

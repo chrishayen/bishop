@@ -407,3 +407,32 @@ fn test_match_groups_field() {
     assert_eq(m.groups.get(1), "key");
     assert_eq(m.groups.get(2), "value");
 }
+
+// ============================================
+// Zero-Width Match Handling
+// Tests ensure zero-width patterns don't cause infinite loops
+// ============================================
+
+fn test_find_all_zero_width_terminates() {
+    // This test verifies that zero-width patterns terminate and don't loop forever
+    re := regex.compile(r"^") or return;
+    matches := re.find_all("abc");
+    // Just verify it terminates and returns results (exact count depends on implementation)
+    assert_eq(matches.length() > 0, true);
+}
+
+fn test_replace_all_zero_width_terminates() {
+    // This test verifies that zero-width patterns terminate and don't loop forever
+    re := regex.compile(r"^") or return;
+    result := re.replace_all("abc", ">");
+    // Just verify it terminates and produces output
+    assert_eq(result.contains(">"), true);
+    assert_eq(result.contains("a"), true);
+}
+
+fn test_split_zero_width_terminates() {
+    // This test verifies that zero-width patterns terminate and don't loop forever
+    parts := regex.split(r"^", "abc") or return;
+    // Just verify it terminates and returns results
+    assert_eq(parts.length() > 0, true);
+}
