@@ -30,8 +30,55 @@ string generate_statement(CodeGenState& state, const ASTNode& node) {
             return print_multi(args) + ";";
         }
 
-        if (call->name == "assert_eq" && state.test_mode && call->args.size() >= 2) {
-            return assert_eq(emit(state, *call->args[0]), emit(state, *call->args[1]), call->line) + ";";
+        // Handle assertion functions in test mode
+        if (state.test_mode) {
+            if (call->name == "assert_eq" && call->args.size() >= 2) {
+                return assert_eq(emit(state, *call->args[0]), emit(state, *call->args[1]), call->line) + ";";
+            }
+
+            if (call->name == "assert_ne" && call->args.size() >= 2) {
+                return assert_ne(emit(state, *call->args[0]), emit(state, *call->args[1]), call->line) + ";";
+            }
+
+            if (call->name == "assert_true" && call->args.size() >= 1) {
+                return assert_true(emit(state, *call->args[0]), call->line) + ";";
+            }
+
+            if (call->name == "assert_false" && call->args.size() >= 1) {
+                return assert_false(emit(state, *call->args[0]), call->line) + ";";
+            }
+
+            if (call->name == "assert_gt" && call->args.size() >= 2) {
+                return assert_gt(emit(state, *call->args[0]), emit(state, *call->args[1]), call->line) + ";";
+            }
+
+            if (call->name == "assert_gte" && call->args.size() >= 2) {
+                return assert_gte(emit(state, *call->args[0]), emit(state, *call->args[1]), call->line) + ";";
+            }
+
+            if (call->name == "assert_lt" && call->args.size() >= 2) {
+                return assert_lt(emit(state, *call->args[0]), emit(state, *call->args[1]), call->line) + ";";
+            }
+
+            if (call->name == "assert_lte" && call->args.size() >= 2) {
+                return assert_lte(emit(state, *call->args[0]), emit(state, *call->args[1]), call->line) + ";";
+            }
+
+            if (call->name == "assert_contains" && call->args.size() >= 2) {
+                return assert_contains(emit(state, *call->args[0]), emit(state, *call->args[1]), call->line) + ";";
+            }
+
+            if (call->name == "assert_starts_with" && call->args.size() >= 2) {
+                return assert_starts_with(emit(state, *call->args[0]), emit(state, *call->args[1]), call->line) + ";";
+            }
+
+            if (call->name == "assert_ends_with" && call->args.size() >= 2) {
+                return assert_ends_with(emit(state, *call->args[0]), emit(state, *call->args[1]), call->line) + ";";
+            }
+
+            if (call->name == "assert_near" && call->args.size() >= 3) {
+                return assert_near(emit(state, *call->args[0]), emit(state, *call->args[1]), emit(state, *call->args[2]), call->line) + ";";
+            }
         }
 
         if (call->name == "sleep" && call->args.size() == 1) {

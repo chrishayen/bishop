@@ -1487,8 +1487,67 @@ fn add(int a, int b) -> int {
 ```bishop
 print("Hello");
 print("Multiple", "args");
-assert_eq(a, b);  // test mode only
 sleep(100);       // sleep for 100 milliseconds
+```
+
+## Test Assertions
+
+Test assertions are available only in test mode (`./bishop test`). They provide informative error messages with line numbers on failure.
+
+### Equality Assertions
+
+```bishop
+assert_eq(a, b);   // a == b
+assert_ne(a, b);   // a != b
+```
+
+### Boolean Assertions
+
+```bishop
+assert_true(condition);   // condition is true
+assert_false(condition);  // condition is false
+```
+
+### Comparison Assertions
+
+```bishop
+assert_gt(a, b);   // a > b
+assert_gte(a, b);  // a >= b
+assert_lt(a, b);   // a < b
+assert_lte(a, b);  // a <= b
+```
+
+### Collection Assertions
+
+```bishop
+nums := [1, 2, 3];
+assert_contains(2, nums);  // 2 is in nums
+```
+
+### String Assertions
+
+```bishop
+s := "hello world";
+assert_starts_with("hello", s);  // s starts with "hello"
+assert_ends_with("world", s);    // s ends with "world"
+```
+
+### Float Comparison
+
+```bishop
+pi := 3.14159;
+assert_near(pi, 3.14, 0.01);  // pi is within 0.01 of 3.14
+```
+
+### Example Test
+
+```bishop
+fn test_math() {
+    assert_eq(1 + 1, 2);
+    assert_ne(1, 2);
+    assert_true(5 > 3);
+    assert_gt(10, 5);
+}
 ```
 
 ## Keywords

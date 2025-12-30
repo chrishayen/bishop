@@ -121,6 +121,17 @@ std::string for_range_stmt(const std::string& var, const std::string& start, con
 std::string for_each_stmt(const std::string& var, const std::string& collection, const std::vector<std::string>& body);
 std::string print_multi(const std::vector<std::string>& args);
 std::string assert_eq(const std::string& a, const std::string& b, int line);
+std::string assert_ne(const std::string& a, const std::string& b, int line);
+std::string assert_true(const std::string& condition, int line);
+std::string assert_false(const std::string& condition, int line);
+std::string assert_gt(const std::string& a, const std::string& b, int line);
+std::string assert_gte(const std::string& a, const std::string& b, int line);
+std::string assert_lt(const std::string& a, const std::string& b, int line);
+std::string assert_lte(const std::string& a, const std::string& b, int line);
+std::string assert_contains(const std::string& item, const std::string& collection, int line);
+std::string assert_starts_with(const std::string& prefix, const std::string& str, int line);
+std::string assert_ends_with(const std::string& suffix, const std::string& str, int line);
+std::string assert_near(const std::string& actual, const std::string& expected, const std::string& epsilon, int line);
 
 // Function emission (emit_function.cpp)
 struct FunctionParam {
