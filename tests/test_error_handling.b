@@ -198,8 +198,6 @@ fn test_default_with_zero_result() or err {
     assert_eq(y, 50);
 }
 
-// Note: string default not supported (C++ strings not valid in boolean context)
-
 fn test_default_with_false_result() or err {
     b := returns_false() or fail err;
     result := b default true;
