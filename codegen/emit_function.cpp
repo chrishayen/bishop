@@ -175,6 +175,81 @@ string generate_method(CodeGenState& state, const MethodDef& method) {
 }
 
 /**
+ * Recursively checks if an AST node contains a ChannelCreate.
+ */
+static bool node_uses_channels(const ASTNode& node);
+
+static bool statements_use_channels(const vector<unique_ptr<ASTNode>>& stmts) {
+    for (const auto& stmt : stmts) {
+        if (node_uses_channels(*stmt)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool node_uses_channels(const ASTNode& node) {
+    if (dynamic_cast<const ChannelCreate*>(&node)) {
+        return true;
+    }
+
+    if (auto* decl = dynamic_cast<const VariableDecl*>(&node)) {
+        if (decl->type.rfind("Channel<", 0) == 0) {
+            return true;
+        }
+        if (decl->value && node_uses_channels(*decl->value)) {
+            return true;
+        }
+    }
+
+    if (auto* lambda = dynamic_cast<const LambdaExpr*>(&node)) {
+        if (statements_use_channels(lambda->body)) {
+            return true;
+        }
+    }
+
+    if (auto* lcall = dynamic_cast<const LambdaCall*>(&node)) {
+        if (node_uses_channels(*lcall->callee)) {
+            return true;
+        }
+        for (const auto& arg : lcall->args) {
+            if (node_uses_channels(*arg)) {
+                return true;
+            }
+        }
+    }
+
+    if (auto* spawn = dynamic_cast<const GoSpawn*>(&node)) {
+        if (spawn->call && node_uses_channels(*spawn->call)) {
+            return true;
+        }
+    }
+
+    if (auto* if_stmt = dynamic_cast<const IfStmt*>(&node)) {
+        if (statements_use_channels(if_stmt->then_body)) {
+            return true;
+        }
+        if (statements_use_channels(if_stmt->else_body)) {
+            return true;
+        }
+    }
+
+    if (auto* while_stmt = dynamic_cast<const WhileStmt*>(&node)) {
+        if (statements_use_channels(while_stmt->body)) {
+            return true;
+        }
+    }
+
+    if (auto* for_stmt = dynamic_cast<const ForStmt*>(&node)) {
+        if (statements_use_channels(for_stmt->body)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
  * Checks if the program uses channels (requires channel.hpp).
  */
 static bool test_uses_channels(const Program& program) {
@@ -183,6 +258,15 @@ static bool test_uses_channels(const Program& program) {
             if (param.type.rfind("Channel<", 0) == 0) {
                 return true;
             }
+        }
+        if (statements_use_channels(fn->body)) {
+            return true;
+        }
+    }
+
+    for (const auto& m : program.methods) {
+        if (statements_use_channels(m->body)) {
+            return true;
         }
     }
 

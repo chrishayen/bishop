@@ -41,6 +41,8 @@ void check_statement(TypeCheckerState& state, const ASTNode& stmt) {
         infer_type(state, *call);
     } else if (auto* mcall = dynamic_cast<const MethodCall*>(&stmt)) {
         infer_type(state, *mcall);
+    } else if (auto* lcall = dynamic_cast<const LambdaCall*>(&stmt)) {
+        infer_type(state, *lcall);
     }
 }
 

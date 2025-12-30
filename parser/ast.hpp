@@ -348,6 +348,29 @@ struct FunctionParam {
     string name;   ///< Parameter name
 };
 
+/** @brief Anonymous function expression: fn(params) -> return_type { body } */
+struct LambdaExpr : ASTNode {
+    vector<FunctionParam> params;         ///< Parameter list (can be empty)
+    string return_type;                   ///< Return type (empty for void)
+    vector<unique_ptr<ASTNode>> body;     ///< Function body statements
+};
+
+/**
+ * @brief Invocation of an expression that returns a function type.
+ *
+ * This node represents calling any expression whose value has a function type:
+ *   - Immediate lambda invocation: fn(int x) -> int { return x * 2; }(21)
+ *   - Calling a variable holding a function reference: doubler(21)
+ *   - Any expression returning a function type
+ *
+ * Despite the name "LambdaCall", this is used for indirect function calls
+ * through expressions, not just lambda literals.
+ */
+struct LambdaCall : ASTNode {
+    unique_ptr<ASTNode> callee;           ///< The expression being called (lambda or expression returning function)
+    vector<unique_ptr<ASTNode>> args;     ///< Arguments to pass
+};
+
 /** @brief Function definition: fn name(params) -> ret_type { body } */
 struct FunctionDef : ASTNode {
     string name;                          ///< Function name

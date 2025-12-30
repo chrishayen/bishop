@@ -61,6 +61,7 @@
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
 #include "stdlib/time.hpp"
+#include "stdlib/math.hpp"
 #include "stdlib/random.hpp"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -135,6 +136,13 @@ static bool has_time_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the math module.
+ */
+static bool has_math_import(const map<string, const Module*>& imports) {
+    return imports.find("math") != imports.end();
+}
+
+/**
  * Checks if the program imports the random module.
  */
 static bool has_random_import(const map<string, const Module*>& imports) {
@@ -182,6 +190,10 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
 
     if (name == "time") {
         return nog::stdlib::generate_time_runtime();
+    }
+
+    if (name == "math") {
+        return nog::stdlib::generate_math_runtime();
     }
 
     if (name == "random") {
@@ -307,6 +319,10 @@ string generate_with_imports(
 
     if (has_time_import(imports)) {
         out += "#include <bishop/time.hpp>\n";
+    }
+
+    if (has_math_import(imports)) {
+        out += "#include <bishop/math.hpp>\n";
     }
 
     if (has_random_import(imports)) {
