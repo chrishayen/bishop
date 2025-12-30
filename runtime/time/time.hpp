@@ -60,28 +60,32 @@ struct Duration {
     }
 
     /**
-     * Returns the duration in seconds.
+     * Returns the duration in seconds (truncates fractional seconds).
+     * For example, 1500ms returns 1, not 1.5.
      */
     int64_t as_seconds() const {
         return millis_value / 1000;
     }
 
     /**
-     * Returns the duration in minutes.
+     * Returns the duration in minutes (truncates fractional minutes).
+     * For example, 90 seconds returns 1 minute.
      */
     int64_t as_minutes() const {
         return millis_value / (1000 * 60);
     }
 
     /**
-     * Returns the duration in hours.
+     * Returns the duration in hours (truncates fractional hours).
+     * For example, 90 minutes returns 1 hour.
      */
     int64_t as_hours() const {
         return millis_value / (1000 * 60 * 60);
     }
 
     /**
-     * Returns the duration in days.
+     * Returns the duration in days (truncates fractional days).
+     * For example, 36 hours returns 1 day.
      */
     int64_t as_days() const {
         return millis_value / (1000 * 60 * 60 * 24);
@@ -321,6 +325,7 @@ inline Duration millis(int64_t ms) {
 
 /**
  * Creates a Duration of the specified seconds.
+ * Note: Overflow occurs for values beyond ~292 million years.
  */
 inline Duration seconds(int64_t s) {
     return Duration{s * 1000};
@@ -328,6 +333,7 @@ inline Duration seconds(int64_t s) {
 
 /**
  * Creates a Duration of the specified minutes.
+ * Note: Overflow occurs for values beyond ~4.8 million years.
  */
 inline Duration minutes(int64_t m) {
     return Duration{m * 60 * 1000};
@@ -335,6 +341,7 @@ inline Duration minutes(int64_t m) {
 
 /**
  * Creates a Duration of the specified hours.
+ * Note: Overflow occurs for values beyond ~1 million years.
  */
 inline Duration hours(int64_t h) {
     return Duration{h * 60 * 60 * 1000};
@@ -342,6 +349,7 @@ inline Duration hours(int64_t h) {
 
 /**
  * Creates a Duration of the specified days.
+ * Note: Overflow occurs for values beyond ~106 billion days (~292 million years).
  */
 inline Duration days(int64_t d) {
     return Duration{d * 24 * 60 * 60 * 1000};
@@ -373,8 +381,18 @@ inline Duration since(const Timestamp& ts) {
 
 /**
  * Parses a timestamp from a string using strptime format specifiers.
+ *
+ * Note: The parsed time is interpreted as local time. If you parse a UTC
+ * timestamp string, it will be incorrectly treated as local time.
+ *
+ * Unspecified fields default to their zero values (e.g., midnight for
+ * time-of-day, January for month, year 1900 for year). The only exception
+ * is tm_mday which defaults to 1 since day 0 is invalid.
  */
 inline bishop::rt::Result<Timestamp> parse(const std::string& str, const std::string& fmt) {
+    // Zero-initialize tm_val. std::get_time only writes fields present in the
+    // format string; unspecified fields remain 0 (e.g., midnight for time,
+    // January for month, year 1900 for year).
     std::tm tm_val = {};
     std::istringstream iss(str);
     iss >> std::get_time(&tm_val, fmt.c_str());
@@ -384,7 +402,8 @@ inline bishop::rt::Result<Timestamp> parse(const std::string& str, const std::st
             "Failed to parse time: '" + str + "' with format '" + fmt + "'");
     }
 
-    // Set default values for unspecified fields
+    // The only invalid zero value is tm_mday (day of month), which must be
+    // at least 1. Other fields (hour, minute, second, month) are valid at 0.
     if (tm_val.tm_mday == 0) {
         tm_val.tm_mday = 1;
     }
@@ -393,7 +412,7 @@ inline bishop::rt::Result<Timestamp> parse(const std::string& str, const std::st
 
     if (time_t_val == -1) {
         return std::make_shared<bishop::rt::Error>(
-            "Failed to convert parsed time to timestamp");
+            "Invalid date/time or date/time cannot be represented as a timestamp");
     }
 
     auto tp = std::chrono::system_clock::from_time_t(time_t_val);

@@ -1175,6 +1175,14 @@ print(d.as_days());        // Duration in days
 // Duration arithmetic
 total := time.hours(1) + time.minutes(30);  // 90 minutes
 diff := time.hours(2) - time.minutes(30);   // 90 minutes
+
+// Duration comparison
+if time.hours(1) > time.minutes(30) {
+    print("1 hour is longer than 30 minutes");
+}
+d1 := time.seconds(60);
+d2 := time.minutes(1);
+assert_eq(true, d1 == d2);  // same duration
 ```
 
 #### Timestamp
@@ -1211,6 +1219,12 @@ past := now - time.hours(2);
 // Subtract timestamps to get duration
 elapsed := future - now;
 print(elapsed.as_days());   // 7
+
+// Timestamp comparison
+if now < future {
+    print("now is before future");
+}
+assert_eq(true, now != future);
 ```
 
 #### Formatting and Parsing
