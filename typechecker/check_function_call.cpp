@@ -71,61 +71,11 @@ TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call) 
     if (const TypeInfo* local = lookup_local(state, call.name)) {
         TypeInfo local_type = *local;
 
-        if (local_type.base_type.rfind("fn(", 0) == 0) {
-            // Parse parameter types from function type
-            // Format: fn(type1, type2) -> return_type
-            size_t params_start = 3;  // After "fn("
-            size_t params_end = local_type.base_type.find(')');
+        // Use the shared helper to parse parameter types from the function type
+        auto param_types_opt = parse_function_type_params(local_type.base_type);
 
-            if (params_end == string::npos) {
-                error(state, "invalid function type '" + local_type.base_type + "'", call.line);
-                return {"void", false, true};
-            }
-
-            string params_str = local_type.base_type.substr(params_start, params_end - params_start);
-            vector<string> param_types;
-
-            // Parse comma-separated parameter types
-            if (!params_str.empty()) {
-                size_t pos = 0;
-
-                while (pos < params_str.length()) {
-                    // Skip whitespace
-                    while (pos < params_str.length() && params_str[pos] == ' ') {
-                        pos++;
-                    }
-
-                    size_t comma_pos = params_str.find(',', pos);
-
-                    if (comma_pos == string::npos) {
-                        string type = params_str.substr(pos);
-
-                        // Trim trailing whitespace
-                        while (!type.empty() && type.back() == ' ') {
-                            type.pop_back();
-                        }
-
-                        if (!type.empty()) {
-                            param_types.push_back(type);
-                        }
-
-                        break;
-                    } else {
-                        string type = params_str.substr(pos, comma_pos - pos);
-
-                        // Trim whitespace
-                        while (!type.empty() && type.back() == ' ') {
-                            type.pop_back();
-                        }
-
-                        if (!type.empty()) {
-                            param_types.push_back(type);
-                        }
-
-                        pos = comma_pos + 1;
-                    }
-                }
-            }
+        if (param_types_opt) {
+            vector<string> param_types = *param_types_opt;
 
             // Check argument count
             if (call.args.size() != param_types.size()) {
@@ -143,6 +93,7 @@ TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call) 
             }
 
             // Extract return type (after " -> ")
+            size_t params_end = local_type.base_type.find(')');
             size_t arrow_pos = local_type.base_type.find(" -> ", params_end);
 
             if (arrow_pos != string::npos) {

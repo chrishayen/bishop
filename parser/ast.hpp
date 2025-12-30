@@ -355,7 +355,17 @@ struct LambdaExpr : ASTNode {
     vector<unique_ptr<ASTNode>> body;     ///< Function body statements
 };
 
-/** @brief Immediate invocation of a lambda: fn() { ... }() or expr() */
+/**
+ * @brief Invocation of an expression that returns a function type.
+ *
+ * This node represents calling any expression whose value has a function type:
+ *   - Immediate lambda invocation: fn(int x) -> int { return x * 2; }(21)
+ *   - Calling a variable holding a function reference: doubler(21)
+ *   - Any expression returning a function type
+ *
+ * Despite the name "LambdaCall", this is used for indirect function calls
+ * through expressions, not just lambda literals.
+ */
 struct LambdaCall : ASTNode {
     unique_ptr<ASTNode> callee;           ///< The expression being called (lambda or expression returning function)
     vector<unique_ptr<ASTNode>> args;     ///< Arguments to pass

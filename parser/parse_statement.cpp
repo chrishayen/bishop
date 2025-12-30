@@ -109,6 +109,9 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
             consume(state, TokenType::SEMICOLON);
             return decl;
         }
+
+        // Function type was parsed but no variable name found
+        throw runtime_error("expected variable name after function type '" + fn_type + "' at line " + to_string(start_line));
     }
 
     // List<T> variable declaration: List<int> nums = [1, 2, 3]; or List<Pair<int>> x = ...;

@@ -167,8 +167,8 @@ Anonymous functions can be defined inline using `fn` without a name:
 
 ```bishop
 // Basic anonymous function
-double := fn(int x) -> int { return x * 2; };
-result := double(21);  // 42
+doubler := fn(int x) -> int { return x * 2; };
+result := doubler(21);  // 42
 
 // No parameters
 get_value := fn() -> int { return 42; };

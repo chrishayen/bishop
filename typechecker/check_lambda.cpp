@@ -74,7 +74,7 @@ TypeInfo check_lambda_expr(TypeCheckerState& state, const LambdaExpr& lambda) {
         if (!has_return(lambda.body)) {
             error(state,
                   "lambda with non-void return type '" + lambda.return_type +
-                      "' may not return a value on all paths",
+                      "' must return a value on all paths",
                   lambda.line);
         }
     }
@@ -95,64 +95,15 @@ TypeInfo check_lambda_call(TypeCheckerState& state, const LambdaCall& call) {
     // Get the type of the callee (should be a function type)
     TypeInfo callee_type = infer_type(state, *call.callee);
 
-    // Parse the function type to extract parameter types and return type
-    // Format: fn(type1, type2) -> return_type
-    if (callee_type.base_type.substr(0, 3) != "fn(") {
+    // Use the shared helper to parse parameter types from the function type
+    auto param_types_opt = parse_function_type_params(callee_type.base_type);
+
+    if (!param_types_opt) {
         error(state, "cannot call non-function type '" + callee_type.base_type + "'", call.line);
         return {"void", false, true};
     }
 
-    // Parse parameter types from function type
-    size_t params_start = 3;  // After "fn("
-    size_t params_end = callee_type.base_type.find(')');
-
-    if (params_end == string::npos) {
-        error(state, "invalid function type '" + callee_type.base_type + "'", call.line);
-        return {"void", false, true};
-    }
-
-    string params_str = callee_type.base_type.substr(params_start, params_end - params_start);
-    vector<string> param_types;
-
-    // Parse comma-separated parameter types
-    if (!params_str.empty()) {
-        size_t pos = 0;
-
-        while (pos < params_str.length()) {
-            // Skip whitespace
-            while (pos < params_str.length() && params_str[pos] == ' ') {
-                pos++;
-            }
-
-            size_t comma_pos = params_str.find(',', pos);
-
-            if (comma_pos == string::npos) {
-                string type = params_str.substr(pos);
-                // Trim trailing whitespace
-                while (!type.empty() && type.back() == ' ') {
-                    type.pop_back();
-                }
-
-                if (!type.empty()) {
-                    param_types.push_back(type);
-                }
-
-                break;
-            } else {
-                string type = params_str.substr(pos, comma_pos - pos);
-                // Trim whitespace
-                while (!type.empty() && type.back() == ' ') {
-                    type.pop_back();
-                }
-
-                if (!type.empty()) {
-                    param_types.push_back(type);
-                }
-
-                pos = comma_pos + 1;
-            }
-        }
-    }
+    vector<string> param_types = *param_types_opt;
 
     // Check argument count
     if (call.args.size() != param_types.size()) {
@@ -160,16 +111,18 @@ TypeInfo check_lambda_call(TypeCheckerState& state, const LambdaCall& call) {
         return {"void", false, true};
     }
 
-    // Check argument types
+    // Check argument types using types_compatible for proper nullable/fallible handling
     for (size_t i = 0; i < call.args.size(); i++) {
         TypeInfo arg_type = infer_type(state, *call.args[i]);
+        TypeInfo expected_type{param_types[i], false, false};
 
-        if (arg_type.base_type != param_types[i]) {
-            error(state, "argument " + to_string(i + 1) + " has type '" + arg_type.base_type + "', expected '" + param_types[i] + "'", call.line);
+        if (!types_compatible(expected_type, arg_type)) {
+            error(state, "argument " + to_string(i + 1) + " has type '" + format_type(arg_type) + "', expected '" + param_types[i] + "'", call.line);
         }
     }
 
     // Extract return type (after " -> ")
+    size_t params_end = callee_type.base_type.find(')');
     size_t arrow_pos = callee_type.base_type.find(" -> ", params_end);
 
     if (arrow_pos == string::npos) {

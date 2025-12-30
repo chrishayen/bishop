@@ -156,3 +156,25 @@ fn test_lambda_call_statement_with_args() {
     set_value(42);
     assert_eq(result, 42);
 }
+
+// ============================================
+// Immediate Lambda Invocation
+// ============================================
+
+fn test_immediate_lambda_invocation() {
+    // Immediate lambda invocation without assignment
+    result := fn(int x) -> int { return x * 2; }(21);
+    assert_eq(result, 42);
+}
+
+fn test_immediate_lambda_invocation_no_params() {
+    // Immediate lambda invocation with no parameters
+    result := fn() -> int { return 99; }();
+    assert_eq(result, 99);
+}
+
+fn test_immediate_lambda_invocation_multiple_args() {
+    // Immediate lambda invocation with multiple arguments
+    result := fn(int a, int b) -> int { return a + b; }(10, 32);
+    assert_eq(result, 42);
+}
