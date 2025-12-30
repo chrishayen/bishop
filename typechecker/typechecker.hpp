@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <optional>
 #include "parser/ast.hpp"
 #include "project/module.hpp"
 
@@ -148,6 +149,10 @@ TypeInfo check_negate_expr(TypeCheckerState& state, const NegateExpr& negate_exp
 // Pointer expression type inference (check_binary.cpp)
 TypeInfo check_address_of(TypeCheckerState& state, const AddressOf& addr);
 
+// Lambda expression type inference (check_lambda.cpp)
+TypeInfo check_lambda_expr(TypeCheckerState& state, const LambdaExpr& lambda);
+TypeInfo check_lambda_call(TypeCheckerState& state, const LambdaCall& call);
+
 // Concurrency (check_statement.cpp)
 void check_go_spawn(TypeCheckerState& state, const GoSpawn& spawn);
 
@@ -189,6 +194,7 @@ bool is_primitive_type(const std::string& type);
 bool is_valid_type(const TypeCheckerState& state, const std::string& type);
 std::string extract_element_type(const std::string& generic_type, const std::string& prefix);
 bool types_compatible(const TypeInfo& expected, const TypeInfo& actual);
+std::optional<std::vector<std::string>> parse_function_type_params(const std::string& fn_type);
 std::string format_type(const TypeInfo& type);
 const StructDef* get_struct(const TypeCheckerState& state, const std::string& name);
 const MethodDef* get_method(const TypeCheckerState& state, const std::string& struct_name, const std::string& method_name);

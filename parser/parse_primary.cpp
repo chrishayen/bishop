@@ -51,6 +51,51 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return addr;
     }
 
+    // Handle anonymous function (lambda): fn(params) -> return_type { body }
+    if (check(state, TokenType::FN)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LPAREN);
+
+        auto lambda = make_unique<LambdaExpr>();
+        lambda->line = start_line;
+
+        // Parse parameters: fn(int a, int b) or fn()
+        while (!check(state, TokenType::RPAREN) && !check(state, TokenType::EOF_TOKEN)) {
+            FunctionParam param;
+            param.type = parse_type(state);
+            param.name = consume(state, TokenType::IDENT).value;
+            lambda->params.push_back(param);
+
+            if (check(state, TokenType::COMMA)) {
+                advance(state);
+            }
+        }
+
+        consume(state, TokenType::RPAREN);
+
+        // Parse optional return type: -> int
+        if (check(state, TokenType::ARROW)) {
+            advance(state);
+            lambda->return_type = parse_type(state);
+        }
+
+        // Parse body block
+        consume(state, TokenType::LBRACE);
+
+        while (!check(state, TokenType::RBRACE) && !check(state, TokenType::EOF_TOKEN)) {
+            auto stmt = parse_statement(state);
+
+            if (stmt) {
+                lambda->body.push_back(move(stmt));
+            }
+        }
+
+        consume(state, TokenType::RBRACE);
+        return lambda;
+    }
+
+
     // Parenthesized expression: (expr)
     if (check(state, TokenType::LPAREN)) {
         Token lparen = consume(state, TokenType::LPAREN);

@@ -161,6 +161,61 @@ fn apply_op(int x, int y, fn(int, int) -> int op) -> int {
 result := apply_op(3, 4, add);  // result = 7
 ```
 
+### Anonymous Functions (Lambdas)
+
+Anonymous functions can be defined inline using `fn` without a name:
+
+```bishop
+// Basic anonymous function
+doubler := fn(int x) -> int { return x * 2; };
+result := doubler(21);  // 42
+
+// No parameters
+get_value := fn() -> int { return 42; };
+
+// Void return (no return type)
+action := fn() { print("Hello"); };
+
+// Multiple parameters
+add := fn(int a, int b) -> int { return a + b; };
+```
+
+#### Lambdas as Arguments
+
+Pass lambdas directly to higher-order functions:
+
+```bishop
+fn apply_op(int x, int y, fn(int, int) -> int op) -> int {
+    return op(x, y);
+}
+
+result := apply_op(3, 4, fn(int a, int b) -> int { return a + b; });  // 7
+```
+
+#### Closures
+
+Lambdas capture variables from their enclosing scope:
+
+```bishop
+multiplier := 10;
+scale := fn(int x) -> int { return x * multiplier; };
+result := scale(4);  // 40
+```
+
+#### Lambdas with Goroutines
+
+Use lambdas with `go` for concurrent execution:
+
+```bishop
+ch := Channel<int>();
+
+go fn() {
+    ch.send(42);
+}();
+
+val := ch.recv();  // 42
+```
+
 ## Structs
 
 ### Definition
@@ -1282,6 +1337,123 @@ parts := regex.split(r"[,;]", "a,b;c") or return;
 |----------|-------------|
 | `regex.compile(str) -> regex.Regex or err` | Compile pattern |
 | `regex.split(str, str) -> List<str> or err` | Split text by pattern |
+
+### Math Module
+
+```bishop
+import math;
+```
+
+#### Constants
+
+| Constant | Type | Description |
+|----------|------|-------------|
+| `math.PI` | `f64` | Pi (3.14159265358979...) |
+| `math.E` | `f64` | Euler's number (2.71828182845904...) |
+| `math.INF` | `f64` | Positive infinity |
+| `math.NAN` | `f64` | Not a Number |
+
+#### Basic Operations
+
+```bishop
+// Absolute value
+x := math.abs(-5.5);           // 5.5
+y := math.abs_int(-5);         // 5
+
+// Min/max
+smaller := math.min(3.0, 7.0);         // 3.0
+smaller_int := math.min_int(3, 7);     // 3
+larger := math.max(3.0, 7.0);          // 7.0
+larger_int := math.max_int(3, 7);      // 7
+
+// Clamp (constrain value to range)
+c := math.clamp(15.0, 0.0, 10.0);          // 10.0
+c_int := math.clamp_int(15, 0, 10);        // 10
+```
+
+#### Rounding Functions
+
+```bishop
+f := math.floor(3.7);      // 3.0 (round down)
+c := math.ceil(3.2);       // 4.0 (round up)
+r := math.round(3.5);      // 4.0 (round to nearest)
+t := math.trunc(-3.7);     // -3.0 (round toward zero)
+```
+
+#### Power and Root Functions
+
+```bishop
+p := math.pow(2.0, 10.0);      // 1024.0 (exponentiation)
+s := math.sqrt(16.0);          // 4.0 (square root)
+cb := math.cbrt(27.0);         // 3.0 (cube root)
+e := math.exp(1.0);            // 2.718... (e^x)
+ln := math.log(math.E);        // 1.0 (natural log)
+log10_val := math.log10(100.0); // 2.0 (base-10 log)
+log2_val := math.log2(8.0);    // 3.0 (base-2 log)
+```
+
+#### Trigonometric Functions
+
+```bishop
+// All angles in radians
+s := math.sin(math.PI / 2.0);  // 1.0
+c := math.cos(0.0);            // 1.0
+t := math.tan(math.PI / 4.0);  // 1.0
+
+// Inverse trig functions
+asin_val := math.asin(1.0);           // PI/2
+acos_val := math.acos(1.0);           // 0.0
+atan_val := math.atan(1.0);           // PI/4
+atan2_val := math.atan2(1.0, 1.0);    // PI/4 (y/x with quadrant)
+```
+
+#### Hyperbolic Functions
+
+```bishop
+s := math.sinh(0.0);   // 0.0
+c := math.cosh(0.0);   // 1.0
+t := math.tanh(0.0);   // 0.0
+```
+
+#### Utility Functions
+
+```bishop
+// Check for special values
+if math.is_nan(result) { print("Invalid"); }
+if math.is_inf(result) { print("Infinite"); }
+if math.is_finite(result) { print("Valid number"); }
+
+// Sign of a number (-1, 0, or 1)
+s_neg := math.sign(-5.0);   // -1
+s_zero := math.sign(0.0);   // 0
+s_pos := math.sign(5.0);    // 1
+
+// Greatest common divisor
+g := math.gcd(12, 8);  // 4
+
+// Least common multiple
+l := math.lcm(4, 6);   // 12
+```
+
+#### Example: Circle Calculations
+
+```bishop
+import math;
+
+fn circle_area(f64 radius) -> f64 {
+    return math.PI * radius * radius;
+}
+
+fn circle_circumference(f64 radius) -> f64 {
+    return 2.0 * math.PI * radius;
+}
+
+fn main() {
+    radius := 5.0;
+    print("Area:", circle_area(radius));
+    print("Circumference:", circle_circumference(radius));
+}
+```
 
 ### Random Module
 

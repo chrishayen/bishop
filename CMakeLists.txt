@@ -74,6 +74,7 @@ add_library(bishop_lib
     typechecker/tuples.cpp
     typechecker/check_pair.cpp
     typechecker/check_tuple.cpp
+    typechecker/check_lambda.cpp
     codegen/codegen.cpp
     codegen/emit_type.cpp
     codegen/emit_expression.cpp
@@ -96,6 +97,7 @@ add_library(bishop_lib
     codegen/emit_refs.cpp
     codegen/emit_binary.cpp
     codegen/emit_go_spawn.cpp
+    codegen/emit_lambda.cpp
     codegen/emit_channel.cpp
     codegen/emit_list.cpp
     codegen/emit_string.cpp
@@ -112,6 +114,7 @@ add_library(bishop_lib
     stdlib/net.cpp
     stdlib/process.cpp
     stdlib/regex.cpp
+    stdlib/math.cpp
     stdlib/random.cpp
 )
 target_link_libraries(bishop_lib fmt::fmt tomlplusplus::tomlplusplus)
@@ -154,6 +157,9 @@ add_custom_target(bishop_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/regex/regex.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/regex.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/math/math.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/math.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/random/random.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/random.hpp
