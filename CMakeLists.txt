@@ -117,6 +117,9 @@ add_library(bishop_lib
     stdlib/time.cpp
     stdlib/math.cpp
     stdlib/random.cpp
+    stdlib/log.cpp
+    stdlib/sync.cpp
+    stdlib/json.cpp
 )
 target_link_libraries(bishop_lib fmt::fmt tomlplusplus::tomlplusplus)
 target_include_directories(bishop_lib PUBLIC ${llhttp_SOURCE_DIR}/include)
@@ -167,6 +170,15 @@ add_custom_target(bishop_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/random/random.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/random.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/log/log.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/log.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/sync/sync.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/sync.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/json/json.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/json.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/fiber_asio/round_robin.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/fiber_asio/round_robin.hpp

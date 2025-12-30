@@ -73,6 +73,8 @@ string emit_function_call(CodeGenState& state, const FunctionCall& call) {
             module_name = "bishop_time";
         } else if (module_name == "random") {
             module_name = "bishop_random";
+        } else if (module_name == "sync") {
+            module_name = "bsync";
         }
 
         func_name = module_name + "::" + fn_name;
@@ -89,6 +91,8 @@ string emit_function_call(CodeGenState& state, const FunctionCall& call) {
                 module_name = "bishop_time";
             } else if (module_name == "random") {
                 module_name = "bishop_random";
+            } else if (module_name == "sync") {
+                module_name = "bsync";
             }
 
             func_name = module_name + "::" + fn_name;
