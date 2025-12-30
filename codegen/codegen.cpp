@@ -64,6 +64,9 @@
 #include "stdlib/time.hpp"
 #include "stdlib/math.hpp"
 #include "stdlib/random.hpp"
+#include "stdlib/sync.hpp"
+#include "stdlib/json.hpp"
+#include "stdlib/log.hpp"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
@@ -158,6 +161,27 @@ static bool has_random_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the log module.
+ */
+static bool has_log_import(const map<string, const Module*>& imports) {
+    return imports.find("log") != imports.end();
+}
+
+/**
+ * Checks if the program imports the sync module.
+ */
+static bool has_sync_import(const map<string, const Module*>& imports) {
+    return imports.find("sync") != imports.end();
+}
+
+/**
+ * Checks if the program imports the json module.
+ */
+static bool has_json_import(const map<string, const Module*>& imports) {
+    return imports.find("json") != imports.end();
+}
+
+/**
  * Checks if the program uses channels (requires boost fiber).
  */
 static bool uses_channels(const Program& program) {
@@ -210,6 +234,18 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
 
     if (name == "random") {
         return nog::stdlib::generate_random_runtime();
+    }
+
+    if (name == "sync") {
+        return nog::stdlib::generate_sync_runtime();
+    }
+
+    if (name == "json") {
+        return nog::stdlib::generate_json_runtime();
+    }
+
+    if (name == "log") {
+        return nog::stdlib::generate_log_runtime();
     }
 
     string out = "namespace " + name + " {\n\n";
@@ -346,6 +382,18 @@ string generate_with_imports(
 
     if (has_random_import(imports)) {
         out += "#include <bishop/random.hpp>\n";
+    }
+
+    if (has_log_import(imports)) {
+        out += "#include <bishop/log.hpp>\n";
+    }
+
+    if (has_sync_import(imports)) {
+        out += "#include <bishop/sync.hpp>\n";
+    }
+
+    if (has_json_import(imports)) {
+        out += "#include <bishop/json.hpp>\n";
     }
 
     if (uses_channels(*program)) {

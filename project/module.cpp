@@ -18,6 +18,9 @@
 #include "stdlib/time.hpp"
 #include "stdlib/math.hpp"
 #include "stdlib/random.hpp"
+#include "stdlib/log.hpp"
+#include "stdlib/sync.hpp"
+#include "stdlib/json.hpp"
 #include <fstream>
 #include <sstream>
 
@@ -190,6 +193,12 @@ unique_ptr<Module> ModuleManager::create_builtin_module(const string& name) {
         mod->ast = nog::stdlib::create_math_module();
     } else if (name == "random") {
         mod->ast = nog::stdlib::create_random_module();
+    } else if (name == "log") {
+        mod->ast = nog::stdlib::create_log_module();
+    } else if (name == "sync") {
+        mod->ast = nog::stdlib::create_sync_module();
+    } else if (name == "json") {
+        mod->ast = nog::stdlib::create_json_module();
     } else {
         return nullptr;
     }
