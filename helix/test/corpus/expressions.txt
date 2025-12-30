@@ -1,0 +1,150 @@
+================================================================================
+Variable declaration with type inference
+================================================================================
+
+fn test() {
+    x := 42;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (variable_declaration
+        name: (identifier)
+        value: (integer_literal)))))
+
+================================================================================
+Variable declaration with explicit type
+================================================================================
+
+fn test() {
+    int x = 42;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (typed_variable_declaration
+        type: (primitive_type)
+        name: (identifier)
+        value: (integer_literal)))))
+
+================================================================================
+List literal
+================================================================================
+
+fn test() {
+    nums := [1, 2, 3];
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (variable_declaration
+        name: (identifier)
+        value: (list_literal
+          (integer_literal)
+          (integer_literal)
+          (integer_literal))))))
+
+================================================================================
+Struct instantiation
+================================================================================
+
+fn test() {
+    p := Person { name: "Alice", age: 30 };
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (variable_declaration
+        name: (identifier)
+        value: (struct_instantiation
+          type: (identifier)
+          (field_initializer
+            name: (identifier)
+            value: (string_literal))
+          (field_initializer
+            name: (identifier)
+            value: (integer_literal)))))))
+
+================================================================================
+Generic type instantiation
+================================================================================
+
+fn test() {
+    ch := Channel<int>();
+    nums := List<str>();
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (variable_declaration
+        name: (identifier)
+        value: (call_expression
+          function: (generic_type
+            type: (identifier)
+            (primitive_type))
+          arguments: (argument_list)))
+      (variable_declaration
+        name: (identifier)
+        value: (call_expression
+          function: (generic_type
+            type: (identifier)
+            (primitive_type))
+          arguments: (argument_list))))))
+
+================================================================================
+Lambda expression
+================================================================================
+
+fn test() {
+    add := fn(int a, int b) -> int { return a + b; };
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (variable_declaration
+        name: (identifier)
+        value: (lambda_expression
+          parameters: (parameter_list
+            (parameter
+              type: (primitive_type)
+              name: (identifier))
+            (parameter
+              type: (primitive_type)
+              name: (identifier)))
+          return_type: (return_type
+            (primitive_type))
+          body: (block
+            (return_statement
+              value: (binary_expression
+                (identifier)
+                (identifier)))))))))

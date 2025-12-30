@@ -1,0 +1,108 @@
+================================================================================
+Function definition
+================================================================================
+
+fn add(int a, int b) -> int {
+    return a + b;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list
+      (parameter
+        type: (primitive_type)
+        name: (identifier))
+      (parameter
+        type: (primitive_type)
+        name: (identifier)))
+    return_type: (return_type
+      (primitive_type))
+    body: (block
+      (return_statement
+        value: (binary_expression
+          (identifier)
+          (identifier))))))
+
+================================================================================
+Struct definition
+================================================================================
+
+Person :: struct {
+    name str,
+    age int
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (struct_definition
+    name: (identifier)
+    body: (struct_body
+      (struct_field
+        name: (identifier)
+        type: (primitive_type))
+      (struct_field
+        name: (identifier)
+        type: (primitive_type)))))
+
+================================================================================
+Method definition
+================================================================================
+
+Person :: greet(self, str message) -> str {
+    return message;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (method_definition
+    struct_name: (identifier)
+    method_name: (identifier)
+    parameters: (parameter_list
+      (self)
+      (parameter
+        type: (primitive_type)
+        name: (identifier)))
+    return_type: (return_type
+      (primitive_type))
+    body: (block
+      (return_statement
+        value: (identifier)))))
+
+================================================================================
+Error definition
+================================================================================
+
+NetworkError :: err {
+    code int,
+    message str
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (error_definition
+    name: (identifier)
+    body: (error_body
+      (struct_field
+        name: (identifier)
+        type: (primitive_type))
+      (struct_field
+        name: (identifier)
+        type: (primitive_type)))))
+
+================================================================================
+Simple error definition
+================================================================================
+
+SimpleError :: err;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (error_definition
+    name: (identifier)))

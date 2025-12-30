@@ -1,0 +1,35 @@
+# Helix Editor Language Configuration for Bishop
+#
+# Installation:
+# 1. Copy this file's contents to your Helix languages.toml:
+#    - Linux: ~/.config/helix/languages.toml
+#    - macOS: ~/Library/Application Support/Helix/languages.toml
+#    - Windows: %AppData%\helix\languages.toml
+#
+# 2. Copy the queries directory to Helix runtime:
+#    - Linux: ~/.config/helix/runtime/queries/bishop/
+#    - Or system-wide: /usr/share/helix/runtime/queries/bishop/
+#
+# 3. Build and install the tree-sitter grammar (see INSTALL.md)
+
+[[language]]
+name = "bishop"
+scope = "source.bishop"
+file-types = ["b"]
+comment-token = "//"
+block-comment-tokens = { start = "/*", end = "*/" }
+indent = { tab-width = 4, unit = "    " }
+roots = ["bishop.toml"]
+
+# Language server configuration (if bishop-lsp exists)
+# language-servers = ["bishop-lsp"]
+
+# Auto-pairs for brackets
+auto-pairs = true
+
+[[grammar]]
+name = "bishop"
+source = { git = "https://github.com/chrishayen/tree-sitter-bishop", rev = "main" }
+
+# Uncomment below for local development:
+# source = { path = "/path/to/tree-sitter-bishop" }
