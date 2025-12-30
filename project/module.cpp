@@ -14,6 +14,7 @@
 #include "stdlib/crypto.hpp"
 #include "stdlib/net.hpp"
 #include "stdlib/process.hpp"
+#include "stdlib/math.hpp"
 #include "stdlib/random.hpp"
 #include <fstream>
 #include <sstream>
@@ -179,6 +180,8 @@ unique_ptr<Module> ModuleManager::create_builtin_module(const string& name) {
         mod->ast = nog::stdlib::create_net_module();
     } else if (name == "process") {
         mod->ast = nog::stdlib::create_process_module();
+    } else if (name == "math") {
+        mod->ast = nog::stdlib::create_math_module();
     } else if (name == "random") {
         mod->ast = nog::stdlib::create_random_module();
     } else {

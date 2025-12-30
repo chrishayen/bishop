@@ -111,6 +111,7 @@ add_library(bishop_lib
     stdlib/crypto.cpp
     stdlib/net.cpp
     stdlib/process.cpp
+    stdlib/math.cpp
     stdlib/random.cpp
 )
 target_link_libraries(bishop_lib fmt::fmt tomlplusplus::tomlplusplus)
@@ -150,6 +151,9 @@ add_custom_target(bishop_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/process/process.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/process.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/math/math.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/math.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/random/random.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/random.hpp
