@@ -7,6 +7,7 @@
  */
 
 #include "typechecker.hpp"
+#include "common/type_utils.hpp"
 
 using namespace std;
 
@@ -200,6 +201,14 @@ bool is_primitive_type(const string& type) {
 }
 
 /**
+ * Extracts the element type from a generic type string using proper bracket matching.
+ * Delegates to the shared implementation in common/type_utils.hpp.
+ */
+string extract_element_type(const string& generic_type, const string& prefix) {
+    return bishop::extract_element_type(generic_type, prefix);
+}
+
+/**
  * Checks if a type is valid (either a primitive, a known struct, channel,
  * function type, or a qualified module type).
  */
@@ -217,30 +226,42 @@ bool is_valid_type(const TypeCheckerState& state, const string& type) {
     }
 
     if (type.rfind("Channel<", 0) == 0 && type.back() == '>') {
-        size_t start = 8;
-        size_t end = type.find('>', start);
-        string element_type = type.substr(start, end - start);
+        string element_type = extract_element_type(type, "Channel<");
+
+        if (element_type.empty()) {
+            return false;
+        }
+
         return is_valid_type(state, element_type);
     }
 
     if (type.rfind("List<", 0) == 0 && type.back() == '>') {
-        size_t start = 5;
-        size_t end = type.find('>', start);
-        string element_type = type.substr(start, end - start);
+        string element_type = extract_element_type(type, "List<");
+
+        if (element_type.empty()) {
+            return false;
+        }
+
         return is_valid_type(state, element_type);
     }
 
     if (type.rfind("Pair<", 0) == 0 && type.back() == '>') {
-        size_t start = 5;
-        size_t end = type.find('>', start);
-        string element_type = type.substr(start, end - start);
+        string element_type = extract_element_type(type, "Pair<");
+
+        if (element_type.empty()) {
+            return false;
+        }
+
         return is_valid_type(state, element_type);
     }
 
     if (type.rfind("Tuple<", 0) == 0 && type.back() == '>') {
-        size_t start = 6;
-        size_t end = type.find('>', start);
-        string element_type = type.substr(start, end - start);
+        string element_type = extract_element_type(type, "Tuple<");
+
+        if (element_type.empty()) {
+            return false;
+        }
+
         return is_valid_type(state, element_type);
     }
 
