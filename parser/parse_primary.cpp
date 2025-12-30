@@ -290,26 +290,8 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
             if (check(state, TokenType::IDENT)) {
                 item_name = current(state).value;
                 advance(state);
-            } else if (check(state, TokenType::TYPE_INT)) {
-                item_name = "int";
-                advance(state);
-            } else if (check(state, TokenType::TYPE_STR)) {
-                item_name = "str";
-                advance(state);
-            } else if (check(state, TokenType::TYPE_BOOL)) {
-                item_name = "bool";
-                advance(state);
-            } else if (check(state, TokenType::TYPE_F32)) {
-                item_name = "f32";
-                advance(state);
-            } else if (check(state, TokenType::TYPE_F64)) {
-                item_name = "f64";
-                advance(state);
-            } else if (check(state, TokenType::TYPE_U32)) {
-                item_name = "u32";
-                advance(state);
-            } else if (check(state, TokenType::TYPE_U64)) {
-                item_name = "u64";
+            } else if (is_type_keyword_token(state)) {
+                item_name = get_type_keyword_name(state);
                 advance(state);
             } else {
                 Token err_tok = current(state);

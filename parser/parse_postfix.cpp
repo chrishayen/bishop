@@ -15,15 +15,7 @@ namespace parser {
  * to support module functions like random.int() or random.float().
  */
 static bool is_member_name_token(const ParserState& state) {
-    TokenType t = current(state).type;
-    return t == TokenType::IDENT ||
-           t == TokenType::TYPE_INT ||
-           t == TokenType::TYPE_STR ||
-           t == TokenType::TYPE_BOOL ||
-           t == TokenType::TYPE_F32 ||
-           t == TokenType::TYPE_F64 ||
-           t == TokenType::TYPE_U32 ||
-           t == TokenType::TYPE_U64;
+    return check(state, TokenType::IDENT) || is_type_keyword_token(state);
 }
 
 /**

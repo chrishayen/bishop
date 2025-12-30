@@ -21,19 +21,25 @@ namespace bishop_random {
 /**
  * Global random engine instance.
  * Uses Mersenne Twister for high-quality randomness.
+ * Uses thread_local storage to be safe when called from multiple threads/goroutines.
  */
 inline std::mt19937& engine() {
-    static std::mt19937 gen(std::random_device{}());
+    static thread_local std::mt19937 gen(std::random_device{}());
     return gen;
 }
 
 /**
  * Generates a random integer in the inclusive range [min, max].
+ * If min > max, the values are swapped to ensure valid distribution.
  * @param min Minimum value (inclusive)
  * @param max Maximum value (inclusive)
  * @return Random integer in the specified range
  */
 inline int int_(int min, int max) {
+    if (min > max) {
+        std::swap(min, max);
+    }
+
     std::uniform_int_distribution<int> dist(min, max);
     return dist(engine());
 }
@@ -49,11 +55,16 @@ inline double float_() {
 
 /**
  * Generates a random floating-point number in [min, max).
+ * If min > max, the values are swapped to ensure valid distribution.
  * @param min Minimum value (inclusive)
  * @param max Maximum value (exclusive)
  * @return Random float in the specified range
  */
 inline double float_range(double min, double max) {
+    if (min > max) {
+        std::swap(min, max);
+    }
+
     std::uniform_real_distribution<double> dist(min, max);
     return dist(engine());
 }
@@ -95,7 +106,7 @@ inline bishop::rt::Result<std::string> choice(const std::vector<std::string>& li
         return bishop::rt::make_error<std::string>("cannot choose from empty list");
     }
 
-    std::uniform_int_distribution<size_t> dist(0, list.size() - 1);
+    std::uniform_int_distribution<unsigned long> dist(0, list.size() - 1);
     return list[dist(engine())];
 }
 
@@ -109,7 +120,7 @@ inline bishop::rt::Result<int> choice_int(const std::vector<int>& list) {
         return bishop::rt::make_error<int>("cannot choose from empty list");
     }
 
-    std::uniform_int_distribution<size_t> dist(0, list.size() - 1);
+    std::uniform_int_distribution<unsigned long> dist(0, list.size() - 1);
     return list[dist(engine())];
 }
 
@@ -131,6 +142,7 @@ inline void shuffle_int(std::vector<int>& list) {
 
 /**
  * Samples n random unique elements from a string list.
+ * Uses reservoir sampling for efficiency when count is much smaller than list size.
  * @param list The list to sample from
  * @param count Number of elements to sample
  * @return A new list with the sampled elements
@@ -143,17 +155,33 @@ inline std::vector<std::string> sample(
         return {};
     }
 
-    size_t n = std::min(static_cast<size_t>(count), list.size());
+    std::size_t n = std::min(static_cast<std::size_t>(count), list.size());
 
-    // Copy and shuffle to get random sample
-    std::vector<std::string> result = list;
-    std::shuffle(result.begin(), result.end(), engine());
-    result.resize(n);
+    // Use reservoir sampling to avoid copying and shuffling the entire list
+    std::vector<std::string> result;
+    result.reserve(n);
+
+    // Fill reservoir with first n elements
+    for (std::size_t i = 0; i < n; ++i) {
+        result.push_back(list[i]);
+    }
+
+    // Replace elements in reservoir with decreasing probability
+    for (std::size_t i = n; i < list.size(); ++i) {
+        std::uniform_int_distribution<unsigned long> dist(0, i);
+        std::size_t j = dist(engine());
+
+        if (j < n) {
+            result[j] = list[i];
+        }
+    }
+
     return result;
 }
 
 /**
  * Samples n random unique elements from an integer list.
+ * Uses reservoir sampling for efficiency when count is much smaller than list size.
  * @param list The list to sample from
  * @param count Number of elements to sample
  * @return A new list with the sampled elements
@@ -163,21 +191,38 @@ inline std::vector<int> sample_int(const std::vector<int>& list, int count) {
         return {};
     }
 
-    size_t n = std::min(static_cast<size_t>(count), list.size());
+    std::size_t n = std::min(static_cast<std::size_t>(count), list.size());
 
-    // Copy and shuffle to get random sample
-    std::vector<int> result = list;
-    std::shuffle(result.begin(), result.end(), engine());
-    result.resize(n);
+    // Use reservoir sampling to avoid copying and shuffling the entire list
+    std::vector<int> result;
+    result.reserve(n);
+
+    // Fill reservoir with first n elements
+    for (std::size_t i = 0; i < n; ++i) {
+        result.push_back(list[i]);
+    }
+
+    // Replace elements in reservoir with decreasing probability
+    for (std::size_t i = n; i < list.size(); ++i) {
+        std::uniform_int_distribution<unsigned long> dist(0, i);
+        std::size_t j = dist(engine());
+
+        if (j < n) {
+            result[j] = list[i];
+        }
+    }
+
     return result;
 }
 
 /**
  * Seeds the random number generator for deterministic sequences.
- * @param n The seed value
+ * @param n The seed value (unsigned). Negative values are converted to unsigned
+ *          using two's complement representation, which produces consistent but
+ *          potentially unintuitive results.
  */
-inline void seed(int n) {
-    engine().seed(static_cast<unsigned int>(n));
+inline void seed(unsigned int n) {
+    engine().seed(n);
 }
 
 }  // namespace bishop_random

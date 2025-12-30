@@ -44,6 +44,18 @@ fn test_int_crossing_zero() {
     }
 }
 
+fn test_int_min_greater_than_max() {
+    // When min > max, values should be swapped
+    i := 0;
+
+    while i < 100 {
+        val := random.int(10, 5);
+        assert_eq(true, val >= 5);
+        assert_eq(true, val <= 10);
+        i = i + 1;
+    }
+}
+
 // ============================================================
 // Tests for random.float
 // ============================================================
@@ -77,6 +89,18 @@ fn test_float_negative_range() {
         val := random.float_range(-100.0, -50.0);
         assert_eq(true, val >= -100.0);
         assert_eq(true, val < -50.0);
+        i = i + 1;
+    }
+}
+
+fn test_float_range_min_greater_than_max() {
+    // When min > max, values should be swapped
+    i := 0;
+
+    while i < 100 {
+        val := random.float_range(40.0, -10.0);
+        assert_eq(true, val >= -10.0);
+        assert_eq(true, val < 40.0);
         i = i + 1;
     }
 }
@@ -249,6 +273,33 @@ fn test_sample_returns_unique_elements() {
         assert_eq(true, items.contains(sampled.get(i)));
         i = i + 1;
     }
+
+    // Verify uniqueness: count occurrences of each element
+    // With 3 samples from 5 elements, no element should appear more than once
+    unique_count := 0;
+    j := 0;
+
+    while j < sampled.length() {
+        is_unique := true;
+        k := 0;
+
+        while k < j {
+            if sampled.get(k) == sampled.get(j) {
+                is_unique = false;
+            }
+
+            k = k + 1;
+        }
+
+        if is_unique {
+            unique_count = unique_count + 1;
+        }
+
+        j = j + 1;
+    }
+
+    // All 3 sampled elements should be unique
+    assert_eq(3, unique_count);
 }
 
 fn test_sample_full_list() {
@@ -315,14 +366,39 @@ fn test_seed_produces_deterministic_sequence() {
 }
 
 fn test_different_seeds_different_sequences() {
+    // Different seeds should produce different sequences of values.
+    // We compare multiple sequential values from each seed to ensure
+    // that the sequences diverge at some position.
     random.seed(1);
-    val1 := random.int(1, 1000000);
+    seq1 := List<int>();
+    i := 0;
+
+    while i < 10 {
+        seq1.append(random.int(1, 1000000));
+        i = i + 1;
+    }
 
     random.seed(2);
-    val2 := random.int(1, 1000000);
+    seq2 := List<int>();
+    i = 0;
 
-    // Very unlikely to be the same with different seeds
-    assert_eq(true, val1 != val2);
+    while i < 10 {
+        seq2.append(random.int(1, 1000000));
+        i = i + 1;
+    }
+
+    different := false;
+    i = 0;
+
+    while i < 10 {
+        if seq1.get(i) != seq2.get(i) {
+            different = true;
+        }
+
+        i = i + 1;
+    }
+
+    assert_eq(true, different);
 }
 
 fn test_seed_affects_float() {

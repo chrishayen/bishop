@@ -24,7 +24,11 @@ static const unordered_set<string> CPP_RESERVED_KEYWORDS = {
     "if", "else", "switch", "case", "default", "while", "do", "for",
     "break", "continue", "return", "goto", "try", "catch", "throw",
     "true", "false", "nullptr", "auto", "register", "inline", "virtual",
-    "explicit", "friend", "mutable", "public", "private", "protected"
+    "explicit", "friend", "mutable", "public", "private", "protected",
+    "sizeof", "typedef", "export", "asm", "alignas", "alignof",
+    "decltype", "noexcept", "static_assert", "thread_local", "constexpr",
+    "consteval", "constinit", "concept", "requires",
+    "co_await", "co_return", "co_yield"
 };
 
 /**
