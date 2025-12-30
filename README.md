@@ -1319,6 +1319,157 @@ fn main() {
 }
 ```
 
+### Time Module
+
+```bishop
+import time;
+```
+
+#### Duration
+
+Duration represents a time span. Create durations using module functions:
+
+```bishop
+// Duration construction
+d := time.millis(5000);    // 5000 milliseconds
+d := time.seconds(90);     // 90 seconds
+d := time.minutes(5);      // 5 minutes
+d := time.hours(2);        // 2 hours
+d := time.days(1);         // 1 day
+
+// Conversion methods
+print(d.as_millis());      // Duration in milliseconds
+print(d.as_seconds());     // Duration in seconds
+print(d.as_minutes());     // Duration in minutes
+print(d.as_hours());       // Duration in hours
+print(d.as_days());        // Duration in days
+
+// Duration arithmetic
+total := time.hours(1) + time.minutes(30);  // 90 minutes
+diff := time.hours(2) - time.minutes(30);   // 90 minutes
+
+// Duration comparison
+if time.hours(1) > time.minutes(30) {
+    print("1 hour is longer than 30 minutes");
+}
+d1 := time.seconds(60);
+d2 := time.minutes(1);
+assert_eq(true, d1 == d2);  // same duration
+```
+
+#### Timestamp
+
+Timestamp represents a point in time with broken-down components:
+
+```bishop
+// Current time
+now := time.now();          // Local time
+utc := time.now_utc();      // UTC time
+
+// Access components
+print(now.year);            // e.g., 2024
+print(now.month);           // 1-12
+print(now.day);             // 1-31
+print(now.hour);            // 0-23
+print(now.minute);          // 0-59
+print(now.second);          // 0-59
+print(now.millisecond);     // 0-999
+print(now.weekday);         // 0=Sunday, 6=Saturday
+
+// Unix timestamps
+print(now.unix());          // Seconds since epoch
+print(now.unix_millis());   // Milliseconds since epoch
+```
+
+#### Timestamp Arithmetic
+
+```bishop
+// Add duration to timestamp
+future := now + time.days(7);
+past := now - time.hours(2);
+
+// Subtract timestamps to get duration
+elapsed := future - now;
+print(elapsed.as_days());   // 7
+
+// Timestamp comparison
+if now < future {
+    print("now is before future");
+}
+assert_eq(true, now != future);
+```
+
+#### Formatting and Parsing
+
+```bishop
+// Format timestamp (strftime specifiers)
+formatted := now.format("%Y-%m-%d %H:%M:%S");
+print(formatted);  // "2024-01-15 14:30:00"
+
+// Parse timestamp
+ts := time.parse("2024-01-15", "%Y-%m-%d") or fail err;
+ts := time.parse("2024-01-15 14:30:00", "%Y-%m-%d %H:%M:%S") or fail err;
+```
+
+#### Measuring Elapsed Time
+
+```bishop
+// Measure execution time
+start := time.now();
+// ... work ...
+elapsed := time.since(start);
+print(elapsed.as_millis());
+
+// Alternative using subtraction
+elapsed := time.now() - start;
+print(elapsed.as_millis());
+```
+
+#### time.Duration Methods
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `as_millis()` | `int` | Duration in milliseconds |
+| `as_seconds()` | `int` | Duration in seconds |
+| `as_minutes()` | `int` | Duration in minutes |
+| `as_hours()` | `int` | Duration in hours |
+| `as_days()` | `int` | Duration in days |
+
+#### time.Timestamp Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `year` | `int` | Year (e.g., 2024) |
+| `month` | `int` | Month (1-12) |
+| `day` | `int` | Day of month (1-31) |
+| `hour` | `int` | Hour (0-23) |
+| `minute` | `int` | Minute (0-59) |
+| `second` | `int` | Second (0-59) |
+| `millisecond` | `int` | Millisecond (0-999) |
+| `weekday` | `int` | Day of week (0=Sunday, 6=Saturday) |
+
+#### time.Timestamp Methods
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `unix()` | `int` | Unix timestamp in seconds |
+| `unix_millis()` | `int` | Unix timestamp in milliseconds |
+| `format(str fmt)` | `str` | Format using strftime specifiers |
+
+#### Module Functions
+
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `time.millis(int)` | `Duration` | Create duration from milliseconds |
+| `time.seconds(int)` | `Duration` | Create duration from seconds |
+| `time.minutes(int)` | `Duration` | Create duration from minutes |
+| `time.hours(int)` | `Duration` | Create duration from hours |
+| `time.days(int)` | `Duration` | Create duration from days |
+| `time.now()` | `Timestamp` | Current local time |
+| `time.now_utc()` | `Timestamp` | Current UTC time |
+| `time.since(Timestamp)` | `Duration` | Elapsed time since timestamp |
+| `time.parse(str, str)` | `Timestamp or err` | Parse timestamp from string |
+
 ### Random Module
 
 ```bishop
