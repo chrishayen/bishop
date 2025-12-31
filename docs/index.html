@@ -461,7 +461,8 @@
             cursor: pointer;
         }
 
-        .search-result-item:hover {
+        .search-result-item:hover,
+        .search-result-item.selected {
             background-color: var(--accent-glow);
         }
 
@@ -1750,6 +1751,8 @@ x := <span class="token-function">sin</span>(PI / <span class="token-number">2.0
         // Search functionality
         const searchInput = document.getElementById('search-input');
         const searchResults = document.getElementById('search-results');
+        let selectedIndex = -1;
+        let currentMatches = [];
 
         // Build search index
         const sections = document.querySelectorAll('section');
@@ -1782,21 +1785,30 @@ x := <span class="token-function">sin</span>(PI / <span class="token-number">2.0
             });
         });
 
+        function updateSelection() {
+            const items = searchResults.querySelectorAll('.search-result-item');
+            items.forEach((item, i) => {
+                item.classList.toggle('selected', i === selectedIndex);
+            });
+        }
+
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
+            selectedIndex = -1;
 
             if (query.length < 2) {
                 searchResults.classList.remove('active');
+                currentMatches = [];
                 return;
             }
 
-            const matches = searchIndex.filter(item =>
+            currentMatches = searchIndex.filter(item =>
                 item.title.toLowerCase().includes(query) ||
                 item.content.includes(query)
             ).slice(0, 10);
 
-            if (matches.length > 0) {
-                searchResults.innerHTML = matches.map(item => `
+            if (currentMatches.length > 0) {
+                searchResults.innerHTML = currentMatches.map(item => `
                     <div class="search-result-item" onclick="goToResult('${item.id}')">
                         <div class="search-result-title">${item.title}</div>
                         ${item.section ? `<div class="search-result-section">${item.section}</div>` : ''}
@@ -1809,12 +1821,32 @@ x := <span class="token-function">sin</span>(PI / <span class="token-number">2.0
             }
         });
 
+        searchInput.addEventListener('keydown', (e) => {
+            if (!searchResults.classList.contains('active') || currentMatches.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, currentMatches.length - 1);
+                updateSelection();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, 0);
+                updateSelection();
+            } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                e.preventDefault();
+                goToResult(currentMatches[selectedIndex].id);
+            }
+        });
+
         function goToResult(id) {
             const section = document.getElementById(id);
             if (section) {
                 section.scrollIntoView({ behavior: 'smooth' });
                 searchResults.classList.remove('active');
                 searchInput.value = '';
+                searchInput.blur();
+                selectedIndex = -1;
+                currentMatches = [];
             }
         }
 
@@ -1822,6 +1854,7 @@ x := <span class="token-function">sin</span>(PI / <span class="token-number">2.0
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.search-container')) {
                 searchResults.classList.remove('active');
+                selectedIndex = -1;
             }
         });
 
