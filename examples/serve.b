@@ -1,5 +1,5 @@
 // Static File Server
-// Run with: nog run examples/serve.n
+// Run with: bishop run examples/serve.b
 // Then open http://localhost:8080 in your browser
 // Serves files from the current directory
 

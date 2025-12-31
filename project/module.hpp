@@ -1,6 +1,6 @@
 /**
  * @file module.hpp
- * @brief Module loading and management for multi-file nog programs.
+ * @brief Module loading and management for multi-file bishop programs.
  *
  * Handles loading modules from disk, caching parsed ASTs, detecting
  * circular imports, and merging symbol tables across modules.
