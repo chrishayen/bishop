@@ -68,10 +68,11 @@
         }
 
         .logo {
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 500;
             color: #ffffff;
             white-space: nowrap;
+            letter-spacing: -0.01em;
         }
 
         .search-container {
@@ -136,11 +137,11 @@
 
         .nav-section-title {
             padding: 8px 20px;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: var(--text-muted);
+            color: #82aaff;
         }
 
         .nav-link {
@@ -172,7 +173,7 @@
         main {
             margin-left: var(--sidebar-width);
             margin-top: var(--header-height);
-            padding: 40px 60px;
+            padding: 16px 60px 40px;
             max-width: 900px;
         }
 
@@ -317,6 +318,7 @@
         .token-punctuation { color: #9b9ba4; }
         .token-decorator { color: #ffcb6b; }
         .token-builtin { color: #82aaff; }
+        .token-command { color: #c792ea; }
 
         /* Tables */
         table {
@@ -673,7 +675,7 @@
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                 </div>
                 <pre><code><span class="token-comment"># Download from https://github.com/chrishayen/bishop/releases</span>
-sudo dpkg -i bishop-linux-x64-v0.14.0.deb</code></pre>
+<span class="token-command">sudo</span> <span class="token-command">dpkg</span> -i bishop-linux-x64-v0.14.0.deb</code></pre>
             </div>
             <h4>Manual Installation</h4>
             <div class="code-block">
@@ -683,14 +685,14 @@ sudo dpkg -i bishop-linux-x64-v0.14.0.deb</code></pre>
                 </div>
                 <pre><code><span class="token-comment"># Download bishop-linux-x64-v0.14.0.tar.gz from</span>
 <span class="token-comment"># https://github.com/chrishayen/bishop/releases</span>
-tar -xzf bishop-linux-x64-v0.14.0.tar.gz
-cd bishop-linux-x64-v0.14.0
+<span class="token-command">tar</span> -xzf bishop-linux-x64-v0.14.0.tar.gz
+<span class="token-command">cd</span> bishop-linux-x64-v0.14.0
 
 <span class="token-comment"># Install binary, libraries, and includes</span>
-sudo mv bin/bishop /usr/local/bin/
-sudo cp -r lib/* /usr/local/lib/
-sudo cp -r include/* /usr/local/include/
-sudo ldconfig</code></pre>
+<span class="token-command">sudo</span> <span class="token-command">mv</span> bin/bishop /usr/local/bin/
+<span class="token-command">sudo</span> <span class="token-command">cp</span> -r lib/* /usr/local/lib/
+<span class="token-command">sudo</span> <span class="token-command">cp</span> -r include/* /usr/local/include/
+<span class="token-command">sudo</span> <span class="token-command">ldconfig</span></code></pre>
             </div>
             <h3>Usage</h3>
             <div class="code-block">
@@ -699,10 +701,10 @@ sudo ldconfig</code></pre>
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                 </div>
                 <pre><code><span class="token-comment"># Run a Bishop program</span>
-bishop run examples/serve.b
+<span class="token-command">bishop</span> run examples/serve.b
 
 <span class="token-comment"># Run tests</span>
-bishop test tests/</code></pre>
+<span class="token-command">bishop</span> test tests/</code></pre>
             </div>
             <p>Bishop source files use the <code>.b</code> extension.</p>
         </section>
