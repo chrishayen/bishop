@@ -98,6 +98,8 @@ module.exports = grammar({
 
     visibility: $ => seq('@', 'private'),
 
+    static_modifier: $ => seq('@', 'static'),
+
     return_type: $ => seq(
       '->',
       choice($.type_expr, $.qualified_type),
@@ -156,6 +158,7 @@ module.exports = grammar({
     // ============================================
 
     method_definition: $ => seq(
+      optional($.static_modifier),
       optional($.visibility),
       field('struct_name', $._type_name),
       '::',

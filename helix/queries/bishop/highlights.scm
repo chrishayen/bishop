@@ -35,13 +35,14 @@
   "extern"
 ] @keyword.storage
 
-; Visibility
-"@" @punctuation.special
-"private" @keyword.storage.modifier
+; Visibility and decorators
+(visibility) @attribute
+(static_modifier) @attribute
 
 ; Error handling keywords
+"err" @type.builtin
+
 [
-  "err"
   "fail"
   "or"
 ] @keyword.control.exception
