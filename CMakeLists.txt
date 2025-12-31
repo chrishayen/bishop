@@ -25,6 +25,18 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(llhttp)
 
+# Fetch yaml-cpp for YAML parsing
+set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
+FetchContent_Declare(
+    yaml-cpp
+    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+    GIT_TAG master
+)
+FetchContent_MakeAvailable(yaml-cpp)
+
 # Bishop compiler library
 add_library(bishop_lib
     lexer/lexer.cpp
@@ -199,9 +211,12 @@ add_custom_target(bishop_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E copy
         ${llhttp_SOURCE_DIR}/include/llhttp.h
         ${CMAKE_BINARY_DIR}/include/llhttp.h
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${yaml-cpp_SOURCE_DIR}/include/yaml-cpp
+        ${CMAKE_BINARY_DIR}/include/yaml-cpp
     COMMENT "Copying runtime headers"
 )
-add_dependencies(bishop_runtime_headers llhttp_static)
+add_dependencies(bishop_runtime_headers llhttp_static yaml-cpp)
 
 # Copy llhttp library after it's built
 add_custom_command(TARGET bishop_runtime_headers POST_BUILD
@@ -221,8 +236,9 @@ target_compile_definitions(bishop_std_runtime PRIVATE BOOST_ASIO_SEPARATE_COMPIL
 target_include_directories(bishop_std_runtime PRIVATE
     ${Boost_INCLUDE_DIRS}
     ${CMAKE_BINARY_DIR}/include
+    ${yaml-cpp_SOURCE_DIR}/include
 )
-target_link_libraries(bishop_std_runtime Boost::context Boost::fiber)
+target_link_libraries(bishop_std_runtime Boost::context Boost::fiber yaml-cpp::yaml-cpp)
 add_dependencies(bishop_std_runtime bishop_runtime_headers)
 
 # Copy bishop_std library to lib/ after build
@@ -231,6 +247,14 @@ add_custom_command(TARGET bishop_std_runtime POST_BUILD
         $<TARGET_FILE:bishop_std_runtime>
         ${CMAKE_BINARY_DIR}/lib/
     COMMENT "Copying bishop_std runtime library"
+)
+
+# Copy yaml-cpp library after it's built
+add_custom_command(TARGET bishop_std_runtime POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:yaml-cpp>
+        ${CMAKE_BINARY_DIR}/lib/
+    COMMENT "Copying yaml-cpp library"
 )
 
 # HTTP runtime library (compiled once, linked by user programs)
