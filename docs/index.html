@@ -1157,8 +1157,11 @@ x := <span class="token-function">fallible</span>() <span class="token-keyword">
 <span class="token-comment">// Return with default value</span>
 x := <span class="token-function">fallible</span>() <span class="token-keyword">or</span> <span class="token-keyword">return</span> default_value;
 
-<span class="token-comment">// Propagate error</span>
+<span class="token-comment">// Propagate error as-is</span>
 x := <span class="token-function">fallible</span>() <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-keyword">err</span>;
+
+<span class="token-comment">// Wrap error in new type (auto-chains cause)</span>
+x := <span class="token-function">fallible</span>() <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-type">NotFound</span>;
 
 <span class="token-comment">// Standalone guard clause</span>
 fs.<span class="token-function">exists</span>(path) <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-string">"skill not found"</span>;
@@ -1185,24 +1188,57 @@ x := <span class="token-function">fallible</span>() <span class="token-keyword">
 
         <section id="error-chaining">
             <h2>Error Chaining</h2>
+            <p>All errors have built-in fields for chaining:</p>
+            <ul>
+                <li><code>message</code> - Error message (always present)</li>
+                <li><code>cause</code> - The wrapped error that caused this one</li>
+                <li><code>root_cause</code> - The original error at the bottom of the chain</li>
+            </ul>
+
+            <h3>Automatic Chaining</h3>
+            <p>Using <code>or fail ErrorType;</code> automatically sets the original error as the cause:</p>
             <div class="code-block">
                 <div class="code-header">
                     <span class="code-lang">bishop</span>
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                 </div>
-                <pre><code><span class="token-keyword">fn</span> <span class="token-function">load_config</span>(<span class="token-type">str</span> path) -> <span class="token-type">Config</span> <span class="token-keyword">or</span> <span class="token-keyword">err</span> {
-    content := fs.<span class="token-function">read_file</span>(path)
-        <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-type">ConfigError</span> { message: <span class="token-string">"can't read "</span> + path, cause: <span class="token-keyword">err</span> };
+                <pre><code><span class="token-type">NotFound</span> :: <span class="token-keyword">err</span>;
+<span class="token-type">ParseError</span> :: <span class="token-keyword">err</span>;
 
-    <span class="token-keyword">return</span> <span class="token-function">parse</span>(content)
-        <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-type">ConfigError</span> { message: <span class="token-string">"invalid config"</span>, cause: <span class="token-keyword">err</span> };
+<span class="token-keyword">fn</span> <span class="token-function">load_file</span>(<span class="token-type">str</span> path) -> <span class="token-type">str</span> <span class="token-keyword">or</span> <span class="token-keyword">err</span> {
+    <span class="token-comment">// If read_file fails, NotFound.cause = original error</span>
+    content := fs.<span class="token-function">read_file</span>(path) <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-type">NotFound</span>;
+    <span class="token-keyword">return</span> content;
 }
 
-<span class="token-comment">// Access error chain</span>
-config := <span class="token-function">load_config</span>(<span class="token-string">"app.conf"</span>) <span class="token-keyword">or</span> {
-    <span class="token-builtin">print</span>(<span class="token-keyword">err</span>.message);        <span class="token-comment">// "can't read app.conf"</span>
-    <span class="token-builtin">print</span>(<span class="token-keyword">err</span>.cause.message);  <span class="token-comment">// underlying error</span>
-    <span class="token-builtin">print</span>(<span class="token-keyword">err</span>.root_cause.message);  <span class="token-comment">// original error</span>
+<span class="token-keyword">fn</span> <span class="token-function">load_config</span>(<span class="token-type">str</span> path) -> <span class="token-type">Config</span> <span class="token-keyword">or</span> <span class="token-keyword">err</span> {
+    <span class="token-comment">// Chain: ParseError -> NotFound -> original fs error</span>
+    content := <span class="token-function">load_file</span>(path) <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-type">ParseError</span>;
+    <span class="token-keyword">return</span> <span class="token-function">parse</span>(content);
+}</code></pre>
+            </div>
+
+            <h3>Explicit Chaining</h3>
+            <p>For custom messages, use the <code>cause</code> field explicitly:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>content := fs.<span class="token-function">read_file</span>(path)
+    <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-type">ConfigError</span> { message: <span class="token-string">"can't read "</span> + path, cause: <span class="token-keyword">err</span> };</code></pre>
+            </div>
+
+            <h3>Accessing the Error Chain</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>config := <span class="token-function">load_config</span>(<span class="token-string">"app.conf"</span>) <span class="token-keyword">or</span> {
+    <span class="token-builtin">print</span>(<span class="token-keyword">err</span>.message);             <span class="token-comment">// "ParseError"</span>
+    <span class="token-builtin">print</span>(<span class="token-keyword">err</span>.cause.message);       <span class="token-comment">// "NotFound"</span>
+    <span class="token-builtin">print</span>(<span class="token-keyword">err</span>.root_cause.message);  <span class="token-comment">// original fs error</span>
     <span class="token-keyword">return</span>;
 };</code></pre>
             </div>

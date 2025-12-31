@@ -37,6 +37,11 @@ string emit_field_access(CodeGenState& state, const FieldAccess& access) {
 
     // Handle err type - it's a shared_ptr so use -> for field access
     if (access.object_type == "err") {
+        // root_cause is a method, not a field
+        if (access.field_name == "root_cause") {
+            return obj_str + "->root_cause()";
+        }
+
         return obj_str + "->" + access.field_name;
     }
 

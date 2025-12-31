@@ -57,7 +57,42 @@ string generate_error(CodeGenState& state, const ErrorDef& def) {
         out += fmt::format(", {}", fmt::join(inits, ", "));
     }
 
-    out += " {}\n};\n";
+    out += " {}\n";
+
+    // Generate message-only constructor for bare error type usage: fail ErrorType;
+    if (!def.fields.empty()) {
+        vector<string> default_inits;
+
+        for (const auto& f : def.fields) {
+            string cpp_type = map_type(f.type);
+
+            if (cpp_type == "void") {
+                cpp_type = f.type;
+            }
+
+            // Default values based on type
+            string default_val;
+
+            if (cpp_type == "int" || cpp_type == "int64_t" || cpp_type == "uint64_t") {
+                default_val = "0";
+            } else if (cpp_type == "double" || cpp_type == "float") {
+                default_val = "0.0";
+            } else if (cpp_type == "bool") {
+                default_val = "false";
+            } else if (cpp_type == "std::string" || f.type == "str") {
+                default_val = "\"\"";
+            } else {
+                default_val = "{}";  // Default-construct other types
+            }
+
+            default_inits.push_back(fmt::format("{}({})", f.name, default_val));
+        }
+
+        out += fmt::format("\texplicit {}(const std::string& msg) : bishop::rt::Error(msg, nullptr), {} {{}}\n",
+                           def.name, fmt::join(default_inits, ", "));
+    }
+
+    out += "};\n";
     return out;
 }
 

@@ -31,10 +31,20 @@ string emit_fail(CodeGenState& state, const FailStmt& stmt) {
 
     // Check if it's an error struct literal
     if (auto* struct_lit = dynamic_cast<const StructLiteral*>(stmt.value.get())) {
+        // Bare error type: fail ErrorType;
+        // Use the error type name as the message and call message-only constructor
+        if (struct_lit->field_values.empty()) {
+            return fmt::format(
+                "return std::static_pointer_cast<bishop::rt::Error>(std::make_shared<{}>(\"{}\"))",
+                struct_lit->struct_name,
+                struct_lit->struct_name);
+        }
+
         vector<string> args;
 
         // Find the message field
         string message_val = "\"\"";
+
         for (const auto& [name, value] : struct_lit->field_values) {
             if (name == "message") {
                 message_val = emit(state, *value);

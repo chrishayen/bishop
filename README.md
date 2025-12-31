@@ -298,35 +298,45 @@ p.birth_year(2025);     // 1993
 
 ### Static Methods
 
-Static methods belong to the type itself rather than an instance. Define them with the `@static` decorator:
+Static methods belong to the type itself rather than an instance. A method is automatically static if its first parameter is NOT `self`:
 
 ```bishop
 Counter :: struct {
     value int
 }
 
-@static
+// Static method (no self parameter)
 Counter :: create() -> Counter {
     return Counter { value: 0 };
 }
 
-@static
+// Static method with parameters (first param is not self)
 Counter :: from_value(int val) -> Counter {
     return Counter { value: val };
 }
 
-@static
+// Static method returning primitive
 Counter :: add(int a, int b) -> int {
     return a + b;
 }
+
+// Instance method (first param is self)
+Counter :: get(self) -> int {
+    return self.value;
+}
 ```
 
-Call static methods on the type name:
+Call static methods on the type name or from within the same struct via `self`:
 
 ```bishop
 c := Counter.create();           // Counter { value: 0 }
 c := Counter.from_value(42);     // Counter { value: 42 }
 result := Counter.add(10, 20);   // 30
+
+// From within another method of Counter:
+Counter :: compute(self, int x) -> int {
+    return self.add(self.value, x);  // Calls Counter::add
+}
 ```
 
 Static methods have no `self` parameter and cannot access instance fields. They're useful for:
@@ -348,6 +358,16 @@ if condition {
 } else {
     // else
 }
+```
+
+Braceless single-statement form:
+
+```bishop
+if x < 0 fail NotFound;
+else return x;
+
+if condition result = 10;
+else result = 20;
 ```
 
 ### While Loop
@@ -694,9 +714,12 @@ Use `fail` to return an error:
 
 ```bishop
 fail "simple error message";
+fail NotFound;  // Bare error type - message defaults to "NotFound"
 fail ParseError { message: "bad format" };
 fail IOError { message: "not found", code: 404, path: path };
 ```
+
+The bare error type syntax (`fail ErrorType;`) automatically uses the error type name as the message and default values for any custom fields.
 
 ### The `or` Keyword
 
@@ -2752,4 +2775,4 @@ fn test_math() {
 
 ## Decorators
 
-`@static`, `@private`, `@extern`
+`@private`, `@extern`

@@ -52,10 +52,24 @@ unique_ptr<OrFail> parse_or_fail(ParserState& state) {
         auto err_ref = make_unique<VariableRef>("err");
         err_ref->line = start_line;
         handler->error_expr = move(err_ref);
-    } else {
-        handler->error_expr = parse_comparison(state);
+        return handler;
     }
 
+    // Check for bare error type: or fail ErrorType (no braces)
+    if (check(state, TokenType::IDENT)) {
+        string name = current(state).value;
+
+        if (is_struct_type(state, name) && !check_ahead(state, 1, TokenType::LBRACE)) {
+            advance(state);  // consume the identifier
+            auto lit = make_unique<StructLiteral>();
+            lit->struct_name = name;
+            lit->line = start_line;
+            handler->error_expr = move(lit);
+            return handler;
+        }
+    }
+
+    handler->error_expr = parse_comparison(state);
     return handler;
 }
 

@@ -35,6 +35,7 @@ struct CodeGenState {
     std::map<std::string, const Module*> imported_modules;
     std::map<std::string, const ExternFunctionDef*> extern_functions;
     std::vector<CodeGenUsingAlias> using_aliases;  ///< Using aliases from using statements
+    std::string current_struct;  ///< Current struct name when emitting method body
 };
 
 namespace codegen {

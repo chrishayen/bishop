@@ -213,9 +213,13 @@ string static_method_def(const string& name,
 /**
  * Generates a C++ member function from a Nog MethodDef.
  * Transforms self.field into this->field.
- * Static methods (@static) are generated with the 'static' keyword and no 'self' parameter.
+ * Static methods are generated with the 'static' keyword and no 'self' parameter.
  */
 string generate_method(CodeGenState& state, const MethodDef& method) {
+    // Set current struct for method body generation (enables self.staticMethod() handling)
+    string prev_struct = state.current_struct;
+    state.current_struct = method.struct_name;
+
     if (method.is_static) {
         // Static method: all params are actual params (no self)
         vector<pair<string, string>> params;
@@ -230,6 +234,7 @@ string generate_method(CodeGenState& state, const MethodDef& method) {
             body.push_back(generate_statement(state, *stmt));
         }
 
+        state.current_struct = prev_struct;
         return static_method_def(method.name, params, method.return_type, body, method.error_type);
     }
 
@@ -246,6 +251,7 @@ string generate_method(CodeGenState& state, const MethodDef& method) {
         body.push_back(generate_statement(state, *stmt));
     }
 
+    state.current_struct = prev_struct;
     return method_def(method.name, params, method.return_type, body);
 }
 
@@ -293,6 +299,10 @@ string generate_method_declaration(CodeGenState& state, const MethodDef& method)
  * Used with forward declarations to avoid incomplete type errors.
  */
 string generate_standalone_method(CodeGenState& state, const MethodDef& method) {
+    // Set current struct for method body generation (enables self.staticMethod() handling)
+    string prev_struct = state.current_struct;
+    state.current_struct = method.struct_name;
+
     string rt;
     string struct_name = method.struct_name;
 
@@ -326,6 +336,7 @@ string generate_standalone_method(CodeGenState& state, const MethodDef& method) 
         }
 
         out += "}\n";
+        state.current_struct = prev_struct;
         return out;
     }
 
@@ -351,6 +362,7 @@ string generate_standalone_method(CodeGenState& state, const MethodDef& method) 
     }
 
     out += "}\n";
+    state.current_struct = prev_struct;
     return out;
 }
 

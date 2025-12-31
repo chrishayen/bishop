@@ -1,31 +1,26 @@
-// Test file for @static decorator functionality
-// Tests static methods without self parameter, called as TypeName.method()
+// Test file for static methods (no self parameter)
+// Tests static methods called as TypeName.method()
 
 Counter :: struct {
     value int
 }
 
-@static
 Counter :: make(int initial) -> Counter {
     return Counter { value: initial };
 }
 
-@static
 Counter :: create() -> Counter {
     return Counter { value: 0 };
 }
 
-@static
 Counter :: from_value(int val) -> Counter {
     return Counter { value: val };
 }
 
-@static
 Counter :: add(int a, int b) -> int {
     return a + b;
 }
 
-@static
 Counter :: zero() -> int {
     return 0;
 }
@@ -92,12 +87,10 @@ Point :: struct {
     y int
 }
 
-@static
 Point :: origin() -> Point {
     return Point { x: 0, y: 0 };
 }
 
-@static
 Point :: at(int x, int y) -> Point {
     return Point { x: x, y: y };
 }

@@ -157,6 +157,12 @@ TypeInfo check_struct_method(TypeCheckerState& state, const MethodCall& mcall, c
         return {"unknown", false, false};
     }
 
+    // If calling a static method via self (e.g., self.staticMethod()),
+    // route to static method checking
+    if (method->is_static) {
+        return check_static_method(state, mcall, obj_type.base_type);
+    }
+
     // Instance method: skip self parameter
     size_t expected_args = method->params.size() - 1;
 

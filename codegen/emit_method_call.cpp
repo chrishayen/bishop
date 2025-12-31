@@ -51,8 +51,14 @@ string emit_method_call(CodeGenState& state, const MethodCall& call) {
             return fmt::format("{}::{}({})", ref->name, call.method_name, fmt::join(args, ", "));
         }
 
-        // Handle self.method() -> this->method() in instance methods
+        // Handle self.method() in instance methods
         if (ref->name == "self") {
+            // Check if this is a static method call via self
+            if (!state.current_struct.empty() && is_static_method(state, state.current_struct, call.method_name)) {
+                return fmt::format("{}::{}({})", state.current_struct, call.method_name, fmt::join(args, ", "));
+            }
+
+            // Instance method: emit this->method()
             string args_str;
 
             for (size_t i = 0; i < args.size(); i++) {

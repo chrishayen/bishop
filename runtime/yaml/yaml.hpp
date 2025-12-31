@@ -45,6 +45,17 @@ public:
     T value() const { return *val_; }
     T& value_ref() { return *val_; }
     std::string error_message() const { return err_ ? err_->message : ""; }
+
+    /**
+     * Returns the error as a shared_ptr<bishop::rt::Error>.
+     * Used by or_error() helper for error chaining.
+     */
+    std::shared_ptr<bishop::rt::Error> error() const {
+        if (err_) {
+            return std::make_shared<bishop::rt::Error>(err_->message);
+        }
+        return std::make_shared<bishop::rt::Error>("unknown yaml error");
+    }
 };
 
 /**

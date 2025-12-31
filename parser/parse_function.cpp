@@ -133,7 +133,7 @@ unique_ptr<FunctionDef> parse_function(ParserState& state, Visibility vis) {
  *     return self.name;
  * }
  */
-unique_ptr<MethodDef> parse_method_def(ParserState& state, const string& struct_name, Visibility vis, bool is_static) {
+unique_ptr<MethodDef> parse_method_def(ParserState& state, const string& struct_name, Visibility vis) {
     // We're past "Name ::", now at method_name
     Token method_name = consume(state, TokenType::IDENT);
     consume(state, TokenType::LPAREN);
@@ -143,7 +143,6 @@ unique_ptr<MethodDef> parse_method_def(ParserState& state, const string& struct_
     method->name = method_name.value;
     method->line = method_name.line;
     method->visibility = vis;
-    method->is_static = is_static;
 
     // Parse parameters (first should be 'self' for instance methods)
     while (!check(state, TokenType::RPAREN) && !check(state, TokenType::EOF_TOKEN)) {
@@ -167,6 +166,10 @@ unique_ptr<MethodDef> parse_method_def(ParserState& state, const string& struct_
     }
 
     consume(state, TokenType::RPAREN);
+
+    // Determine if method is static based on first parameter
+    // A method is static if it has no parameters OR first param is not 'self'
+    method->is_static = method->params.empty() || method->params[0].name != "self";
 
     // Parse return type: -> type or -> type or err
     if (check(state, TokenType::ARROW)) {

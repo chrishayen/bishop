@@ -67,6 +67,17 @@ string emit_or_fail_handler(CodeGenState& state, const OrFail& handler) {
                            string_literal(str_lit->value));
     }
 
+    // Bare error type: fail ErrorType; (StructLiteral with empty field_values)
+    // Pass err as the cause to preserve error chain
+    if (auto* struct_lit = dynamic_cast<const StructLiteral*>(handler.error_expr.get())) {
+        if (struct_lit->field_values.empty()) {
+            return fmt::format(
+                "return std::static_pointer_cast<bishop::rt::Error>(std::make_shared<{}>(\"{}\", err));",
+                struct_lit->struct_name,
+                struct_lit->struct_name);
+        }
+    }
+
     return "return " + emit(state, *handler.error_expr) + ";";
 }
 
@@ -164,17 +175,22 @@ OrEmitResult emit_or_for_decl(CodeGenState& state, const OrExpr& expr, const str
     } else if (auto* fail = dynamic_cast<const OrFail*>(expr.handler.get())) {
         // For or fail with Result types, we need to define err before returning it
         // For falsy types, the typechecker already rejected 'or fail err' so we just use the message
+        bool needs_err = false;
+
         if (auto* var = dynamic_cast<const VariableRef*>(fail->error_expr.get())) {
-            if (var->name == "err") {
-                // This is 'or fail err' - only valid for Result types
-                handler_code = "auto err = " + temp + ".error(); " + emit_or_fail_handler(state, *fail);
-            } else {
-                handler_code = emit_or_fail_handler(state, *fail);
-            }
+            // 'or fail err' - needs err defined
+            needs_err = (var->name == "err");
+        } else if (auto* struct_lit = dynamic_cast<const StructLiteral*>(fail->error_expr.get())) {
+            // Bare error type 'or fail ErrorType;' - needs err for cause chain
+            needs_err = struct_lit->field_values.empty();
+        }
+
+        if (needs_err) {
+            handler_code = "auto err = bishop::or_error(" + temp + "); " + emit_or_fail_handler(state, *fail);
         } else {
-            // 'or fail "message"' - works for both Result and falsy types
             handler_code = emit_or_fail_handler(state, *fail);
         }
+
         result.check = fmt::format("if ({}) {{ {} }}", condition, handler_code);
         result.value_expr = value_extraction;
     } else if (auto* block = dynamic_cast<const OrBlock*>(expr.handler.get())) {

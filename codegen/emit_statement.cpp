@@ -228,6 +228,16 @@ string generate_statement(CodeGenState& state, const ASTNode& node) {
                 } else {
                     handler_code = "return " + emit(state, *fail->error_expr) + ";";
                 }
+            } else if (auto* struct_lit = dynamic_cast<const StructLiteral*>(fail->error_expr.get())) {
+                // Bare error type: or fail ErrorType (StructLiteral with empty field_values)
+                if (struct_lit->field_values.empty()) {
+                    handler_code = fmt::format(
+                        "return std::static_pointer_cast<bishop::rt::Error>(std::make_shared<{}>(\"{}\"));",
+                        struct_lit->struct_name,
+                        struct_lit->struct_name);
+                } else {
+                    handler_code = "return " + emit(state, *fail->error_expr) + ";";
+                }
             } else {
                 // For other expressions
                 handler_code = "return " + emit(state, *fail->error_expr) + ";";
