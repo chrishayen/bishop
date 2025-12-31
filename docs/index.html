@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bishop Language Reference</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f0f23;
+            --bg-code: #0d1117;
+            --text-primary: #e4e4e7;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-success: #22c55e;
+            --accent-warning: #f59e0b;
+            --accent-error: #ef4444;
+            --border-color: #27273a;
+            --sidebar-width: 280px;
+            --header-height: 60px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-right: 24px;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        #search-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        #search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header-links {
+            margin-left: auto;
+            display: flex;
+            gap: 16px;
+        }
+
+        .header-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .header-links a:hover {
+            color: var(--accent-primary);
+        }
+
+        /* Sidebar */
+        aside {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: 16px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 8px;
+        }
+
+        .nav-section-title {
+            padding: 8px 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.15s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        .nav-link.active {
+            color: var(--accent-primary);
+            background-color: rgba(99, 102, 241, 0.15);
+            border-right: 2px solid var(--accent-primary);
+        }
+
+        .nav-sublink {
+            padding-left: 36px;
+            font-size: 0.85rem;
+        }
+
+        /* Main Content */
+        main {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 40px 60px;
+            max-width: 900px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-top: 48px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 32px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        a {
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Code blocks */
+        .code-block {
+            position: relative;
+            margin: 16px 0 24px 0;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: #161b22;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .code-lang {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .copy-btn {
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+        }
+
+        .copy-btn.copied {
+            background-color: var(--accent-success);
+            border-color: var(--accent-success);
+            color: white;
+        }
+
+        pre {
+            margin: 0;
+            padding: 16px;
+            background-color: var(--bg-code);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+        }
+
+        :not(pre) > code {
+            background-color: rgba(99, 102, 241, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.875em;
+            color: var(--accent-secondary);
+        }
+
+        /* Syntax highlighting */
+        .token-keyword { color: #ff79c6; }
+        .token-type { color: #8be9fd; }
+        .token-function { color: #50fa7b; }
+        .token-string { color: #f1fa8c; }
+        .token-number { color: #bd93f9; }
+        .token-comment { color: #6272a4; font-style: italic; }
+        .token-operator { color: #ff79c6; }
+        .token-punctuation { color: #f8f8f2; }
+        .token-decorator { color: #ffb86c; }
+        .token-builtin { color: #8be9fd; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0 24px 0;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(22, 33, 62, 0.3);
+        }
+
+        /* Collapsible sections */
+        .collapsible {
+            margin: 16px 0;
+        }
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s ease;
+        }
+
+        .collapsible-header:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        .collapsible-header.active {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .collapsible-icon {
+            margin-right: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .collapsible-header.active .collapsible-icon {
+            transform: rotate(90deg);
+        }
+
+        .collapsible-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .collapsible-content {
+            display: none;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            background-color: rgba(22, 33, 62, 0.3);
+        }
+
+        .collapsible-content.show {
+            display: block;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 16px 0;
+            padding-left: 24px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            margin: 16px 0;
+            padding: 16px 20px;
+            border-left: 4px solid var(--accent-primary);
+            background-color: rgba(99, 102, 241, 0.1);
+            border-radius: 0 8px 8px 0;
+        }
+
+        blockquote p {
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        /* Quick reference cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .card {
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Section */
+        section {
+            scroll-margin-top: calc(var(--header-height) + 20px);
+        }
+
+        /* Search results */
+        .search-results {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 8px 8px;
+            z-index: 1000;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .search-result-item:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .search-result-section {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            aside {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            aside.open {
+                transform: translateX(0);
+            }
+
+            main {
+                margin-left: 0;
+                padding: 24px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 16px;
+        }
+
+        /* Highlight for search */
+        .highlight {
+            background-color: rgba(245, 158, 11, 0.3);
+            padding: 2px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+        <div class="logo">Bishop</div>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search documentation..." autocomplete="off">
+            <div class="search-results" id="search-results"></div>
+        </div>
+        <div class="header-links">
+            <a href="https://github.com/chrishayen/bishop" target="_blank">GitHub</a>
+        </div>
+    </header>
+
+    <aside id="sidebar">
+        <nav>
+            <div class="nav-section">
+                <div class="nav-section-title">Getting Started</div>
+                <a href="#overview" class="nav-link">Overview</a>
+                <a href="#quick-start" class="nav-link">Quick Start</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Types</div>
+                <a href="#primitive-types" class="nav-link">Primitive Types</a>
+                <a href="#optional-types" class="nav-link">Optional Types</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Variables</div>
+                <a href="#variables" class="nav-link">Variables</a>
+                <a href="#constants" class="nav-link">Constants</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Functions</div>
+                <a href="#functions" class="nav-link">Functions</a>
+                <a href="#lambdas" class="nav-link">Anonymous Functions</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Structs & Methods</div>
+                <a href="#structs" class="nav-link">Structs</a>
+                <a href="#methods" class="nav-link">Methods</a>
+                <a href="#static-methods" class="nav-link">Static Methods</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Control Flow</div>
+                <a href="#if-else" class="nav-link">If/Else</a>
+                <a href="#loops" class="nav-link">Loops</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Collections</div>
+                <a href="#strings" class="nav-link">Strings</a>
+                <a href="#lists" class="nav-link">Lists</a>
+                <a href="#pairs" class="nav-link">Pairs</a>
+                <a href="#tuples" class="nav-link">Tuples</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Error Handling</div>
+                <a href="#error-types" class="nav-link">Error Types</a>
+                <a href="#or-keyword" class="nav-link">The or Keyword</a>
+                <a href="#error-chaining" class="nav-link">Error Chaining</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Concurrency</div>
+                <a href="#goroutines" class="nav-link">Goroutines</a>
+                <a href="#channels" class="nav-link">Channels</a>
+                <a href="#select" class="nav-link">Select</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Standard Library</div>
+                <a href="#stdlib-http" class="nav-link">http</a>
+                <a href="#stdlib-fs" class="nav-link">fs</a>
+                <a href="#stdlib-crypto" class="nav-link">crypto</a>
+                <a href="#stdlib-net" class="nav-link">net</a>
+                <a href="#stdlib-process" class="nav-link">process</a>
+                <a href="#stdlib-regex" class="nav-link">regex</a>
+                <a href="#stdlib-math" class="nav-link">math</a>
+                <a href="#stdlib-time" class="nav-link">time</a>
+                <a href="#stdlib-random" class="nav-link">random</a>
+                <a href="#stdlib-algo" class="nav-link">algo</a>
+                <a href="#stdlib-json" class="nav-link">json</a>
+                <a href="#stdlib-log" class="nav-link">log</a>
+                <a href="#stdlib-sync" class="nav-link">sync</a>
+                <a href="#stdlib-yaml" class="nav-link">yaml</a>
+                <a href="#stdlib-markdown" class="nav-link">markdown</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Advanced</div>
+                <a href="#imports" class="nav-link">Import System</a>
+                <a href="#visibility" class="nav-link">Visibility</a>
+                <a href="#ffi" class="nav-link">FFI</a>
+                <a href="#resource-management" class="nav-link">Resource Management</a>
+            </div>
+        </nav>
+    </aside>
+
+    <main>
+        <section id="overview">
+            <h1>Bishop Language Reference</h1>
+            <p>Bishop is a modern programming language that transpiles to C++. It combines the power of C++ with an elegant, Python-inspired syntax designed for readability and ease of use.</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">Type Safe</div>
+                    <div class="card-description">Strong static typing with type inference using <code>:=</code></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Error Handling</div>
+                    <div class="card-description">Elegant <code>or</code> keyword for handling errors inline</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Concurrent</div>
+                    <div class="card-description">Built-in goroutines and channels for concurrency</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Modern Syntax</div>
+                    <div class="card-description">Clean, readable code without boilerplate</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="quick-start">
+            <h2>Quick Start</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bash</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-comment"># Build the compiler</span>
+make
+
+<span class="token-comment"># Run a Bishop program</span>
+./bishop run examples/serve.b
+
+<span class="token-comment"># Run tests</span>
+./bishop test tests/</code></pre>
+            </div>
+            <p>Bishop source files use the <code>.b</code> extension.</p>
+        </section>
+
+        <section id="primitive-types">
+            <h2>Primitive Types</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>int</code></td><td>Integer</td></tr>
+                    <tr><td><code>str</code></td><td>String</td></tr>
+                    <tr><td><code>bool</code></td><td>Boolean (<code>true</code>/<code>false</code>)</td></tr>
+                    <tr><td><code>f32</code></td><td>32-bit float</td></tr>
+                    <tr><td><code>f64</code></td><td>64-bit float</td></tr>
+                    <tr><td><code>u32</code></td><td>Unsigned 32-bit integer</td></tr>
+                    <tr><td><code>u64</code></td><td>Unsigned 64-bit integer</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="optional-types">
+            <h2>Optional Types</h2>
+            <p>Any type can be made optional by appending <code>?</code>:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-type">int</span>? maybe_num = <span class="token-keyword">none</span>;
+<span class="token-type">int</span>? value = <span class="token-number">42</span>;
+
+<span class="token-comment">// Check for none</span>
+<span class="token-keyword">if</span> value <span class="token-keyword">is</span> <span class="token-keyword">none</span> { }
+<span class="token-keyword">if</span> value { }  <span class="token-comment">// truthy check for non-none</span></code></pre>
+            </div>
+        </section>
+
+        <section id="variables">
+            <h2>Variables</h2>
+            <h3>Explicit Type Declaration</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-type">int</span> x = <span class="token-number">42</span>;
+<span class="token-type">str</span> name = <span class="token-string">"Chris"</span>;
+<span class="token-type">bool</span> flag = <span class="token-keyword">true</span>;
+<span class="token-type">f64</span> pi = <span class="token-number">3.14159</span>;</code></pre>
+            </div>
+
+            <h3>Type Inference</h3>
+            <p>Use <code>:=</code> for type inference:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>x := <span class="token-number">100</span>;        <span class="token-comment">// inferred as int</span>
+name := <span class="token-string">"Hello"</span>; <span class="token-comment">// inferred as str</span>
+pi := <span class="token-number">3.14</span>;      <span class="token-comment">// inferred as f64</span></code></pre>
+            </div>
+        </section>
+
+        <section id="constants">
+            <h2>Constants</h2>
+            <p>Use <code>const</code> to declare immutable values:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">const</span> <span class="token-type">int</span> MAX_SIZE = <span class="token-number">100</span>;
+<span class="token-keyword">const</span> <span class="token-type">str</span> APP_NAME = <span class="token-string">"MyApp"</span>;
+
+<span class="token-comment">// With type inference</span>
+<span class="token-keyword">const</span> MAX := <span class="token-number">100</span>;
+<span class="token-keyword">const</span> NAME := <span class="token-string">"Bishop"</span>;</code></pre>
+            </div>
+        </section>
+
+        <section id="functions">
+            <h2>Functions</h2>
+            <h3>Basic Function</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">fn</span> <span class="token-function">add</span>(<span class="token-type">int</span> a, <span class="token-type">int</span> b) -> <span class="token-type">int</span> {
+    <span class="token-keyword">return</span> a + b;
+}
+
+<span class="token-comment">// Void function (no return type)</span>
+<span class="token-keyword">fn</span> <span class="token-function">greet</span>() {
+    <span class="token-builtin">print</span>(<span class="token-string">"Hello"</span>);
+}</code></pre>
+            </div>
+
+            <h3>Function References</h3>
+            <p>Functions can be passed as arguments:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">fn</span> <span class="token-function">apply_op</span>(<span class="token-type">int</span> x, <span class="token-type">int</span> y, <span class="token-keyword">fn</span>(<span class="token-type">int</span>, <span class="token-type">int</span>) -> <span class="token-type">int</span> op) -> <span class="token-type">int</span> {
+    <span class="token-keyword">return</span> <span class="token-function">op</span>(x, y);
+}
+
+result := <span class="token-function">apply_op</span>(<span class="token-number">3</span>, <span class="token-number">4</span>, add);  <span class="token-comment">// result = 7</span></code></pre>
+            </div>
+        </section>
+
+        <section id="lambdas">
+            <h2>Anonymous Functions (Lambdas)</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-comment">// Basic anonymous function</span>
+doubler := <span class="token-keyword">fn</span>(<span class="token-type">int</span> x) -> <span class="token-type">int</span> { <span class="token-keyword">return</span> x * <span class="token-number">2</span>; };
+result := <span class="token-function">doubler</span>(<span class="token-number">21</span>);  <span class="token-comment">// 42</span>
+
+<span class="token-comment">// Closures capture variables</span>
+multiplier := <span class="token-number">10</span>;
+scale := <span class="token-keyword">fn</span>(<span class="token-type">int</span> x) -> <span class="token-type">int</span> { <span class="token-keyword">return</span> x * multiplier; };
+result := <span class="token-function">scale</span>(<span class="token-number">4</span>);  <span class="token-comment">// 40</span></code></pre>
+            </div>
+
+            <h3>Lambdas with Goroutines</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>ch := <span class="token-type">Channel</span>&lt;<span class="token-type">int</span>&gt;();
+
+<span class="token-keyword">go</span> <span class="token-keyword">fn</span>() {
+    ch.<span class="token-function">send</span>(<span class="token-number">42</span>);
+}();
+
+val := ch.<span class="token-function">recv</span>();  <span class="token-comment">// 42</span></code></pre>
+            </div>
+        </section>
+
+        <section id="structs">
+            <h2>Structs</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-comment">// Definition</span>
+<span class="token-type">Person</span> :: <span class="token-keyword">struct</span> {
+    name <span class="token-type">str</span>,
+    age <span class="token-type">int</span>
+}
+
+<span class="token-comment">// Instantiation</span>
+p := <span class="token-type">Person</span> { name: <span class="token-string">"Chris"</span>, age: <span class="token-number">32</span> };
+
+<span class="token-comment">// Field access</span>
+<span class="token-builtin">print</span>(p.name);
+p.age = <span class="token-number">33</span>;</code></pre>
+            </div>
+
+            <h3>Pass by Reference</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">fn</span> <span class="token-function">set_age</span>(<span class="token-type">Person</span> *p, <span class="token-type">int</span> new_age) {
+    p.age = new_age;  <span class="token-comment">// auto-deref, always mutable</span>
+}
+
+bob := <span class="token-type">Person</span> { name: <span class="token-string">"Bob"</span>, age: <span class="token-number">25</span> };
+<span class="token-function">set_age</span>(&bob, <span class="token-number">26</span>);
+<span class="token-builtin">assert_eq</span>(bob.age, <span class="token-number">26</span>);  <span class="token-comment">// mutation visible</span></code></pre>
+            </div>
+        </section>
+
+        <section id="methods">
+            <h2>Methods</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-type">Person</span> :: <span class="token-function">get_name</span>(<span class="token-keyword">self</span>) -> <span class="token-type">str</span> {
+    <span class="token-keyword">return</span> <span class="token-keyword">self</span>.name;
+}
+
+<span class="token-type">Person</span> :: <span class="token-function">set_age</span>(<span class="token-keyword">self</span>, <span class="token-type">int</span> new_age) {
+    <span class="token-keyword">self</span>.age = new_age;
+}
+
+p := <span class="token-type">Person</span> { name: <span class="token-string">"Chris"</span>, age: <span class="token-number">32</span> };
+p.<span class="token-function">get_name</span>();     <span class="token-comment">// "Chris"</span>
+p.<span class="token-function">set_age</span>(<span class="token-number">33</span>);    <span class="token-comment">// mutates p.age</span></code></pre>
+            </div>
+        </section>
+
+        <section id="static-methods">
+            <h2>Static Methods</h2>
+            <p>Static methods belong to the type itself. Define them with the <code>@static</code> decorator:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-type">Counter</span> :: <span class="token-keyword">struct</span> {
+    value <span class="token-type">int</span>
+}
+
+<span class="token-decorator">@static</span>
+<span class="token-type">Counter</span> :: <span class="token-function">create</span>() -> <span class="token-type">Counter</span> {
+    <span class="token-keyword">return</span> <span class="token-type">Counter</span> { value: <span class="token-number">0</span> };
+}
+
+<span class="token-decorator">@static</span>
+<span class="token-type">Counter</span> :: <span class="token-function">from_value</span>(<span class="token-type">int</span> val) -> <span class="token-type">Counter</span> {
+    <span class="token-keyword">return</span> <span class="token-type">Counter</span> { value: val };
+}
+
+<span class="token-comment">// Call on type name</span>
+c := <span class="token-type">Counter</span>.<span class="token-function">create</span>();           <span class="token-comment">// Counter { value: 0 }</span>
+c := <span class="token-type">Counter</span>.<span class="token-function">from_value</span>(<span class="token-number">42</span>);     <span class="token-comment">// Counter { value: 42 }</span></code></pre>
+            </div>
+        </section>
+
+        <section id="if-else">
+            <h2>If/Else</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">if</span> condition {
+    <span class="token-comment">// then</span>
+}
+
+<span class="token-keyword">if</span> condition {
+    <span class="token-comment">// then</span>
+} <span class="token-keyword">else</span> {
+    <span class="token-comment">// else</span>
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="loops">
+            <h2>Loops</h2>
+            <h3>While Loop</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>i := <span class="token-number">0</span>;
+
+<span class="token-keyword">while</span> i &lt; <span class="token-number">5</span> {
+    <span class="token-builtin">print</span>(i);
+    i = i + <span class="token-number">1</span>;
+}</code></pre>
+            </div>
+
+            <h3>Range-based For</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">for</span> i <span class="token-keyword">in</span> <span class="token-number">0</span>..<span class="token-number">10</span> {
+    <span class="token-builtin">print</span>(i);  <span class="token-comment">// prints 0 through 9</span>
+}</code></pre>
+            </div>
+
+            <h3>Foreach</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>nums := [<span class="token-number">1</span>, <span class="token-number">2</span>, <span class="token-number">3</span>];
+
+<span class="token-keyword">for</span> n <span class="token-keyword">in</span> nums {
+    <span class="token-builtin">print</span>(n);
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="strings">
+            <h2>Strings</h2>
+            <p>Strings can use double or single quotes:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-type">str</span> greeting = <span class="token-string">"Hello, World!"</span>;
+<span class="token-type">str</span> name = <span class="token-string">'Alice'</span>;
+
+<span class="token-comment">// Raw strings (no escape processing)</span>
+pattern := <span class="token-string">r"\d+\.\d+"</span>;
+path := <span class="token-string">r"C:\Users\name"</span>;</code></pre>
+            </div>
+
+            <div class="collapsible">
+                <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                    <span class="collapsible-icon">&#9654;</span>
+                    <span class="collapsible-title">String Methods Reference</span>
+                </div>
+                <div class="collapsible-content">
+                    <table>
+                        <thead>
+                            <tr><th>Method</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>length()</code></td><td>Returns string length</td></tr>
+                            <tr><td><code>empty()</code></td><td>Returns true if empty</td></tr>
+                            <tr><td><code>contains(str)</code></td><td>Check if substring exists</td></tr>
+                            <tr><td><code>starts_with(str)</code></td><td>Check prefix</td></tr>
+                            <tr><td><code>ends_with(str)</code></td><td>Check suffix</td></tr>
+                            <tr><td><code>substr(start, len)</code></td><td>Extract substring</td></tr>
+                            <tr><td><code>upper()</code></td><td>Convert to uppercase</td></tr>
+                            <tr><td><code>lower()</code></td><td>Convert to lowercase</td></tr>
+                            <tr><td><code>trim()</code></td><td>Remove whitespace</td></tr>
+                            <tr><td><code>split(sep)</code></td><td>Split into list</td></tr>
+                            <tr><td><code>replace(old, new)</code></td><td>Replace first match</td></tr>
+                            <tr><td><code>replace_all(old, new)</code></td><td>Replace all matches</td></tr>
+                            <tr><td><code>to_int()</code></td><td>Parse as integer</td></tr>
+                            <tr><td><code>to_float()</code></td><td>Parse as float</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="lists">
+            <h2>Lists</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-comment">// Creation</span>
+nums := <span class="token-type">List</span>&lt;<span class="token-type">int</span>&gt;();
+names := [<span class="token-string">"a"</span>, <span class="token-string">"b"</span>, <span class="token-string">"c"</span>];
+
+<span class="token-comment">// Methods</span>
+nums.<span class="token-function">append</span>(<span class="token-number">42</span>);
+nums.<span class="token-function">length</span>();
+nums.<span class="token-function">get</span>(<span class="token-number">0</span>);
+nums.<span class="token-function">first</span>();
+nums.<span class="token-function">last</span>();
+nums.<span class="token-function">pop</span>();
+nums.<span class="token-function">contains</span>(<span class="token-number">42</span>);
+
+<span class="token-comment">// String lists can join</span>
+parts := [<span class="token-string">"hello"</span>, <span class="token-string">"world"</span>];
+parts.<span class="token-function">join</span>(<span class="token-string">" "</span>);  <span class="token-comment">// "hello world"</span></code></pre>
+            </div>
+        </section>
+
+        <section id="pairs">
+            <h2>Pairs</h2>
+            <p>Pairs hold exactly two values of the same type:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>p := <span class="token-type">Pair</span>&lt;<span class="token-type">int</span>&gt;(<span class="token-number">10</span>, <span class="token-number">20</span>);
+x := p.first;   <span class="token-comment">// 10</span>
+y := p.second;  <span class="token-comment">// 20</span>
+
+<span class="token-comment">// With default</span>
+x := p.<span class="token-function">get</span>(<span class="token-number">0</span>) <span class="token-keyword">default</span> <span class="token-number">0</span>;
+z := p.<span class="token-function">get</span>(<span class="token-number">2</span>) <span class="token-keyword">default</span> <span class="token-number">99</span>;  <span class="token-comment">// out of bounds, uses default</span></code></pre>
+            </div>
+        </section>
+
+        <section id="tuples">
+            <h2>Tuples</h2>
+            <p>Tuples hold 2-5 values of the same type:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>t := <span class="token-type">Tuple</span>&lt;<span class="token-type">int</span>&gt;(<span class="token-number">10</span>, <span class="token-number">20</span>, <span class="token-number">30</span>);
+x := t.<span class="token-function">get</span>(<span class="token-number">0</span>) <span class="token-keyword">default</span> <span class="token-number">0</span>;   <span class="token-comment">// 10</span>
+y := t.<span class="token-function">get</span>(<span class="token-number">1</span>) <span class="token-keyword">default</span> <span class="token-number">0</span>;   <span class="token-comment">// 20</span></code></pre>
+            </div>
+        </section>
+
+        <section id="error-types">
+            <h2>Error Types</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-comment">// Simple error</span>
+<span class="token-type">ParseError</span> :: <span class="token-keyword">err</span>;
+
+<span class="token-comment">// Error with custom fields</span>
+<span class="token-type">IOError</span> :: <span class="token-keyword">err</span> {
+    code <span class="token-type">int</span>,
+    path <span class="token-type">str</span>
+}
+
+<span class="token-comment">// Fallible function</span>
+<span class="token-keyword">fn</span> <span class="token-function">read_config</span>(<span class="token-type">str</span> path) -> <span class="token-type">Config</span> <span class="token-keyword">or</span> <span class="token-keyword">err</span> {
+    <span class="token-keyword">if</span> !fs.<span class="token-function">exists</span>(path) {
+        <span class="token-keyword">fail</span> <span class="token-type">IOError</span> { message: <span class="token-string">"not found"</span>, code: <span class="token-number">404</span>, path: path };
+    }
+    <span class="token-keyword">return</span> <span class="token-function">parse</span>(content);
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="or-keyword">
+            <h2>The <code>or</code> Keyword</h2>
+            <p>Handle errors elegantly inline:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-comment">// Return early</span>
+x := <span class="token-function">fallible</span>() <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+
+<span class="token-comment">// Return with default value</span>
+x := <span class="token-function">fallible</span>() <span class="token-keyword">or</span> <span class="token-keyword">return</span> default_value;
+
+<span class="token-comment">// Propagate error</span>
+x := <span class="token-function">fallible</span>() <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-keyword">err</span>;
+
+<span class="token-comment">// Block with error access</span>
+x := <span class="token-function">fallible</span>() <span class="token-keyword">or</span> {
+    <span class="token-builtin">print</span>(<span class="token-string">"Error:"</span>, <span class="token-keyword">err</span>.message);
+    <span class="token-keyword">return</span>;
+};
+
+<span class="token-comment">// Pattern match on error type</span>
+x := <span class="token-function">fallible</span>() <span class="token-keyword">or</span> <span class="token-keyword">match</span> <span class="token-keyword">err</span> {
+    <span class="token-type">IOError</span>    => default_config,
+    <span class="token-type">ParseError</span> => <span class="token-keyword">fail</span> <span class="token-keyword">err</span>,
+    _          => <span class="token-keyword">fail</span> <span class="token-type">ConfigError</span> { message: <span class="token-string">"unknown"</span>, cause: <span class="token-keyword">err</span> }
+};
+
+<span class="token-comment">// Continue/break in loops</span>
+<span class="token-keyword">for</span> item <span class="token-keyword">in</span> items {
+    result := <span class="token-function">process</span>(item) <span class="token-keyword">or</span> <span class="token-keyword">continue</span>;
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="error-chaining">
+            <h2>Error Chaining</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">fn</span> <span class="token-function">load_config</span>(<span class="token-type">str</span> path) -> <span class="token-type">Config</span> <span class="token-keyword">or</span> <span class="token-keyword">err</span> {
+    content := fs.<span class="token-function">read_file</span>(path)
+        <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-type">ConfigError</span> { message: <span class="token-string">"can't read "</span> + path, cause: <span class="token-keyword">err</span> };
+
+    <span class="token-keyword">return</span> <span class="token-function">parse</span>(content)
+        <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-type">ConfigError</span> { message: <span class="token-string">"invalid config"</span>, cause: <span class="token-keyword">err</span> };
+}
+
+<span class="token-comment">// Access error chain</span>
+config := <span class="token-function">load_config</span>(<span class="token-string">"app.conf"</span>) <span class="token-keyword">or</span> {
+    <span class="token-builtin">print</span>(<span class="token-keyword">err</span>.message);        <span class="token-comment">// "can't read app.conf"</span>
+    <span class="token-builtin">print</span>(<span class="token-keyword">err</span>.cause.message);  <span class="token-comment">// underlying error</span>
+    <span class="token-builtin">print</span>(<span class="token-keyword">err</span>.root_cause.message);  <span class="token-comment">// original error</span>
+    <span class="token-keyword">return</span>;
+};</code></pre>
+            </div>
+        </section>
+
+        <section id="goroutines">
+            <h2>Goroutines</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">fn</span> <span class="token-function">sender</span>(<span class="token-type">Channel</span>&lt;<span class="token-type">int</span>&gt; ch, <span class="token-type">int</span> val) {
+    ch.<span class="token-function">send</span>(val);
+}
+
+<span class="token-keyword">fn</span> <span class="token-function">main</span>() {
+    ch := <span class="token-type">Channel</span>&lt;<span class="token-type">int</span>&gt;();
+    <span class="token-keyword">go</span> <span class="token-function">sender</span>(ch, <span class="token-number">42</span>);  <span class="token-comment">// spawn goroutine</span>
+    val := ch.<span class="token-function">recv</span>();    <span class="token-comment">// blocks until value available</span>
+    <span class="token-builtin">print</span>(val);          <span class="token-comment">// 42</span>
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="channels">
+            <h2>Channels</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>ch := <span class="token-type">Channel</span>&lt;<span class="token-type">int</span>&gt;();
+ch_str := <span class="token-type">Channel</span>&lt;<span class="token-type">str</span>&gt;();
+ch_bool := <span class="token-type">Channel</span>&lt;<span class="token-type">bool</span>&gt;();
+
+<span class="token-comment">// Send and receive</span>
+ch.<span class="token-function">send</span>(<span class="token-number">42</span>);
+val := ch.<span class="token-function">recv</span>();</code></pre>
+            </div>
+        </section>
+
+        <section id="select">
+            <h2>Select Statement</h2>
+            <p>Wait on multiple channel operations:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>ch1 := <span class="token-type">Channel</span>&lt;<span class="token-type">int</span>&gt;();
+ch2 := <span class="token-type">Channel</span>&lt;<span class="token-type">int</span>&gt;();
+
+<span class="token-keyword">go</span> <span class="token-function">sender</span>(ch1, <span class="token-number">41</span>);
+
+<span class="token-keyword">select</span> {
+    <span class="token-keyword">case</span> val := ch1.<span class="token-function">recv</span>() {
+        <span class="token-builtin">print</span>(<span class="token-string">"received from ch1:"</span>, val);
+    }
+    <span class="token-keyword">case</span> val := ch2.<span class="token-function">recv</span>() {
+        <span class="token-builtin">print</span>(<span class="token-string">"received from ch2:"</span>, val);
+    }
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-http">
+            <h2>http Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> http;
+
+<span class="token-keyword">fn</span> <span class="token-function">handle</span>(http.<span class="token-type">Request</span> req) -> http.<span class="token-type">Response</span> {
+    <span class="token-keyword">return</span> http.<span class="token-function">text</span>(<span class="token-string">"Hello"</span>);
+}
+
+<span class="token-keyword">fn</span> <span class="token-function">main</span>() {
+    http.<span class="token-function">serve</span>(<span class="token-number">8080</span>, handle);
+}</code></pre>
+            </div>
+
+            <h3>App-based Routing</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">fn</span> <span class="token-function">main</span>() {
+    app := http.<span class="token-type">App</span> {};
+    app.<span class="token-function">get</span>(<span class="token-string">"/"</span>, home);
+    app.<span class="token-function">get</span>(<span class="token-string">"/about"</span>, about);
+    app.<span class="token-function">listen</span>(<span class="token-number">8080</span>);
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-fs">
+            <h2>fs Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> fs;
+
+<span class="token-comment">// Reading and writing</span>
+content := fs.<span class="token-function">read_file</span>(<span class="token-string">"path"</span>);
+_ := fs.<span class="token-function">write_file</span>(<span class="token-string">"path"</span>, <span class="token-string">"content"</span>) <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-keyword">err</span>;
+
+<span class="token-comment">// Checks</span>
+fs.<span class="token-function">exists</span>(<span class="token-string">"path"</span>);
+fs.<span class="token-function">is_dir</span>(<span class="token-string">"path"</span>);
+fs.<span class="token-function">is_file</span>(<span class="token-string">"path"</span>);
+
+<span class="token-comment">// Paths</span>
+fs.<span class="token-function">join</span>(<span class="token-string">"dir"</span>, <span class="token-string">"file.txt"</span>);
+fs.<span class="token-function">dirname</span>(<span class="token-string">"/home/user/file.txt"</span>);
+fs.<span class="token-function">basename</span>(<span class="token-string">"/home/user/file.txt"</span>);
+
+<span class="token-comment">// Directory walking</span>
+entries := fs.<span class="token-function">walk</span>(<span class="token-string">"src"</span>) <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-keyword">err</span>;
+<span class="token-keyword">for</span> entry <span class="token-keyword">in</span> entries {
+    <span class="token-builtin">print</span>(entry.path);
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-crypto">
+            <h2>crypto Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> crypto;
+
+<span class="token-comment">// Hashing</span>
+hash := crypto.<span class="token-function">sha256</span>(<span class="token-string">"hello"</span>) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+hash := crypto.<span class="token-function">md5</span>(<span class="token-string">"hello"</span>) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+
+<span class="token-comment">// Base64</span>
+encoded := crypto.<span class="token-function">base64_encode</span>(<span class="token-string">"Hello!"</span>);
+decoded := crypto.<span class="token-function">base64_decode</span>(encoded) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+
+<span class="token-comment">// UUID</span>
+id := crypto.<span class="token-function">uuid</span>() <span class="token-keyword">or</span> <span class="token-keyword">return</span>;</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-net">
+            <h2>net Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> net;
+
+<span class="token-comment">// TCP Server</span>
+server := net.<span class="token-function">listen</span>(<span class="token-string">"127.0.0.1"</span>, <span class="token-number">8080</span>) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+
+<span class="token-keyword">with</span> server <span class="token-keyword">as</span> s {
+    conn := s.<span class="token-function">accept</span>() <span class="token-keyword">or</span> <span class="token-keyword">continue</span>;
+    data := conn.<span class="token-function">read</span>(<span class="token-number">1024</span>) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+    conn.<span class="token-function">write</span>(<span class="token-string">"Hello"</span>);
+    conn.<span class="token-function">close</span>();
+}
+
+<span class="token-comment">// TCP Client</span>
+conn := net.<span class="token-function">connect</span>(<span class="token-string">"example.com"</span>, <span class="token-number">80</span>) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-process">
+            <h2>process Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> process;
+
+<span class="token-comment">// Execute command</span>
+result := process.<span class="token-function">run</span>(<span class="token-string">"ls"</span>, [<span class="token-string">"-la"</span>]) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+<span class="token-builtin">print</span>(result.output);
+<span class="token-builtin">print</span>(result.exit_code);
+
+<span class="token-comment">// Environment variables</span>
+home := process.<span class="token-function">env</span>(<span class="token-string">"HOME"</span>) <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-keyword">err</span>;
+process.<span class="token-function">set_env</span>(<span class="token-string">"MY_VAR"</span>, <span class="token-string">"value"</span>);
+
+<span class="token-comment">// Working directory</span>
+dir := process.<span class="token-function">cwd</span>() <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-keyword">err</span>;
+args := process.<span class="token-function">args</span>();</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-regex">
+            <h2>regex Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> regex;
+
+re := regex.<span class="token-function">compile</span>(<span class="token-string">r"(\d+)-(\d+)"</span>) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+
+<span class="token-comment">// Matching</span>
+re.<span class="token-function">matches</span>(<span class="token-string">"123"</span>);      <span class="token-comment">// full match</span>
+re.<span class="token-function">contains</span>(<span class="token-string">"abc123"</span>);  <span class="token-comment">// partial match</span>
+
+<span class="token-comment">// Finding</span>
+m := re.<span class="token-function">find</span>(<span class="token-string">"Price: 100-200"</span>);
+<span class="token-keyword">if</span> m.<span class="token-function">found</span>() {
+    <span class="token-builtin">print</span>(m.text);       <span class="token-comment">// "100-200"</span>
+    <span class="token-builtin">print</span>(m.<span class="token-function">group</span>(<span class="token-number">1</span>));   <span class="token-comment">// "100"</span>
+}
+
+<span class="token-comment">// Replacement</span>
+re.<span class="token-function">replace</span>(<span class="token-string">"123-456"</span>, <span class="token-string">"$2-$1"</span>);  <span class="token-comment">// "456-123"</span></code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-math">
+            <h2>math Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> math;
+
+<span class="token-comment">// Constants</span>
+math.PI;   <span class="token-comment">// 3.14159...</span>
+math.E;    <span class="token-comment">// 2.71828...</span>
+
+<span class="token-comment">// Operations</span>
+math.<span class="token-function">abs</span>(-<span class="token-number">5.5</span>);
+math.<span class="token-function">sqrt</span>(<span class="token-number">16.0</span>);
+math.<span class="token-function">pow</span>(<span class="token-number">2.0</span>, <span class="token-number">10.0</span>);
+math.<span class="token-function">sin</span>(math.PI / <span class="token-number">2.0</span>);
+math.<span class="token-function">floor</span>(<span class="token-number">3.7</span>);
+math.<span class="token-function">ceil</span>(<span class="token-number">3.2</span>);
+math.<span class="token-function">min</span>(<span class="token-number">3.0</span>, <span class="token-number">7.0</span>);
+math.<span class="token-function">max</span>(<span class="token-number">3.0</span>, <span class="token-number">7.0</span>);</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-time">
+            <h2>time Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> time;
+
+<span class="token-comment">// Duration</span>
+d := time.<span class="token-function">seconds</span>(<span class="token-number">90</span>);
+d := time.<span class="token-function">minutes</span>(<span class="token-number">5</span>);
+d := time.<span class="token-function">hours</span>(<span class="token-number">2</span>);
+
+<span class="token-comment">// Timestamp</span>
+now := time.<span class="token-function">now</span>();
+<span class="token-builtin">print</span>(now.year, now.month, now.day);
+
+<span class="token-comment">// Arithmetic</span>
+future := now + time.<span class="token-function">days</span>(<span class="token-number">7</span>);
+elapsed := time.<span class="token-function">since</span>(start);
+
+<span class="token-comment">// Formatting</span>
+formatted := now.<span class="token-function">format</span>(<span class="token-string">"%Y-%m-%d %H:%M:%S"</span>);</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-random">
+            <h2>random Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> random;
+
+dice := random.<span class="token-function">int</span>(<span class="token-number">1</span>, <span class="token-number">6</span>);
+chance := random.<span class="token-function">float</span>();
+coin := random.<span class="token-function">bool</span>();
+
+items := [<span class="token-string">"a"</span>, <span class="token-string">"b"</span>, <span class="token-string">"c"</span>];
+pick := random.<span class="token-function">choice</span>(items) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+random.<span class="token-function">shuffle</span>(items);
+
+<span class="token-comment">// Seed for reproducibility</span>
+random.<span class="token-function">seed</span>(<span class="token-number">42</span>);</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-algo">
+            <h2>algo Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> algo;
+
+nums := [<span class="token-number">3</span>, <span class="token-number">1</span>, <span class="token-number">4</span>, <span class="token-number">1</span>, <span class="token-number">5</span>];
+
+<span class="token-comment">// Sorting</span>
+algo.<span class="token-function">sort_int</span>(nums);
+
+<span class="token-comment">// Aggregation</span>
+algo.<span class="token-function">sum_int</span>(nums);
+algo.<span class="token-function">min_int</span>(nums) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+
+<span class="token-comment">// Transformations</span>
+doubled := algo.<span class="token-function">map_int</span>(nums, <span class="token-keyword">fn</span>(<span class="token-type">int</span> x) -> <span class="token-type">int</span> { <span class="token-keyword">return</span> x * <span class="token-number">2</span>; });
+large := algo.<span class="token-function">filter_int</span>(nums, <span class="token-keyword">fn</span>(<span class="token-type">int</span> x) -> <span class="token-type">bool</span> { <span class="token-keyword">return</span> x > <span class="token-number">2</span>; });
+
+<span class="token-comment">// Predicates</span>
+algo.<span class="token-function">all_int</span>(nums, <span class="token-keyword">fn</span>(<span class="token-type">int</span> x) -> <span class="token-type">bool</span> { <span class="token-keyword">return</span> x > <span class="token-number">0</span>; });
+algo.<span class="token-function">any_int</span>(nums, <span class="token-keyword">fn</span>(<span class="token-type">int</span> x) -> <span class="token-type">bool</span> { <span class="token-keyword">return</span> x > <span class="token-number">3</span>; });</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-json">
+            <h2>json Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> json;
+
+<span class="token-comment">// Parsing</span>
+data := json.<span class="token-function">parse</span>(<span class="token-string">'{"name": "Alice", "age": 30}'</span>) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+name := data.<span class="token-function">get_str</span>(<span class="token-string">"name"</span>) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+
+<span class="token-comment">// Creating</span>
+obj := json.<span class="token-function">object</span>();
+obj.<span class="token-function">set_str</span>(<span class="token-string">"name"</span>, <span class="token-string">"Charlie"</span>);
+obj.<span class="token-function">set_int</span>(<span class="token-string">"age"</span>, <span class="token-number">25</span>);
+
+<span class="token-comment">// Serialization</span>
+json_str := json.<span class="token-function">stringify</span>(obj);
+json_str := json.<span class="token-function">stringify_pretty</span>(obj);</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-log">
+            <h2>log Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> log;
+
+log.<span class="token-function">debug</span>(<span class="token-string">"Debug info"</span>);
+log.<span class="token-function">info</span>(<span class="token-string">"App started"</span>);
+log.<span class="token-function">warn</span>(<span class="token-string">"High memory"</span>);
+log.<span class="token-function">error</span>(<span class="token-string">"Connection failed"</span>);
+
+<span class="token-comment">// With key-value</span>
+log.<span class="token-function">info_kv</span>(<span class="token-string">"User login"</span>, <span class="token-string">"user_id"</span>, <span class="token-string">"12345"</span>);
+
+<span class="token-comment">// Configuration</span>
+log.<span class="token-function">set_level</span>(log.INFO);
+log.<span class="token-function">add_file</span>(<span class="token-string">"/var/log/app.log"</span>);</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-sync">
+            <h2>sync Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> sync;
+
+<span class="token-comment">// Mutex</span>
+mtx := sync.<span class="token-function">mutex_create</span>();
+sync.<span class="token-function">mutex_lock</span>(mtx);
+<span class="token-comment">// critical section</span>
+sync.<span class="token-function">mutex_unlock</span>(mtx);
+
+<span class="token-comment">// WaitGroup</span>
+wg := sync.<span class="token-function">waitgroup_create</span>();
+sync.<span class="token-function">waitgroup_add</span>(wg, <span class="token-number">3</span>);
+
+<span class="token-keyword">go</span> <span class="token-keyword">fn</span>() {
+    <span class="token-comment">// work</span>
+    sync.<span class="token-function">waitgroup_done</span>(wg);
+}();
+
+sync.<span class="token-function">waitgroup_wait</span>(wg);
+
+<span class="token-comment">// Atomic</span>
+counter := sync.<span class="token-function">atomic_int_create</span>(<span class="token-number">0</span>);
+sync.<span class="token-function">atomic_int_add</span>(counter, <span class="token-number">5</span>);</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-yaml">
+            <h2>yaml Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> yaml;
+
+data := yaml.<span class="token-function">parse</span>(<span class="token-string">"name: Alice\nage: 30"</span>) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+name := data.<span class="token-function">get_str</span>(<span class="token-string">"name"</span>) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+
+obj := yaml.<span class="token-function">object</span>();
+obj.<span class="token-function">set_str</span>(<span class="token-string">"name"</span>, <span class="token-string">"Charlie"</span>);
+
+yaml_str := yaml.<span class="token-function">stringify</span>(obj);</code></pre>
+            </div>
+        </section>
+
+        <section id="stdlib-markdown">
+            <h2>markdown Module</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> markdown;
+
+<span class="token-comment">// Convert to HTML</span>
+html := markdown.<span class="token-function">to_html</span>(<span class="token-string">"# Title\n\n**bold**"</span>);
+
+<span class="token-comment">// Extract plain text</span>
+text := markdown.<span class="token-function">to_text</span>(<span class="token-string">"# Hello **World**"</span>);
+
+<span class="token-comment">// Document parsing</span>
+doc := markdown.<span class="token-function">parse</span>(<span class="token-string">"# Title"</span>) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
+html := doc.<span class="token-function">to_html</span>();</code></pre>
+            </div>
+        </section>
+
+        <section id="imports">
+            <h2>Import System</h2>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> http;
+<span class="token-keyword">import</span> fs;
+<span class="token-keyword">import</span> tests.testlib;
+
+testlib.<span class="token-function">greet</span>();
+result := testlib.<span class="token-function">add</span>(<span class="token-number">2</span>, <span class="token-number">3</span>);</code></pre>
+            </div>
+
+            <h3>Using</h3>
+            <p>Bring module members into local namespace:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-keyword">import</span> log;
+<span class="token-keyword">using</span> log.info, log.debug, log.warn, log.error;
+
+<span class="token-keyword">fn</span> <span class="token-function">main</span>() {
+    <span class="token-function">info</span>(<span class="token-string">"Application started"</span>);
+}
+
+<span class="token-comment">// Wildcard import</span>
+<span class="token-keyword">import</span> math;
+<span class="token-keyword">using</span> math.*;
+
+x := <span class="token-function">sin</span>(PI / <span class="token-number">2.0</span>);</code></pre>
+            </div>
+        </section>
+
+        <section id="visibility">
+            <h2>Visibility</h2>
+            <p>Use <code>@private</code> to restrict visibility to the current file:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-decorator">@private</span> <span class="token-keyword">fn</span> <span class="token-function">internal_helper</span>() -> <span class="token-type">int</span> {
+    <span class="token-keyword">return</span> <span class="token-number">42</span>;
+}
+
+<span class="token-decorator">@private</span> <span class="token-type">MyStruct</span> :: <span class="token-keyword">struct</span> {
+    value <span class="token-type">int</span>
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="ffi">
+            <h2>FFI (Foreign Function Interface)</h2>
+            <table>
+                <thead>
+                    <tr><th>Type</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>cint</code></td><td>C int</td></tr>
+                    <tr><td><code>cstr</code></td><td>C string (const char*)</td></tr>
+                    <tr><td><code>void</code></td><td>void return type</td></tr>
+                </tbody>
+            </table>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-decorator">@extern</span>(<span class="token-string">"c"</span>) <span class="token-keyword">fn</span> <span class="token-function">puts</span>(<span class="token-type">cstr</span> s) -> <span class="token-type">cint</span>;
+<span class="token-decorator">@extern</span>(<span class="token-string">"m"</span>) <span class="token-keyword">fn</span> <span class="token-function">sqrt</span>(<span class="token-type">f64</span> x) -> <span class="token-type">f64</span>;
+
+<span class="token-keyword">fn</span> <span class="token-function">main</span>() {
+    <span class="token-function">puts</span>(<span class="token-string">"Hello from C!"</span>);
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="resource-management">
+            <h2>Resource Management</h2>
+            <p>The <code>with</code> statement provides automatic resource cleanup:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bishop</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-type">Resource</span> :: <span class="token-keyword">struct</span> {
+    name <span class="token-type">str</span>
+}
+
+<span class="token-type">Resource</span> :: <span class="token-function">close</span>(<span class="token-keyword">self</span>) {
+    <span class="token-builtin">print</span>(<span class="token-string">"Closing resource"</span>);
+}
+
+<span class="token-keyword">fn</span> <span class="token-function">main</span>() {
+    <span class="token-keyword">with</span> <span class="token-function">create_resource</span>(<span class="token-string">"myfile"</span>) <span class="token-keyword">as</span> res {
+        <span class="token-builtin">print</span>(res.name);
+    }  <span class="token-comment">// res.close() called automatically</span>
+}</code></pre>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Copy code functionality
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code');
+            const text = code.textContent;
+
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Collapsible sections
+        function toggleCollapsible(header) {
+            header.classList.toggle('active');
+            const content = header.nextElementSibling;
+            content.classList.toggle('show');
+        }
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+
+        // Build search index
+        const sections = document.querySelectorAll('section');
+        const searchIndex = [];
+
+        sections.forEach(section => {
+            const id = section.id;
+            const h1 = section.querySelector('h1');
+            const h2 = section.querySelector('h2');
+            const h3s = section.querySelectorAll('h3');
+
+            const title = h1 ? h1.textContent : (h2 ? h2.textContent : id);
+            const content = section.textContent.toLowerCase();
+
+            searchIndex.push({
+                id,
+                title,
+                content,
+                element: section
+            });
+
+            h3s.forEach(h3 => {
+                searchIndex.push({
+                    id,
+                    title: h3.textContent,
+                    section: title,
+                    content: h3.parentElement ? h3.parentElement.textContent.toLowerCase() : '',
+                    element: h3
+                });
+            });
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+
+            if (query.length < 2) {
+                searchResults.classList.remove('active');
+                return;
+            }
+
+            const matches = searchIndex.filter(item =>
+                item.title.toLowerCase().includes(query) ||
+                item.content.includes(query)
+            ).slice(0, 10);
+
+            if (matches.length > 0) {
+                searchResults.innerHTML = matches.map(item => `
+                    <div class="search-result-item" onclick="goToResult('${item.id}')">
+                        <div class="search-result-title">${item.title}</div>
+                        ${item.section ? `<div class="search-result-section">${item.section}</div>` : ''}
+                    </div>
+                `).join('');
+                searchResults.classList.add('active');
+            } else {
+                searchResults.innerHTML = '<div class="search-result-item"><div class="search-result-title">No results found</div></div>';
+                searchResults.classList.add('active');
+            }
+        });
+
+        function goToResult(id) {
+            const section = document.getElementById(id);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+                searchResults.classList.remove('active');
+                searchInput.value = '';
+            }
+        }
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        // Active nav link highlighting
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
