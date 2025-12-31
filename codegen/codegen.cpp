@@ -370,6 +370,16 @@ string generate(CodeGenState& state, const unique_ptr<Program>& program, bool te
         out += "\n";
     }
 
+    // Forward declare all functions
+    for (const auto& fn : program->functions) {
+        out += generate_function_declaration(state, *fn);
+    }
+
+    if (!program->functions.empty()) {
+        out += "\n";
+    }
+
+    // Generate function definitions
     for (const auto& fn : program->functions) {
         out += generate_function(state, *fn);
     }
@@ -619,6 +629,16 @@ string generate_with_imports(
         out += "\n";
     }
 
+    // Forward declare all functions
+    for (const auto& fn : program->functions) {
+        out += generate_function_declaration(state, *fn);
+    }
+
+    if (!program->functions.empty()) {
+        out += "\n";
+    }
+
+    // Generate function definitions
     for (const auto& fn : program->functions) {
         out += generate_function(state, *fn);
     }

@@ -80,6 +80,27 @@ static string get_cpp_return_type(const string& return_type, const string& error
 }
 
 /**
+ * Generates a forward declaration for a function.
+ * Used to allow functions to call other functions defined later in the file.
+ */
+string generate_function_declaration(CodeGenState& state, const FunctionDef& fn) {
+    // Skip main - it's wrapped specially and doesn't need a forward declaration
+    if (fn.name == "main" && !state.test_mode) {
+        return "";
+    }
+
+    string cpp_rt = get_cpp_return_type(fn.return_type, fn.error_type);
+
+    vector<string> param_strs;
+
+    for (const auto& p : fn.params) {
+        param_strs.push_back(fmt::format("{} {}", map_type(p.type), p.name));
+    }
+
+    return fmt::format("{} {}({});\n", cpp_rt, fn.name, fmt::join(param_strs, ", "));
+}
+
+/**
  * Generates a C++ function from a Nog FunctionDef.
  * Maps Bishop types to C++ types and handles main() specially.
  * Main is wrapped in a fiber for goroutine support.
@@ -601,8 +622,18 @@ string generate_test_harness(CodeGenState& state, const unique_ptr<Program>& pro
         out += "\n";
     }
 
+    // Forward declare all functions
+    for (const auto& fn : program->functions) {
+        out += generate_function_declaration(state, *fn);
+    }
+
+    if (!program->functions.empty()) {
+        out += "\n";
+    }
+
     vector<pair<string, bool>> test_funcs;  // name, is_fallible
 
+    // Generate function definitions
     for (const auto& fn : program->functions) {
         if (fn->name.rfind("test_", 0) == 0) {
             test_funcs.push_back({fn->name, !fn->error_type.empty()});

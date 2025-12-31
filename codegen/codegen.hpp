@@ -151,6 +151,7 @@ struct FunctionParam {
     std::string name;
 };
 std::string generate_function(CodeGenState& state, const FunctionDef& fn);
+std::string generate_function_declaration(CodeGenState& state, const FunctionDef& fn);
 std::string generate_method(CodeGenState& state, const MethodDef& method);
 std::string generate_method_declaration(CodeGenState& state, const MethodDef& method);
 std::string generate_standalone_method(CodeGenState& state, const MethodDef& method);
