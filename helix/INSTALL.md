@@ -18,7 +18,7 @@ indent = { tab-width = 4, unit = "    " }
 
 [[grammar]]
 name = "bishop"
-source = { git = "https://github.com/chrishayen/tree-sitter-bishop", rev = "main" }
+source = { git = "https://github.com/chrishayen/bishop", rev = "main", subpath = "helix" }
 ```
 
 Then run:

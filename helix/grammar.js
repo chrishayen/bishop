@@ -25,8 +25,8 @@ module.exports = grammar({
 
   extras: $ => [
     /\s/,
+    $.doc_comment,  // Must come before comment to match /// first
     $.comment,
-    $.doc_comment,
   ],
 
   word: $ => $.identifier,
@@ -54,9 +54,12 @@ module.exports = grammar({
     // Comments
     // ============================================
 
-    comment: _ => token(seq('//', /[^\/\n][^\n]*|/)),
+    // Regular line comment: // followed by optional non-/ char then anything
+    // This ensures /// is not matched as a regular comment
+    comment: _ => token(prec(-1, seq('//', /[^\n]*/))),
 
-    doc_comment: _ => token(seq('///', /[^\n]*/)),
+    // Doc comment: /// followed by anything (higher precedence)
+    doc_comment: _ => token(prec(1, seq('///', /[^\n]*/))),
 
     // ============================================
     // Imports and Using

@@ -17,7 +17,6 @@ name = "bishop"
 scope = "source.bishop"
 file-types = ["b"]
 comment-token = "//"
-block-comment-tokens = { start = "/*", end = "*/" }
 indent = { tab-width = 4, unit = "    " }
 roots = ["bishop.toml"]
 
@@ -29,7 +28,8 @@ auto-pairs = true
 
 [[grammar]]
 name = "bishop"
-source = { git = "https://github.com/chrishayen/tree-sitter-bishop", rev = "main" }
+# Note: Grammar is in the helix/ subdirectory of the bishop repo
+source = { git = "https://github.com/chrishayen/bishop", rev = "main", subpath = "helix" }
 
-# Uncomment below for local development:
-# source = { path = "/path/to/tree-sitter-bishop" }
+# For local development:
+# source = { path = "/path/to/bishop/helix" }

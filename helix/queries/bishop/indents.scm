@@ -4,13 +4,11 @@
 ; Indent triggers
 ; ============================================
 
-; Blocks increase indent
+; Blocks and bodies increase indent
 [
   (block)
   (struct_body)
   (error_body)
-  (select_statement)
-  (match_expression)
 ] @indent
 
 ; ============================================
@@ -21,47 +19,15 @@
 "}" @outdent
 
 ; ============================================
-; Indent on specific constructs
+; Special indent cases
 ; ============================================
 
-; Function definitions
-(function_definition
-  body: (block) @indent)
-
-; Method definitions
-(method_definition
-  body: (block) @indent)
-
-; Struct definitions
-(struct_definition
-  body: (struct_body) @indent)
-
-; If statements
-(if_statement
-  consequence: (block) @indent)
-
-(if_statement
-  alternative: (block) @indent)
-
-; While loops
-(while_statement
-  body: (block) @indent)
-
-; For loops
-(for_statement
-  body: (block) @indent)
-
-; Lambda expressions
-(lambda_expression
-  body: (block) @indent)
-
-; Select/case statements
-(select_statement) @indent
+; Select/case statements need indent for their clauses
 (case_clause) @indent
 (default_clause) @indent
 
-; Match expressions
-(match_expression) @indent
+; Match arms need indent
+(match_arm) @indent
 
 ; ============================================
 ; Extend behavior

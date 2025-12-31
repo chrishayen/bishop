@@ -234,9 +234,12 @@
   "}"
   "["
   "]"
-  "<"
-  ">"
 ] @punctuation.bracket
+
+; Angle brackets only in generic type contexts (not comparison operators)
+(generic_type
+  "<" @punctuation.bracket
+  ">" @punctuation.bracket)
 
 ; ============================================
 ; Comments
