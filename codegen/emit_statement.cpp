@@ -243,6 +243,39 @@ string generate_statement(CodeGenState& state, const ASTNode& node) {
                 block_code += generate_statement(state, *stmt) + " ";
             }
             handler_code = fmt::format("auto err = bishop::or_error({}); {}", temp, block_code);
+        } else if (auto* match = dynamic_cast<const OrMatch*>(or_expr->handler.get())) {
+            // or match err { ... } - generate match arms that all must fail or return
+            // Standalone or match doesn't assign to a variable, so all arms must fail/return
+            string match_code = "";
+            bool first = true;
+            for (const auto& arm : match->arms) {
+                if (arm.error_type == "_") {
+                    // Default arm
+                    if (!first) {
+                        match_code += " else { ";
+                    } else {
+                        match_code += "{ ";
+                    }
+                    if (auto* fail_stmt = dynamic_cast<const FailStmt*>(arm.body.get())) {
+                        match_code += emit_fail(state, *fail_stmt) + "; ";
+                    } else {
+                        match_code += "return " + emit(state, *arm.body) + "; ";
+                    }
+                    match_code += "}";
+                } else {
+                    // Typed arm
+                    string check = first ? "if" : " else if";
+                    match_code += fmt::format("{} (dynamic_cast<{}*>(err.get())) {{ ", check, arm.error_type);
+                    if (auto* fail_stmt = dynamic_cast<const FailStmt*>(arm.body.get())) {
+                        match_code += emit_fail(state, *fail_stmt) + "; ";
+                    } else {
+                        match_code += "return " + emit(state, *arm.body) + "; ";
+                    }
+                    match_code += "}";
+                }
+                first = false;
+            }
+            handler_code = fmt::format("auto err = {}.error(); {}", temp, match_code);
         }
 
         return preamble + "\n\tif (" + condition + ") { " + handler_code + " }";

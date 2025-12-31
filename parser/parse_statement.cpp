@@ -13,6 +13,43 @@ using namespace std;
 namespace parser {
 
 /**
+ * Parses an or handler after an expression.
+ * Returns nullptr if no 'or' token is present.
+ * Throws an error if 'or' is present but no valid handler follows.
+ */
+unique_ptr<OrExpr> try_parse_or_handler(ParserState& state, unique_ptr<ASTNode> expr) {
+    if (!check(state, TokenType::OR)) {
+        return nullptr;
+    }
+
+    int or_line = current(state).line;
+    advance(state);  // consume 'or'
+
+    auto or_expr = make_unique<OrExpr>();
+    or_expr->line = or_line;
+    or_expr->expr = move(expr);
+
+    // Parse handler based on next token
+    if (check(state, TokenType::RETURN)) {
+        or_expr->handler = parse_or_return(state);
+    } else if (check(state, TokenType::FAIL)) {
+        or_expr->handler = parse_or_fail(state);
+    } else if (check(state, TokenType::MATCH)) {
+        or_expr->handler = parse_or_match(state);
+    } else if (check(state, TokenType::LBRACE)) {
+        or_expr->handler = parse_or_block(state);
+    } else if (check(state, TokenType::CONTINUE)) {
+        or_expr->handler = parse_or_continue(state);
+    } else if (check(state, TokenType::BREAK)) {
+        or_expr->handler = parse_or_break(state);
+    } else {
+        throw runtime_error("expected 'or' handler (return, fail, match, block, continue, or break) at line " + to_string(or_line));
+    }
+
+    return or_expr;
+}
+
+/**
  * Parses any statement. Dispatches based on the first token:
  * - return: parse return statement
  * - if: parse if/else
@@ -266,29 +303,7 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
                 consume(state, TokenType::RPAREN);
 
                 // Check for 'or' handler (standalone or expression)
-                if (check(state, TokenType::OR)) {
-                    int or_line = current(state).line;
-                    advance(state);  // consume 'or'
-
-                    auto or_expr = make_unique<OrExpr>();
-                    or_expr->line = or_line;
-                    or_expr->expr = move(call);
-
-                    // Parse handler based on next token
-                    if (check(state, TokenType::RETURN)) {
-                        or_expr->handler = parse_or_return(state);
-                    } else if (check(state, TokenType::FAIL)) {
-                        or_expr->handler = parse_or_fail(state);
-                    } else if (check(state, TokenType::MATCH)) {
-                        or_expr->handler = parse_or_match(state);
-                    } else if (check(state, TokenType::LBRACE)) {
-                        or_expr->handler = parse_or_block(state);
-                    } else if (check(state, TokenType::CONTINUE)) {
-                        or_expr->handler = parse_or_continue(state);
-                    } else if (check(state, TokenType::BREAK)) {
-                        or_expr->handler = parse_or_break(state);
-                    }
-
+                if (auto or_expr = try_parse_or_handler(state, move(call))) {
                     consume(state, TokenType::SEMICOLON);
                     return or_expr;
                 }
@@ -352,29 +367,7 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
                 consume(state, TokenType::RPAREN);
 
                 // Check for 'or' handler (standalone or expression)
-                if (check(state, TokenType::OR)) {
-                    int or_line = current(state).line;
-                    advance(state);  // consume 'or'
-
-                    auto or_expr = make_unique<OrExpr>();
-                    or_expr->line = or_line;
-                    or_expr->expr = move(call);
-
-                    // Parse handler based on next token
-                    if (check(state, TokenType::RETURN)) {
-                        or_expr->handler = parse_or_return(state);
-                    } else if (check(state, TokenType::FAIL)) {
-                        or_expr->handler = parse_or_fail(state);
-                    } else if (check(state, TokenType::MATCH)) {
-                        or_expr->handler = parse_or_match(state);
-                    } else if (check(state, TokenType::LBRACE)) {
-                        or_expr->handler = parse_or_block(state);
-                    } else if (check(state, TokenType::CONTINUE)) {
-                        or_expr->handler = parse_or_continue(state);
-                    } else if (check(state, TokenType::BREAK)) {
-                        or_expr->handler = parse_or_break(state);
-                    }
-
+                if (auto or_expr = try_parse_or_handler(state, move(call))) {
                     consume(state, TokenType::SEMICOLON);
                     return or_expr;
                 }
@@ -445,29 +438,7 @@ unique_ptr<ASTNode> parse_function_call(ParserState& state) {
     consume(state, TokenType::RPAREN);
 
     // Check for 'or' handler (standalone or expression)
-    if (check(state, TokenType::OR)) {
-        int or_line = current(state).line;
-        advance(state);  // consume 'or'
-
-        auto or_expr = make_unique<OrExpr>();
-        or_expr->line = or_line;
-        or_expr->expr = move(call);
-
-        // Parse handler based on next token
-        if (check(state, TokenType::RETURN)) {
-            or_expr->handler = parse_or_return(state);
-        } else if (check(state, TokenType::FAIL)) {
-            or_expr->handler = parse_or_fail(state);
-        } else if (check(state, TokenType::MATCH)) {
-            or_expr->handler = parse_or_match(state);
-        } else if (check(state, TokenType::LBRACE)) {
-            or_expr->handler = parse_or_block(state);
-        } else if (check(state, TokenType::CONTINUE)) {
-            or_expr->handler = parse_or_continue(state);
-        } else if (check(state, TokenType::BREAK)) {
-            or_expr->handler = parse_or_break(state);
-        }
-
+    if (auto or_expr = try_parse_or_handler(state, move(call))) {
         consume(state, TokenType::SEMICOLON);
         return or_expr;
     }
