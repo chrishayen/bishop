@@ -8,7 +8,7 @@
  */
 
 /**
- * @nog_method length
+ * @bishop_method length
  * @type List<T>
  * @description Returns the number of elements in the list.
  * @returns int - The list length
@@ -18,7 +18,7 @@
  */
 
 /**
- * @nog_method is_empty
+ * @bishop_method is_empty
  * @type List<T>
  * @description Returns true if the list has no elements.
  * @returns bool - True if empty, false otherwise
@@ -30,7 +30,7 @@
  */
 
 /**
- * @nog_method contains
+ * @bishop_method contains
  * @type List<T>
  * @description Checks if the list contains the given element.
  * @param elem T - The element to search for
@@ -43,7 +43,7 @@
  */
 
 /**
- * @nog_method get
+ * @bishop_method get
  * @type List<T>
  * @description Returns the element at the specified index (bounds-checked).
  * @param index int - The index (0-based)
@@ -54,7 +54,7 @@
  */
 
 /**
- * @nog_method set
+ * @bishop_method set
  * @type List<T>
  * @description Replaces the element at the specified index.
  * @param index int - The index (0-based)
@@ -65,7 +65,7 @@
  */
 
 /**
- * @nog_method append
+ * @bishop_method append
  * @type List<T>
  * @description Adds an element to the end of the list.
  * @param elem T - The element to add
@@ -75,7 +75,7 @@
  */
 
 /**
- * @nog_method pop
+ * @bishop_method pop
  * @type List<T>
  * @description Removes the last element from the list.
  * @example
@@ -84,7 +84,7 @@
  */
 
 /**
- * @nog_method clear
+ * @bishop_method clear
  * @type List<T>
  * @description Removes all elements from the list.
  * @example
@@ -93,7 +93,7 @@
  */
 
 /**
- * @nog_method first
+ * @bishop_method first
  * @type List<T>
  * @description Returns the first element in the list.
  * @returns T - The first element
@@ -103,7 +103,7 @@
  */
 
 /**
- * @nog_method last
+ * @bishop_method last
  * @type List<T>
  * @description Returns the last element in the list.
  * @returns T - The last element
@@ -113,7 +113,7 @@
  */
 
 /**
- * @nog_method insert
+ * @bishop_method insert
  * @type List<T>
  * @description Inserts an element at the specified index.
  * @param index int - The index to insert at
@@ -124,7 +124,7 @@
  */
 
 /**
- * @nog_method remove
+ * @bishop_method remove
  * @type List<T>
  * @description Removes the element at the specified index.
  * @param index int - The index to remove
@@ -137,7 +137,7 @@
 
 #include <map>
 
-namespace nog {
+namespace bishop {
 
 std::optional<ListMethodInfo> get_list_method_info(const std::string& method_name) {
     // "T" is placeholder for element type, substituted at type check time
@@ -170,4 +170,4 @@ std::optional<ListMethodInfo> get_list_method_info(const std::string& method_nam
     return std::nullopt;
 }
 
-}  // namespace nog
+}  // namespace bishop

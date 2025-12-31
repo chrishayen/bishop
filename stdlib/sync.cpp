@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_fn mutex_create
+ * @bishop_fn mutex_create
  * @module sync
  * @description Creates a new mutex for thread synchronization.
  * @returns Mutex - A new mutex object
@@ -17,7 +17,7 @@
  */
 
 /**
- * @nog_fn mutex_lock
+ * @bishop_fn mutex_lock
  * @module sync
  * @description Acquires the mutex lock. Blocks until lock is available.
  * @param mtx Mutex - The mutex to lock
@@ -30,7 +30,7 @@
  */
 
 /**
- * @nog_fn mutex_unlock
+ * @bishop_fn mutex_unlock
  * @module sync
  * @description Releases the mutex lock.
  * @param mtx Mutex - The mutex to unlock
@@ -43,7 +43,7 @@
  */
 
 /**
- * @nog_fn mutex_try_lock
+ * @bishop_fn mutex_try_lock
  * @module sync
  * @description Attempts to acquire the mutex lock without blocking.
  * @param mtx Mutex - The mutex to try to lock
@@ -58,7 +58,7 @@
  */
 
 /**
- * @nog_fn waitgroup_create
+ * @bishop_fn waitgroup_create
  * @module sync
  * @description Creates a new WaitGroup for coordinating goroutines.
  * @returns WaitGroup - A new wait group object
@@ -68,7 +68,7 @@
  */
 
 /**
- * @nog_fn waitgroup_add
+ * @bishop_fn waitgroup_add
  * @module sync
  * @description Adds delta to the WaitGroup counter.
  * @param wg WaitGroup - The wait group
@@ -80,7 +80,7 @@
  */
 
 /**
- * @nog_fn waitgroup_done
+ * @bishop_fn waitgroup_done
  * @module sync
  * @description Decrements the WaitGroup counter by 1.
  * @param wg WaitGroup - The wait group
@@ -93,7 +93,7 @@
  */
 
 /**
- * @nog_fn waitgroup_wait
+ * @bishop_fn waitgroup_wait
  * @module sync
  * @description Blocks until the WaitGroup counter reaches zero.
  * @param wg WaitGroup - The wait group to wait on
@@ -107,7 +107,7 @@
  */
 
 /**
- * @nog_fn once_create
+ * @bishop_fn once_create
  * @module sync
  * @description Creates a Once object for one-time initialization.
  * @returns Once - A new once object
@@ -117,7 +117,7 @@
  */
 
 /**
- * @nog_fn once_do
+ * @bishop_fn once_do
  * @module sync
  * @description Executes the function exactly once, even if called concurrently.
  * @param once Once - The once object
@@ -129,7 +129,7 @@
  */
 
 /**
- * @nog_fn atomic_int_create
+ * @bishop_fn atomic_int_create
  * @module sync
  * @description Creates a new atomic integer with initial value.
  * @param initial int - The initial value
@@ -140,7 +140,7 @@
  */
 
 /**
- * @nog_fn atomic_int_load
+ * @bishop_fn atomic_int_load
  * @module sync
  * @description Atomically loads and returns the current value.
  * @param a AtomicInt - The atomic integer
@@ -152,7 +152,7 @@
  */
 
 /**
- * @nog_fn atomic_int_store
+ * @bishop_fn atomic_int_store
  * @module sync
  * @description Atomically stores a new value.
  * @param a AtomicInt - The atomic integer
@@ -164,7 +164,7 @@
  */
 
 /**
- * @nog_fn atomic_int_add
+ * @bishop_fn atomic_int_add
  * @module sync
  * @description Atomically adds delta and returns the previous value.
  * @param a AtomicInt - The atomic integer
@@ -177,7 +177,7 @@
  */
 
 /**
- * @nog_fn atomic_int_swap
+ * @bishop_fn atomic_int_swap
  * @module sync
  * @description Atomically swaps the value and returns the old value.
  * @param a AtomicInt - The atomic integer
@@ -190,7 +190,7 @@
  */
 
 /**
- * @nog_fn atomic_int_compare_swap
+ * @bishop_fn atomic_int_compare_swap
  * @module sync
  * @description Atomically compares and swaps if equal.
  * @param a AtomicInt - The atomic integer
@@ -207,7 +207,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in sync module.
@@ -360,4 +360,4 @@ string generate_sync_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

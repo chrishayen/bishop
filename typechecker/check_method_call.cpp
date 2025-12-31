@@ -15,7 +15,7 @@ namespace typechecker {
  * Handles optional parameters for padding methods.
  */
 TypeInfo check_str_method(TypeCheckerState& state, const MethodCall& mcall) {
-    auto method_info = nog::get_str_method_info(mcall.method_name);
+    auto method_info = bishop::get_str_method_info(mcall.method_name);
 
     if (!method_info) {
         error(state, "str has no method '" + mcall.method_name + "'", mcall.line);

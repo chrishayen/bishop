@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in random module.
@@ -38,4 +38,4 @@ std::unique_ptr<Program> create_random_module();
  */
 std::string generate_random_runtime();
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

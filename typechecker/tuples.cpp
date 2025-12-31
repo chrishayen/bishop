@@ -8,7 +8,7 @@
  */
 
 /**
- * @nog_method get
+ * @bishop_method get
  * @type Tuple<T>
  * @description Returns the element at the specified index (0 to size-1).
  * @param index int - The index (0-based)
@@ -22,7 +22,7 @@
 
 #include <map>
 
-namespace nog {
+namespace bishop {
 
 std::optional<TupleMethodInfo> get_tuple_method_info(const std::string& method_name) {
     // "T" is placeholder for element type, substituted at type check time
@@ -40,4 +40,4 @@ std::optional<TupleMethodInfo> get_tuple_method_info(const std::string& method_n
     return std::nullopt;
 }
 
-}  // namespace nog
+}  // namespace bishop

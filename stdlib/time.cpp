@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_struct Duration
+ * @bishop_struct Duration
  * @module time
  * @description Represents a time span. Stores internally as milliseconds.
  * @field millis_value int - The duration in milliseconds (internal)
@@ -18,7 +18,7 @@
  */
 
 /**
- * @nog_struct Timestamp
+ * @bishop_struct Timestamp
  * @module time
  * @description Represents a point in time with broken-down components.
  * @field year int - Year (e.g., 2024)
@@ -35,7 +35,7 @@
  */
 
 /**
- * @nog_fn millis
+ * @bishop_fn millis
  * @module time
  * @description Creates a Duration from milliseconds.
  * @param ms int - Number of milliseconds
@@ -46,7 +46,7 @@
  */
 
 /**
- * @nog_fn seconds
+ * @bishop_fn seconds
  * @module time
  * @description Creates a Duration from seconds.
  * @param s int - Number of seconds
@@ -57,7 +57,7 @@
  */
 
 /**
- * @nog_fn minutes
+ * @bishop_fn minutes
  * @module time
  * @description Creates a Duration from minutes.
  * @param m int - Number of minutes
@@ -68,7 +68,7 @@
  */
 
 /**
- * @nog_fn hours
+ * @bishop_fn hours
  * @module time
  * @description Creates a Duration from hours.
  * @param h int - Number of hours
@@ -79,7 +79,7 @@
  */
 
 /**
- * @nog_fn days
+ * @bishop_fn days
  * @module time
  * @description Creates a Duration from days.
  * @param d int - Number of days
@@ -90,7 +90,7 @@
  */
 
 /**
- * @nog_fn now
+ * @bishop_fn now
  * @module time
  * @description Returns the current local time.
  * @returns Timestamp - Current local timestamp
@@ -100,7 +100,7 @@
  */
 
 /**
- * @nog_fn now_utc
+ * @bishop_fn now_utc
  * @module time
  * @description Returns the current UTC time.
  * @returns Timestamp - Current UTC timestamp
@@ -110,7 +110,7 @@
  */
 
 /**
- * @nog_fn since
+ * @bishop_fn since
  * @module time
  * @description Returns the elapsed duration since a timestamp.
  * @param ts Timestamp - The starting timestamp
@@ -123,7 +123,7 @@
  */
 
 /**
- * @nog_fn parse
+ * @bishop_fn parse
  * @module time
  * @description Parses a timestamp from a string.
  * @param str str - The string to parse
@@ -135,7 +135,7 @@
  */
 
 /**
- * @nog_method as_millis
+ * @bishop_method as_millis
  * @type Duration
  * @description Returns the duration in milliseconds.
  * @returns int - Duration in milliseconds
@@ -145,7 +145,7 @@
  */
 
 /**
- * @nog_method as_seconds
+ * @bishop_method as_seconds
  * @type Duration
  * @description Returns the duration in seconds.
  * @returns int - Duration in seconds
@@ -155,7 +155,7 @@
  */
 
 /**
- * @nog_method as_minutes
+ * @bishop_method as_minutes
  * @type Duration
  * @description Returns the duration in minutes.
  * @returns int - Duration in minutes
@@ -165,7 +165,7 @@
  */
 
 /**
- * @nog_method as_hours
+ * @bishop_method as_hours
  * @type Duration
  * @description Returns the duration in hours.
  * @returns int - Duration in hours
@@ -175,7 +175,7 @@
  */
 
 /**
- * @nog_method as_days
+ * @bishop_method as_days
  * @type Duration
  * @description Returns the duration in days.
  * @returns int - Duration in days
@@ -185,7 +185,7 @@
  */
 
 /**
- * @nog_method unix
+ * @bishop_method unix
  * @type Timestamp
  * @description Returns Unix timestamp in seconds.
  * @returns int - Unix timestamp in seconds
@@ -195,7 +195,7 @@
  */
 
 /**
- * @nog_method unix_millis
+ * @bishop_method unix_millis
  * @type Timestamp
  * @description Returns Unix timestamp in milliseconds.
  * @returns int - Unix timestamp in milliseconds
@@ -205,7 +205,7 @@
  */
 
 /**
- * @nog_method format
+ * @bishop_method format
  * @type Timestamp
  * @description Formats the timestamp using strftime specifiers.
  * @param fmt str - Format string
@@ -219,7 +219,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in time module.
@@ -408,4 +408,4 @@ string generate_time_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

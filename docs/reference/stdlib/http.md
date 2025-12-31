@@ -1,6 +1,6 @@
 # http Module
 
-```nog
+```bishop
 import http;
 ```
 
@@ -19,7 +19,7 @@ Represents an incoming HTTP request.
 | `body` | `str` | Request body content |
 
 **Example:**
-```nog
+```bishop
 fn handle(http.Request req) -> http.Response {
     if req.method == "POST" {
         return http.text("Received: " + req.body);
@@ -41,7 +41,7 @@ Represents an HTTP response to send back to the client.
 | `body` | `str` | Response body content |
 
 **Example:**
-```nog
+```bishop
 resp := http.Response { status: 200, content_type: "text/html", body: "<h1>Hello</h1>" };
 ```
 
@@ -50,7 +50,7 @@ resp := http.Response { status: 200, content_type: "text/html", body: "<h1>Hello
 HTTP application with routing support.
 
 **Example:**
-```nog
+```bishop
 app := http.App {};
 app.get("/", home_handler);
 app.post("/submit", submit_handler);
@@ -63,7 +63,7 @@ app.listen(8080);
 
 Creates a 200 OK response with text/plain content type.
 
-```nog
+```bishop
 fn text(str content) -> http.Response
 ```
 
@@ -74,7 +74,7 @@ fn text(str content) -> http.Response
 **Returns:** `http.Response` - A text response
 
 **Example:**
-```nog
+```bishop
 return http.text("Hello, World!");
 ```
 
@@ -82,7 +82,7 @@ return http.text("Hello, World!");
 
 Creates a 200 OK response with application/json content type.
 
-```nog
+```bishop
 fn json(str content) -> http.Response
 ```
 
@@ -93,7 +93,7 @@ fn json(str content) -> http.Response
 **Returns:** `http.Response` - A JSON response
 
 **Example:**
-```nog
+```bishop
 return http.json("{\"status\": \"ok\"}");
 ```
 
@@ -101,14 +101,14 @@ return http.json("{\"status\": \"ok\"}");
 
 Creates a 404 Not Found response.
 
-```nog
+```bishop
 fn not_found() -> http.Response
 ```
 
 **Returns:** `http.Response` - A 404 response
 
 **Example:**
-```nog
+```bishop
 if path == "/unknown" {
     return http.not_found();
 }
@@ -118,7 +118,7 @@ if path == "/unknown" {
 
 Starts an HTTP server on the specified port with a single handler function.
 
-```nog
+```bishop
 fn serve(int port, fn(http.Request) handler)
 ```
 
@@ -128,7 +128,7 @@ fn serve(int port, fn(http.Request) handler)
 - `handler` (`fn(http.Request)`): Handler function for all requests
 
 **Example:**
-```nog
+```bishop
 fn handle(http.Request req) -> http.Response {
     return http.text("Hello!");
 }

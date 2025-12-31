@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_struct ProcessResult
+ * @bishop_struct ProcessResult
  * @module process
  * @description Result of a process execution.
  * @field output str - Standard output from the process
@@ -21,7 +21,7 @@
  */
 
 /**
- * @nog_struct ProcessOptions
+ * @bishop_struct ProcessOptions
  * @module process
  * @description Options for process execution.
  * @field cwd str - Working directory for the process
@@ -38,7 +38,7 @@
  */
 
 /**
- * @nog_fn run
+ * @bishop_fn run
  * @module process
  * @description Executes a command with arguments.
  * @param cmd str - Command to execute
@@ -53,7 +53,7 @@
  */
 
 /**
- * @nog_fn shell
+ * @bishop_fn shell
  * @module process
  * @description Executes a shell command with pipe and redirect support.
  * @param cmd str - Shell command to execute
@@ -64,7 +64,7 @@
  */
 
 /**
- * @nog_fn env
+ * @bishop_fn env
  * @module process
  * @description Gets an environment variable value.
  * @param name str - Name of the environment variable
@@ -74,7 +74,7 @@
  */
 
 /**
- * @nog_fn set_env
+ * @bishop_fn set_env
  * @module process
  * @description Sets an environment variable.
  * @param name str - Name of the environment variable
@@ -85,7 +85,7 @@
  */
 
 /**
- * @nog_fn cwd
+ * @bishop_fn cwd
  * @module process
  * @description Gets the current working directory.
  * @returns str or err - Current working directory path, or error on failure
@@ -95,7 +95,7 @@
  */
 
 /**
- * @nog_fn chdir
+ * @bishop_fn chdir
  * @module process
  * @description Changes the current working directory.
  * @param path str - Path to change to
@@ -108,7 +108,7 @@
  */
 
 /**
- * @nog_fn args
+ * @bishop_fn args
  * @module process
  * @description Gets command line arguments.
  * @returns List<str> - List of command line arguments
@@ -123,7 +123,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in process module.
@@ -223,4 +223,4 @@ string generate_process_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

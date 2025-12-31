@@ -14,7 +14,7 @@ Leverage C++ best practices for memory safety and FFI:
 **Goal:** `&` is only for pass-by-reference to functions, not storable in variables.
 
 ### Current Behavior
-```nog
+```bishop
 Person p = &bob;     // storing pointer in variable - REMOVE
 p := &bob;           // inferred pointer variable - REMOVE
 fn process(Person *p) // pointer parameter - KEEP
@@ -22,7 +22,7 @@ process(&bob);        // call site - KEEP
 ```
 
 ### New Behavior (Go-style)
-```nog
+```bishop
 fn process(Person *p) {    // pointer parameter (like Go)
     p.age = 30;            // auto-deref, always mutable
 }
@@ -57,7 +57,7 @@ p := &bob;                 // ERROR: cannot store pointer
 ### Syntax Options
 
 #### Option A: Built-in unique/shared
-```nog
+```bishop
 file := unique<File>(fs.open("data.txt"));
 // automatically closed when out of scope
 
@@ -66,13 +66,13 @@ shared := shared<Connection>(db.connect());
 ```
 
 #### Option B: Handle keyword
-```nog
+```bishop
 handle file := fs.open("data.txt");
 // compiler tracks ownership, auto-cleanup
 ```
 
 #### Option C: Drop trait pattern
-```nog
+```bishop
 File :: struct {
     fd int
 }
@@ -100,13 +100,13 @@ File :: drop(self) {
 **Goal:** Full interop with C libraries.
 
 ### 3.1 Type Mapping (existing)
-```nog
+```bishop
 @extern("c") fn puts(cstr s) -> cint;
 @extern("m") fn sqrt(f64 x) -> f64;
 ```
 
 ### 3.2 Struct Passing to C
-```nog
+```bishop
 // C-compatible struct layout
 @repr("c")
 Point :: struct {
@@ -119,7 +119,7 @@ Point :: struct {
 ```
 
 ### 3.3 Callbacks (function pointers to C)
-```nog
+```bishop
 @extern("c") fn qsort(
     cptr base,
     csize count,
@@ -129,7 +129,7 @@ Point :: struct {
 ```
 
 ### 3.4 Opaque Handles from C
-```nog
+```bishop
 // C returns opaque pointer we wrap
 FileHandle :: extern_handle;
 

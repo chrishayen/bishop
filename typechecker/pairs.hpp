@@ -4,7 +4,7 @@
 #include <vector>
 #include <optional>
 
-namespace nog {
+namespace bishop {
 
 /**
  * Represents a pair method signature with parameter types and return type.
@@ -21,4 +21,4 @@ struct PairMethodInfo {
  */
 std::optional<PairMethodInfo> get_pair_method_info(const std::string& method_name);
 
-}  // namespace nog
+}  // namespace bishop

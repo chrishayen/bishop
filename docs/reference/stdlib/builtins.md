@@ -6,7 +6,7 @@
 
 Prints values to standard output, followed by a newline.
 
-```nog
+```bishop
 fn print(... args)
 ```
 
@@ -15,7 +15,7 @@ fn print(... args)
 - `args` (`...`): One or more values to print (separated by spaces)
 
 **Example:**
-```nog
+```bishop
 print("Hello, World!");
 print("x =", x, "y =", y);
 ```
@@ -24,7 +24,7 @@ print("x =", x, "y =", y);
 
 Asserts that two values are equal. Only available in test mode.
 
-```nog
+```bishop
 fn assert_eq(T expected, T actual)
 ```
 
@@ -34,7 +34,7 @@ fn assert_eq(T expected, T actual)
 - `actual` (`T`): The actual value to compare
 
 **Example:**
-```nog
+```bishop
 assert_eq(5, add(2, 3));
 assert_eq("hello", greet());
 ```

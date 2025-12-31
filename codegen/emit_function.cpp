@@ -122,13 +122,13 @@ string generate_function(CodeGenState& state, const FunctionDef& fn) {
     string out;
 
     if (is_main) {
-        // Generate the function as _nog_main()
+        // Generate the function as _bishop_main()
         string rt_type = fn.return_type.empty() ? "" : fn.return_type;
-        out = function_def("_nog_main", params, rt_type, body);
+        out = function_def("_bishop_main", params, rt_type, body);
 
         // Generate int main() using runtime wrapper
         out += "\nint main() {\n";
-        out += "\tbishop::rt::run(_nog_main);\n";
+        out += "\tbishop::rt::run(_bishop_main);\n";
         out += "\treturn 0;\n";
         out += "}\n";
     } else {

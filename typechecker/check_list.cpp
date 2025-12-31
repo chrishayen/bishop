@@ -71,7 +71,7 @@ TypeInfo check_list_method(TypeCheckerState& state, const MethodCall& mcall, con
         return {"str", false, false};
     }
 
-    auto method_info = nog::get_list_method_info(mcall.method_name);
+    auto method_info = bishop::get_list_method_info(mcall.method_name);
 
     if (!method_info) {
         error(state, "List has no method '" + mcall.method_name + "'", mcall.line);

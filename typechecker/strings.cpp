@@ -1,5 +1,5 @@
 /**
- * @nog_method length
+ * @bishop_method length
  * @type str
  * @description Returns the number of characters in the string.
  * @returns int - The string length
@@ -9,7 +9,7 @@
  */
 
 /**
- * @nog_method empty
+ * @bishop_method empty
  * @type str
  * @description Returns true if the string has no characters.
  * @returns bool - True if empty, false otherwise
@@ -21,7 +21,7 @@
  */
 
 /**
- * @nog_method contains
+ * @bishop_method contains
  * @type str
  * @description Checks if the string contains the given substring.
  * @param substr str - The substring to search for
@@ -34,7 +34,7 @@
  */
 
 /**
- * @nog_method starts_with
+ * @bishop_method starts_with
  * @type str
  * @description Checks if the string starts with the given prefix.
  * @param prefix str - The prefix to check
@@ -47,7 +47,7 @@
  */
 
 /**
- * @nog_method ends_with
+ * @bishop_method ends_with
  * @type str
  * @description Checks if the string ends with the given suffix.
  * @param suffix str - The suffix to check
@@ -60,7 +60,7 @@
  */
 
 /**
- * @nog_method find
+ * @bishop_method find
  * @type str
  * @description Returns the index of the first occurrence of a substring, or -1 if not found.
  * @param substr str - The substring to find
@@ -71,7 +71,7 @@
  */
 
 /**
- * @nog_method substr
+ * @bishop_method substr
  * @type str
  * @description Extracts a portion of the string.
  * @param start int - Starting index (0-based)
@@ -83,7 +83,7 @@
  */
 
 /**
- * @nog_method at
+ * @bishop_method at
  * @type str
  * @description Returns the character at the specified index as a single-character string.
  * @param index int - The index (0-based)
@@ -94,7 +94,7 @@
  */
 
 /**
- * @nog_method upper
+ * @bishop_method upper
  * @type str
  * @description Converts all characters to uppercase.
  * @returns str - The uppercase string
@@ -104,7 +104,7 @@
  */
 
 /**
- * @nog_method lower
+ * @bishop_method lower
  * @type str
  * @description Converts all characters to lowercase.
  * @returns str - The lowercase string
@@ -114,7 +114,7 @@
  */
 
 /**
- * @nog_method capitalize
+ * @bishop_method capitalize
  * @type str
  * @description Capitalizes the first character and lowercases the rest.
  * @returns str - The capitalized string
@@ -124,7 +124,7 @@
  */
 
 /**
- * @nog_method title
+ * @bishop_method title
  * @type str
  * @description Capitalizes the first character of each word.
  * @returns str - The title-cased string
@@ -134,7 +134,7 @@
  */
 
 /**
- * @nog_method trim
+ * @bishop_method trim
  * @type str
  * @description Removes whitespace from both ends of the string.
  * @returns str - The trimmed string
@@ -144,7 +144,7 @@
  */
 
 /**
- * @nog_method trim_left
+ * @bishop_method trim_left
  * @type str
  * @description Removes whitespace from the start of the string.
  * @returns str - The left-trimmed string
@@ -154,7 +154,7 @@
  */
 
 /**
- * @nog_method trim_right
+ * @bishop_method trim_right
  * @type str
  * @description Removes whitespace from the end of the string.
  * @returns str - The right-trimmed string
@@ -164,7 +164,7 @@
  */
 
 /**
- * @nog_method replace
+ * @bishop_method replace
  * @type str
  * @description Replaces the first occurrence of a substring.
  * @param old_str str - The substring to find
@@ -176,7 +176,7 @@
  */
 
 /**
- * @nog_method replace_all
+ * @bishop_method replace_all
  * @type str
  * @description Replaces all occurrences of a substring.
  * @param old_str str - The substring to find
@@ -188,7 +188,7 @@
  */
 
 /**
- * @nog_method reverse
+ * @bishop_method reverse
  * @type str
  * @description Reverses the characters in the string.
  * @returns str - The reversed string
@@ -198,7 +198,7 @@
  */
 
 /**
- * @nog_method repeat
+ * @bishop_method repeat
  * @type str
  * @description Repeats the string a specified number of times.
  * @param count int - Number of times to repeat
@@ -209,7 +209,7 @@
  */
 
 /**
- * @nog_method split
+ * @bishop_method split
  * @type str
  * @description Splits the string by a delimiter.
  * @param delimiter str - The delimiter to split on
@@ -220,7 +220,7 @@
  */
 
 /**
- * @nog_method split_lines
+ * @bishop_method split_lines
  * @type str
  * @description Splits the string by newlines.
  * @returns List<str> - List of lines
@@ -230,7 +230,7 @@
  */
 
 /**
- * @nog_method pad_left
+ * @bishop_method pad_left
  * @type str
  * @description Pads the string on the left to reach a specified width.
  * @param width int - The target width
@@ -243,7 +243,7 @@
  */
 
 /**
- * @nog_method pad_right
+ * @bishop_method pad_right
  * @type str
  * @description Pads the string on the right to reach a specified width.
  * @param width int - The target width
@@ -256,7 +256,7 @@
  */
 
 /**
- * @nog_method center
+ * @bishop_method center
  * @type str
  * @description Centers the string within a specified width.
  * @param width int - The target width
@@ -269,7 +269,7 @@
  */
 
 /**
- * @nog_method to_int
+ * @bishop_method to_int
  * @type str
  * @description Parses the string as an integer.
  * @returns int - The parsed integer
@@ -279,7 +279,7 @@
  */
 
 /**
- * @nog_method to_float
+ * @bishop_method to_float
  * @type str
  * @description Parses the string as a floating-point number.
  * @returns f64 - The parsed float
@@ -292,7 +292,7 @@
 
 #include <map>
 
-namespace nog {
+namespace bishop {
 
 /**
  * Returns type information for built-in str methods.
@@ -352,4 +352,4 @@ std::optional<StrMethodInfo> get_str_method_info(const std::string& method_name)
     return std::nullopt;
 }
 
-}  // namespace nog
+}  // namespace bishop

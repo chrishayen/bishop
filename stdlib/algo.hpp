@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in algo module.
@@ -31,4 +31,4 @@ std::unique_ptr<Program> create_algo_module();
  */
 std::string generate_algo_runtime();
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

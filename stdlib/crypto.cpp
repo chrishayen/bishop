@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_fn md5
+ * @bishop_fn md5
  * @module crypto
  * @description Computes MD5 hash of a string.
  * @param data str - Data to hash
@@ -19,7 +19,7 @@
  */
 
 /**
- * @nog_fn sha1
+ * @bishop_fn sha1
  * @module crypto
  * @description Computes SHA1 hash of a string.
  * @param data str - Data to hash
@@ -30,7 +30,7 @@
  */
 
 /**
- * @nog_fn sha256
+ * @bishop_fn sha256
  * @module crypto
  * @description Computes SHA256 hash of a string.
  * @param data str - Data to hash
@@ -41,7 +41,7 @@
  */
 
 /**
- * @nog_fn sha512
+ * @bishop_fn sha512
  * @module crypto
  * @description Computes SHA512 hash of a string.
  * @param data str - Data to hash
@@ -52,7 +52,7 @@
  */
 
 /**
- * @nog_fn hmac_sha256
+ * @bishop_fn hmac_sha256
  * @module crypto
  * @description Computes HMAC-SHA256 of data with key.
  * @param key str - Secret key
@@ -64,7 +64,7 @@
  */
 
 /**
- * @nog_fn base64_encode
+ * @bishop_fn base64_encode
  * @module crypto
  * @description Encodes a string to base64.
  * @param data str - Data to encode
@@ -76,7 +76,7 @@
  */
 
 /**
- * @nog_fn base64_decode
+ * @bishop_fn base64_decode
  * @module crypto
  * @description Decodes a base64 string.
  * @param data str - Base64 encoded string
@@ -87,7 +87,7 @@
  */
 
 /**
- * @nog_fn hex_encode
+ * @bishop_fn hex_encode
  * @module crypto
  * @description Encodes a string to hex.
  * @param data str - Data to encode
@@ -99,7 +99,7 @@
  */
 
 /**
- * @nog_fn hex_decode
+ * @bishop_fn hex_decode
  * @module crypto
  * @description Decodes a hex string.
  * @param data str - Hex encoded string
@@ -110,7 +110,7 @@
  */
 
 /**
- * @nog_fn uuid
+ * @bishop_fn uuid
  * @module crypto
  * @description Generates a random UUID v4.
  * @returns str or err - UUID in format xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx, or error
@@ -120,7 +120,7 @@
  */
 
 /**
- * @nog_fn uuid_v5
+ * @bishop_fn uuid_v5
  * @module crypto
  * @description Generates a deterministic UUID v5 from namespace and name.
  * @param namespace str - Namespace string
@@ -132,7 +132,7 @@
  */
 
 /**
- * @nog_fn random_bytes
+ * @bishop_fn random_bytes
  * @module crypto
  * @description Generates cryptographically secure random bytes.
  * @param count int - Number of bytes to generate
@@ -146,7 +146,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in crypto module.
@@ -272,4 +272,4 @@ string generate_crypto_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

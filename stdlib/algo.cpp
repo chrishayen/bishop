@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_fn sort_int
+ * @bishop_fn sort_int
  * @module algo
  * @description Sorts an integer list in ascending order (in-place).
  * @param list List<int> - The list to sort
@@ -17,7 +17,7 @@
  */
 
 /**
- * @nog_fn sort_desc_int
+ * @bishop_fn sort_desc_int
  * @module algo
  * @description Sorts an integer list in descending order (in-place).
  * @param list List<int> - The list to sort
@@ -27,7 +27,7 @@
  */
 
 /**
- * @nog_fn sort_str
+ * @bishop_fn sort_str
  * @module algo
  * @description Sorts a string list in ascending order (in-place).
  * @param list List<str> - The list to sort
@@ -37,7 +37,7 @@
  */
 
 /**
- * @nog_fn sort_desc_str
+ * @bishop_fn sort_desc_str
  * @module algo
  * @description Sorts a string list in descending order (in-place).
  * @param list List<str> - The list to sort
@@ -47,7 +47,7 @@
  */
 
 /**
- * @nog_fn sort_float
+ * @bishop_fn sort_float
  * @module algo
  * @description Sorts a float list in ascending order (in-place).
  * @param list List<f64> - The list to sort
@@ -57,7 +57,7 @@
  */
 
 /**
- * @nog_fn sort_desc_float
+ * @bishop_fn sort_desc_float
  * @module algo
  * @description Sorts a float list in descending order (in-place).
  * @param list List<f64> - The list to sort
@@ -67,7 +67,7 @@
  */
 
 /**
- * @nog_fn min_int
+ * @bishop_fn min_int
  * @module algo
  * @description Returns the minimum value in an integer list.
  * @param list List<int> - The list to search
@@ -77,7 +77,7 @@
  */
 
 /**
- * @nog_fn max_int
+ * @bishop_fn max_int
  * @module algo
  * @description Returns the maximum value in an integer list.
  * @param list List<int> - The list to search
@@ -87,7 +87,7 @@
  */
 
 /**
- * @nog_fn min_float
+ * @bishop_fn min_float
  * @module algo
  * @description Returns the minimum value in a float list.
  * @param list List<f64> - The list to search
@@ -97,7 +97,7 @@
  */
 
 /**
- * @nog_fn max_float
+ * @bishop_fn max_float
  * @module algo
  * @description Returns the maximum value in a float list.
  * @param list List<f64> - The list to search
@@ -107,7 +107,7 @@
  */
 
 /**
- * @nog_fn min_str
+ * @bishop_fn min_str
  * @module algo
  * @description Returns the minimum string in a list (lexicographically).
  * @param list List<str> - The list to search
@@ -117,7 +117,7 @@
  */
 
 /**
- * @nog_fn max_str
+ * @bishop_fn max_str
  * @module algo
  * @description Returns the maximum string in a list (lexicographically).
  * @param list List<str> - The list to search
@@ -127,7 +127,7 @@
  */
 
 /**
- * @nog_fn sum_int
+ * @bishop_fn sum_int
  * @module algo
  * @description Returns the sum of all integers in a list.
  * @param list List<int> - The list to sum
@@ -137,7 +137,7 @@
  */
 
 /**
- * @nog_fn sum_float
+ * @bishop_fn sum_float
  * @module algo
  * @description Returns the sum of all floats in a list.
  * @param list List<f64> - The list to sum
@@ -147,7 +147,7 @@
  */
 
 /**
- * @nog_fn product_int
+ * @bishop_fn product_int
  * @module algo
  * @description Returns the product of all integers in a list.
  * @param list List<int> - The list to multiply
@@ -157,7 +157,7 @@
  */
 
 /**
- * @nog_fn product_float
+ * @bishop_fn product_float
  * @module algo
  * @description Returns the product of all floats in a list.
  * @param list List<f64> - The list to multiply
@@ -167,7 +167,7 @@
  */
 
 /**
- * @nog_fn average_int
+ * @bishop_fn average_int
  * @module algo
  * @description Returns the average of all integers in a list.
  * @param list List<int> - The list to average
@@ -177,7 +177,7 @@
  */
 
 /**
- * @nog_fn average_float
+ * @bishop_fn average_float
  * @module algo
  * @description Returns the average of all floats in a list.
  * @param list List<f64> - The list to average
@@ -187,7 +187,7 @@
  */
 
 /**
- * @nog_fn all_int
+ * @bishop_fn all_int
  * @module algo
  * @description Returns true if all integers satisfy the predicate.
  * @param list List<int> - The list to check
@@ -198,7 +198,7 @@
  */
 
 /**
- * @nog_fn any_int
+ * @bishop_fn any_int
  * @module algo
  * @description Returns true if any integer satisfies the predicate.
  * @param list List<int> - The list to check
@@ -209,7 +209,7 @@
  */
 
 /**
- * @nog_fn none_int
+ * @bishop_fn none_int
  * @module algo
  * @description Returns true if no integers satisfy the predicate.
  * @param list List<int> - The list to check
@@ -220,7 +220,7 @@
  */
 
 /**
- * @nog_fn count_int
+ * @bishop_fn count_int
  * @module algo
  * @description Returns the count of integers that satisfy the predicate.
  * @param list List<int> - The list to count
@@ -231,7 +231,7 @@
  */
 
 /**
- * @nog_fn find_int
+ * @bishop_fn find_int
  * @module algo
  * @description Returns the first integer that satisfies the predicate.
  * @param list List<int> - The list to search
@@ -242,7 +242,7 @@
  */
 
 /**
- * @nog_fn find_index_int
+ * @bishop_fn find_index_int
  * @module algo
  * @description Returns the index of the first integer that satisfies the predicate.
  * @param list List<int> - The list to search
@@ -253,7 +253,7 @@
  */
 
 /**
- * @nog_fn all_str
+ * @bishop_fn all_str
  * @module algo
  * @description Returns true if all strings satisfy the predicate.
  * @param list List<str> - The list to check
@@ -264,7 +264,7 @@
  */
 
 /**
- * @nog_fn any_str
+ * @bishop_fn any_str
  * @module algo
  * @description Returns true if any string satisfies the predicate.
  * @param list List<str> - The list to check
@@ -275,7 +275,7 @@
  */
 
 /**
- * @nog_fn none_str
+ * @bishop_fn none_str
  * @module algo
  * @description Returns true if no strings satisfy the predicate.
  * @param list List<str> - The list to check
@@ -286,7 +286,7 @@
  */
 
 /**
- * @nog_fn count_str
+ * @bishop_fn count_str
  * @module algo
  * @description Returns the count of strings that satisfy the predicate.
  * @param list List<str> - The list to count
@@ -297,7 +297,7 @@
  */
 
 /**
- * @nog_fn find_str
+ * @bishop_fn find_str
  * @module algo
  * @description Returns the first string that satisfies the predicate.
  * @param list List<str> - The list to search
@@ -308,7 +308,7 @@
  */
 
 /**
- * @nog_fn find_index_str
+ * @bishop_fn find_index_str
  * @module algo
  * @description Returns the index of the first string that satisfies the predicate.
  * @param list List<str> - The list to search
@@ -319,7 +319,7 @@
  */
 
 /**
- * @nog_fn map_int
+ * @bishop_fn map_int
  * @module algo
  * @description Maps each integer to a new integer using a transform function.
  * @param list List<int> - The list to transform
@@ -330,7 +330,7 @@
  */
 
 /**
- * @nog_fn map_str
+ * @bishop_fn map_str
  * @module algo
  * @description Maps each string to a new string using a transform function.
  * @param list List<str> - The list to transform
@@ -341,7 +341,7 @@
  */
 
 /**
- * @nog_fn filter_int
+ * @bishop_fn filter_int
  * @module algo
  * @description Filters integers by a predicate, keeping only matching elements.
  * @param list List<int> - The list to filter
@@ -352,7 +352,7 @@
  */
 
 /**
- * @nog_fn filter_str
+ * @bishop_fn filter_str
  * @module algo
  * @description Filters strings by a predicate, keeping only matching elements.
  * @param list List<str> - The list to filter
@@ -363,7 +363,7 @@
  */
 
 /**
- * @nog_fn reduce_int
+ * @bishop_fn reduce_int
  * @module algo
  * @description Reduces an integer list to a single value using an accumulator.
  * @param list List<int> - The list to reduce
@@ -375,7 +375,7 @@
  */
 
 /**
- * @nog_fn reduce_str
+ * @bishop_fn reduce_str
  * @module algo
  * @description Reduces a string list to a single string using an accumulator.
  * @param list List<str> - The list to reduce
@@ -387,7 +387,7 @@
  */
 
 /**
- * @nog_fn reverse_int
+ * @bishop_fn reverse_int
  * @module algo
  * @description Reverses an integer list in place.
  * @param list List<int> - The list to reverse
@@ -397,7 +397,7 @@
  */
 
 /**
- * @nog_fn reverse_str
+ * @bishop_fn reverse_str
  * @module algo
  * @description Reverses a string list in place.
  * @param list List<str> - The list to reverse
@@ -407,7 +407,7 @@
  */
 
 /**
- * @nog_fn reversed_int
+ * @bishop_fn reversed_int
  * @module algo
  * @description Returns a reversed copy of an integer list.
  * @param list List<int> - The list to reverse
@@ -417,7 +417,7 @@
  */
 
 /**
- * @nog_fn reversed_str
+ * @bishop_fn reversed_str
  * @module algo
  * @description Returns a reversed copy of a string list.
  * @param list List<str> - The list to reverse
@@ -427,7 +427,7 @@
  */
 
 /**
- * @nog_fn rotate_int
+ * @bishop_fn rotate_int
  * @module algo
  * @description Rotates an integer list left by n positions (in-place).
  * @param list List<int> - The list to rotate
@@ -438,7 +438,7 @@
  */
 
 /**
- * @nog_fn rotate_str
+ * @bishop_fn rotate_str
  * @module algo
  * @description Rotates a string list left by n positions (in-place).
  * @param list List<str> - The list to rotate
@@ -449,7 +449,7 @@
  */
 
 /**
- * @nog_fn unique_int
+ * @bishop_fn unique_int
  * @module algo
  * @description Returns a new list with unique integers (order preserved).
  * @param list List<int> - The list to deduplicate
@@ -459,7 +459,7 @@
  */
 
 /**
- * @nog_fn unique_str
+ * @bishop_fn unique_str
  * @module algo
  * @description Returns a new list with unique strings (order preserved).
  * @param list List<str> - The list to deduplicate
@@ -472,7 +472,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in algo module.
@@ -899,4 +899,4 @@ string generate_algo_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_struct TcpListener
+ * @bishop_struct TcpListener
  * @module net
  * @description A TCP server socket that listens for incoming connections.
  * Supports the `with` statement for automatic resource cleanup.
@@ -22,7 +22,7 @@
  */
 
 /**
- * @nog_struct TcpStream
+ * @bishop_struct TcpStream
  * @module net
  * @description A TCP connection stream for reading and writing data.
  * Supports the `with` statement for automatic resource cleanup.
@@ -34,7 +34,7 @@
  */
 
 /**
- * @nog_struct UdpSocket
+ * @bishop_struct UdpSocket
  * @module net
  * @description A UDP socket for sending and receiving datagrams.
  * Supports the `with` statement for automatic resource cleanup.
@@ -45,7 +45,7 @@
  */
 
 /**
- * @nog_fn listen
+ * @bishop_fn listen
  * @module net
  * @description Creates a TCP listener bound to the specified host and port.
  * @param host str - Host address to bind to (e.g., "127.0.0.1", "0.0.0.0")
@@ -59,7 +59,7 @@
  */
 
 /**
- * @nog_fn connect
+ * @bishop_fn connect
  * @module net
  * @description Establishes a TCP connection to the specified host and port.
  * @param host str - Host address to connect to
@@ -71,7 +71,7 @@
  */
 
 /**
- * @nog_fn udp_bind
+ * @bishop_fn udp_bind
  * @module net
  * @description Creates a UDP socket bound to the specified host and port.
  * @param host str - Host address to bind to
@@ -82,7 +82,7 @@
  */
 
 /**
- * @nog_fn udp_connect
+ * @bishop_fn udp_connect
  * @module net
  * @description Creates a UDP socket connected to a specific remote address.
  * @param host str - Remote host address
@@ -94,7 +94,7 @@
  */
 
 /**
- * @nog_fn resolve
+ * @bishop_fn resolve
  * @module net
  * @description Resolves a hostname to a list of IP addresses.
  * @param hostname str - Hostname to resolve
@@ -107,7 +107,7 @@
  */
 
 /**
- * @nog_fn reverse_lookup
+ * @bishop_fn reverse_lookup
  * @module net
  * @description Performs a reverse DNS lookup on an IP address.
  * @param ip str - IP address to look up
@@ -118,7 +118,7 @@
  */
 
 /**
- * @nog_method accept
+ * @bishop_method accept
  * @type net.TcpListener
  * @description Accepts an incoming connection, returning a new TcpStream.
  * Blocks until a connection is available.
@@ -128,7 +128,7 @@
  */
 
 /**
- * @nog_method close
+ * @bishop_method close
  * @type net.TcpListener
  * @description Closes the listener and stops accepting connections.
  * Called automatically when `with` block exits.
@@ -137,7 +137,7 @@
  */
 
 /**
- * @nog_method read
+ * @bishop_method read
  * @type net.TcpStream
  * @description Reads up to n bytes from the connection.
  * @param n int - Maximum number of bytes to read
@@ -147,7 +147,7 @@
  */
 
 /**
- * @nog_method read_exact
+ * @bishop_method read_exact
  * @type net.TcpStream
  * @description Reads exactly n bytes from the connection.
  * @param n int - Exact number of bytes to read
@@ -157,7 +157,7 @@
  */
 
 /**
- * @nog_method read_line
+ * @bishop_method read_line
  * @type net.TcpStream
  * @description Reads a line (up to newline) from the connection.
  * @returns str or err - Line read (without newline) or an error
@@ -166,7 +166,7 @@
  */
 
 /**
- * @nog_method write
+ * @bishop_method write
  * @type net.TcpStream
  * @description Writes data to the connection.
  * @param data str - Data to write
@@ -176,7 +176,7 @@
  */
 
 /**
- * @nog_method flush
+ * @bishop_method flush
  * @type net.TcpStream
  * @description Flushes any buffered data to the connection.
  * @returns bool or err - True on success or an error
@@ -185,7 +185,7 @@
  */
 
 /**
- * @nog_method close
+ * @bishop_method close
  * @type net.TcpStream
  * @description Closes the connection.
  * Called automatically when `with` block exits.
@@ -194,7 +194,7 @@
  */
 
 /**
- * @nog_method set_timeout
+ * @bishop_method set_timeout
  * @type net.TcpStream
  * @description Sets read/write timeout in milliseconds.
  * @param ms int - Timeout in milliseconds (0 for no timeout)
@@ -203,7 +203,7 @@
  */
 
 /**
- * @nog_method send_to
+ * @bishop_method send_to
  * @type net.UdpSocket
  * @description Sends data to a specific address.
  * @param data str - Data to send
@@ -215,7 +215,7 @@
  */
 
 /**
- * @nog_method recv_from
+ * @bishop_method recv_from
  * @type net.UdpSocket
  * @description Receives data and returns the sender's address.
  * @param n int - Maximum bytes to receive
@@ -227,7 +227,7 @@
  */
 
 /**
- * @nog_method send
+ * @bishop_method send
  * @type net.UdpSocket
  * @description Sends data to the connected address (for connected UDP sockets).
  * @param data str - Data to send
@@ -237,7 +237,7 @@
  */
 
 /**
- * @nog_method recv
+ * @bishop_method recv
  * @type net.UdpSocket
  * @description Receives data from the connected address.
  * @param n int - Maximum bytes to receive
@@ -247,7 +247,7 @@
  */
 
 /**
- * @nog_method close
+ * @bishop_method close
  * @type net.UdpSocket
  * @description Closes the UDP socket.
  * Called automatically when `with` block exits.
@@ -259,7 +259,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in net module.
@@ -505,4 +505,4 @@ string generate_net_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

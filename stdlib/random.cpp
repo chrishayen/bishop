@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_fn int
+ * @bishop_fn int
  * @module random
  * @description Generates a random integer in the inclusive range [min, max].
  * @param min int - Minimum value (inclusive)
@@ -19,7 +19,7 @@
  */
 
 /**
- * @nog_fn float
+ * @bishop_fn float
  * @module random
  * @description Generates a random floating-point number in [0.0, 1.0).
  * @returns f64 - Random float in [0.0, 1.0)
@@ -29,7 +29,7 @@
  */
 
 /**
- * @nog_fn float_range
+ * @bishop_fn float_range
  * @module random
  * @description Generates a random floating-point number in [min, max).
  * @param min f64 - Minimum value (inclusive)
@@ -41,7 +41,7 @@
  */
 
 /**
- * @nog_fn bool
+ * @bishop_fn bool
  * @module random
  * @description Generates a random boolean with 50/50 probability.
  * @returns bool - Random boolean value
@@ -51,7 +51,7 @@
  */
 
 /**
- * @nog_fn bool_prob
+ * @bishop_fn bool_prob
  * @module random
  * @description Generates a random boolean with specified probability.
  * @param probability f64 - Probability of returning true (0.0 to 1.0)
@@ -61,7 +61,7 @@
  */
 
 /**
- * @nog_fn choice
+ * @bishop_fn choice
  * @module random
  * @description Selects a random element from a string list.
  * @param list List<str> - The list to choose from
@@ -72,7 +72,7 @@
  */
 
 /**
- * @nog_fn choice_int
+ * @bishop_fn choice_int
  * @module random
  * @description Selects a random element from an integer list.
  * @param list List<int> - The list to choose from
@@ -83,7 +83,7 @@
  */
 
 /**
- * @nog_fn shuffle
+ * @bishop_fn shuffle
  * @module random
  * @description Shuffles a string list in place using Fisher-Yates algorithm.
  * @param list List<str> - The list to shuffle (modified in place)
@@ -94,7 +94,7 @@
  */
 
 /**
- * @nog_fn shuffle_int
+ * @bishop_fn shuffle_int
  * @module random
  * @description Shuffles an integer list in place using Fisher-Yates algorithm.
  * @param list List<int> - The list to shuffle (modified in place)
@@ -104,7 +104,7 @@
  */
 
 /**
- * @nog_fn sample
+ * @bishop_fn sample
  * @module random
  * @description Samples n random unique elements from a string list.
  * @param list List<str> - The list to sample from
@@ -116,7 +116,7 @@
  */
 
 /**
- * @nog_fn sample_int
+ * @bishop_fn sample_int
  * @module random
  * @description Samples n random unique elements from an integer list.
  * @param list List<int> - The list to sample from
@@ -128,7 +128,7 @@
  */
 
 /**
- * @nog_fn seed
+ * @bishop_fn seed
  * @module random
  * @description Seeds the random number generator for deterministic sequences.
  * @param n int - The seed value
@@ -141,7 +141,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in random module.
@@ -260,4 +260,4 @@ string generate_random_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

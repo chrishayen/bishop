@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in time module.
@@ -36,4 +36,4 @@ std::unique_ptr<Program> create_time_module();
  */
 std::string generate_time_runtime();
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

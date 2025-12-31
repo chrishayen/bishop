@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_fn parse
+ * @bishop_fn parse
  * @module json
  * @description Parses a JSON string into a Json value.
  * @param text str - The JSON string to parse
@@ -19,7 +19,7 @@
  */
 
 /**
- * @nog_fn object
+ * @bishop_fn object
  * @module json
  * @description Creates an empty JSON object.
  * @returns Json - An empty JSON object {}
@@ -30,7 +30,7 @@
  */
 
 /**
- * @nog_fn array
+ * @bishop_fn array
  * @module json
  * @description Creates an empty JSON array.
  * @returns Json - An empty JSON array []
@@ -41,7 +41,7 @@
  */
 
 /**
- * @nog_fn stringify
+ * @bishop_fn stringify
  * @module json
  * @description Converts a Json value to a JSON string.
  * @param value Json - The JSON value to serialize
@@ -52,7 +52,7 @@
  */
 
 /**
- * @nog_fn stringify_pretty
+ * @bishop_fn stringify_pretty
  * @module json
  * @description Converts a Json value to a pretty-printed JSON string.
  * @param value Json - The JSON value to serialize
@@ -63,7 +63,7 @@
  */
 
 /**
- * @nog_method get
+ * @bishop_method get
  * @type Json
  * @description Gets a value by key (for objects) or index (for arrays).
  * @param key str - Key name or integer index as string
@@ -74,7 +74,7 @@
  */
 
 /**
- * @nog_method get_str
+ * @bishop_method get_str
  * @type Json
  * @description Gets a string value by key.
  * @param key str - Key name
@@ -86,7 +86,7 @@
  */
 
 /**
- * @nog_method get_int
+ * @bishop_method get_int
  * @type Json
  * @description Gets an integer value by key.
  * @param key str - Key name
@@ -98,7 +98,7 @@
  */
 
 /**
- * @nog_method get_float
+ * @bishop_method get_float
  * @type Json
  * @description Gets a float value by key.
  * @param key str - Key name
@@ -110,7 +110,7 @@
  */
 
 /**
- * @nog_method get_bool
+ * @bishop_method get_bool
  * @type Json
  * @description Gets a boolean value by key.
  * @param key str - Key name
@@ -122,7 +122,7 @@
  */
 
 /**
- * @nog_method get_list
+ * @bishop_method get_list
  * @type Json
  * @description Gets an array value by key.
  * @param key str - Key name
@@ -134,7 +134,7 @@
  */
 
 /**
- * @nog_method get_object
+ * @bishop_method get_object
  * @type Json
  * @description Gets an object value by key.
  * @param key str - Key name
@@ -146,7 +146,7 @@
  */
 
 /**
- * @nog_method path
+ * @bishop_method path
  * @type Json
  * @description Accesses nested values using dot notation path.
  * @param path str - Dot-separated path (e.g., "user.address.city")
@@ -157,7 +157,7 @@
  */
 
 /**
- * @nog_method is_null
+ * @bishop_method is_null
  * @type Json
  * @description Checks if the JSON value is null.
  * @returns bool - True if null
@@ -166,7 +166,7 @@
  */
 
 /**
- * @nog_method is_str
+ * @bishop_method is_str
  * @type Json
  * @description Checks if the JSON value is a string.
  * @returns bool - True if string
@@ -175,7 +175,7 @@
  */
 
 /**
- * @nog_method is_int
+ * @bishop_method is_int
  * @type Json
  * @description Checks if the JSON value is an integer.
  * @returns bool - True if integer
@@ -184,7 +184,7 @@
  */
 
 /**
- * @nog_method is_float
+ * @bishop_method is_float
  * @type Json
  * @description Checks if the JSON value is a float.
  * @returns bool - True if float
@@ -193,7 +193,7 @@
  */
 
 /**
- * @nog_method is_bool
+ * @bishop_method is_bool
  * @type Json
  * @description Checks if the JSON value is a boolean.
  * @returns bool - True if boolean
@@ -202,7 +202,7 @@
  */
 
 /**
- * @nog_method is_list
+ * @bishop_method is_list
  * @type Json
  * @description Checks if the JSON value is an array.
  * @returns bool - True if array
@@ -211,7 +211,7 @@
  */
 
 /**
- * @nog_method is_object
+ * @bishop_method is_object
  * @type Json
  * @description Checks if the JSON value is an object.
  * @returns bool - True if object
@@ -220,7 +220,7 @@
  */
 
 /**
- * @nog_method as_str
+ * @bishop_method as_str
  * @type Json
  * @description Converts the JSON value to a string.
  * @returns str - The string value
@@ -230,7 +230,7 @@
  */
 
 /**
- * @nog_method as_int
+ * @bishop_method as_int
  * @type Json
  * @description Converts the JSON value to an integer.
  * @returns int - The integer value
@@ -240,7 +240,7 @@
  */
 
 /**
- * @nog_method as_float
+ * @bishop_method as_float
  * @type Json
  * @description Converts the JSON value to a float.
  * @returns float - The float value
@@ -250,7 +250,7 @@
  */
 
 /**
- * @nog_method as_bool
+ * @bishop_method as_bool
  * @type Json
  * @description Converts the JSON value to a boolean.
  * @returns bool - The boolean value
@@ -260,7 +260,7 @@
  */
 
 /**
- * @nog_method set
+ * @bishop_method set
  * @type Json
  * @description Sets a value in a JSON object.
  * @param key str - The key name
@@ -270,7 +270,7 @@
  */
 
 /**
- * @nog_method set_str
+ * @bishop_method set_str
  * @type Json
  * @description Sets a string value in a JSON object.
  * @param key str - The key name
@@ -280,7 +280,7 @@
  */
 
 /**
- * @nog_method set_int
+ * @bishop_method set_int
  * @type Json
  * @description Sets an integer value in a JSON object.
  * @param key str - The key name
@@ -290,7 +290,7 @@
  */
 
 /**
- * @nog_method set_float
+ * @bishop_method set_float
  * @type Json
  * @description Sets a float value in a JSON object.
  * @param key str - The key name
@@ -300,7 +300,7 @@
  */
 
 /**
- * @nog_method set_bool
+ * @bishop_method set_bool
  * @type Json
  * @description Sets a boolean value in a JSON object.
  * @param key str - The key name
@@ -310,7 +310,7 @@
  */
 
 /**
- * @nog_method set_null
+ * @bishop_method set_null
  * @type Json
  * @description Sets a null value in a JSON object.
  * @param key str - The key name
@@ -319,7 +319,7 @@
  */
 
 /**
- * @nog_method push
+ * @bishop_method push
  * @type Json
  * @description Appends a value to a JSON array.
  * @param value Json - The value to append
@@ -328,7 +328,7 @@
  */
 
 /**
- * @nog_method push_str
+ * @bishop_method push_str
  * @type Json
  * @description Appends a string to a JSON array.
  * @param value str - The string to append
@@ -337,7 +337,7 @@
  */
 
 /**
- * @nog_method push_int
+ * @bishop_method push_int
  * @type Json
  * @description Appends an integer to a JSON array.
  * @param value int - The integer to append
@@ -346,7 +346,7 @@
  */
 
 /**
- * @nog_method push_float
+ * @bishop_method push_float
  * @type Json
  * @description Appends a float to a JSON array.
  * @param value float - The float to append
@@ -355,7 +355,7 @@
  */
 
 /**
- * @nog_method push_bool
+ * @bishop_method push_bool
  * @type Json
  * @description Appends a boolean to a JSON array.
  * @param value bool - The boolean to append
@@ -364,7 +364,7 @@
  */
 
 /**
- * @nog_method push_null
+ * @bishop_method push_null
  * @type Json
  * @description Appends a null value to a JSON array.
  * @example
@@ -372,7 +372,7 @@
  */
 
 /**
- * @nog_method length
+ * @bishop_method length
  * @type Json
  * @description Returns the length of a JSON array or object.
  * @returns int - Number of elements/keys
@@ -381,7 +381,7 @@
  */
 
 /**
- * @nog_method keys
+ * @bishop_method keys
  * @type Json
  * @description Returns the keys of a JSON object as newline-separated string.
  * @returns str - Newline-separated list of keys
@@ -390,7 +390,7 @@
  */
 
 /**
- * @nog_method has
+ * @bishop_method has
  * @type Json
  * @description Checks if a JSON object has a key.
  * @param key str - The key to check
@@ -400,7 +400,7 @@
  */
 
 /**
- * @nog_method remove
+ * @bishop_method remove
  * @type Json
  * @description Removes a key from a JSON object.
  * @param key str - The key to remove
@@ -412,7 +412,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in json module.
@@ -818,4 +818,4 @@ string generate_json_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

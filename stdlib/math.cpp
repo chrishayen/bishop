@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_const PI
+ * @bishop_const PI
  * @module math
  * @description Mathematical constant pi (3.14159265358979323846).
  * @example
@@ -16,7 +16,7 @@
  */
 
 /**
- * @nog_const E
+ * @bishop_const E
  * @module math
  * @description Euler's number e (2.71828182845904523536).
  * @example
@@ -25,7 +25,7 @@
  */
 
 /**
- * @nog_const INF
+ * @bishop_const INF
  * @module math
  * @description Positive infinity.
  * @example
@@ -33,7 +33,7 @@
  */
 
 /**
- * @nog_const NAN
+ * @bishop_const NAN
  * @module math
  * @description Not a Number (NaN).
  * @example
@@ -41,7 +41,7 @@
  */
 
 /**
- * @nog_fn abs
+ * @bishop_fn abs
  * @module math
  * @description Returns the absolute value of a number.
  * @param x f64 - Input value
@@ -51,7 +51,7 @@
  */
 
 /**
- * @nog_fn abs_int
+ * @bishop_fn abs_int
  * @module math
  * @description Returns the absolute value of an integer.
  * @param x int - Input value
@@ -61,7 +61,7 @@
  */
 
 /**
- * @nog_fn min
+ * @bishop_fn min
  * @module math
  * @description Returns the smaller of two numbers.
  * @param a f64 - First value
@@ -72,7 +72,7 @@
  */
 
 /**
- * @nog_fn min_int
+ * @bishop_fn min_int
  * @module math
  * @description Returns the smaller of two integers.
  * @param a int - First value
@@ -83,7 +83,7 @@
  */
 
 /**
- * @nog_fn max
+ * @bishop_fn max
  * @module math
  * @description Returns the larger of two numbers.
  * @param a f64 - First value
@@ -94,7 +94,7 @@
  */
 
 /**
- * @nog_fn max_int
+ * @bishop_fn max_int
  * @module math
  * @description Returns the larger of two integers.
  * @param a int - First value
@@ -105,7 +105,7 @@
  */
 
 /**
- * @nog_fn clamp
+ * @bishop_fn clamp
  * @module math
  * @description Clamps a value between a minimum and maximum.
  * @param x f64 - Value to clamp
@@ -117,7 +117,7 @@
  */
 
 /**
- * @nog_fn clamp_int
+ * @bishop_fn clamp_int
  * @module math
  * @description Clamps an integer between a minimum and maximum.
  * @param x int - Value to clamp
@@ -129,7 +129,7 @@
  */
 
 /**
- * @nog_fn floor
+ * @bishop_fn floor
  * @module math
  * @description Rounds down to the nearest integer.
  * @param x f64 - Value to round
@@ -139,7 +139,7 @@
  */
 
 /**
- * @nog_fn ceil
+ * @bishop_fn ceil
  * @module math
  * @description Rounds up to the nearest integer.
  * @param x f64 - Value to round
@@ -149,7 +149,7 @@
  */
 
 /**
- * @nog_fn round
+ * @bishop_fn round
  * @module math
  * @description Rounds to the nearest integer.
  * @param x f64 - Value to round
@@ -159,7 +159,7 @@
  */
 
 /**
- * @nog_fn trunc
+ * @bishop_fn trunc
  * @module math
  * @description Truncates to integer part (rounds toward zero).
  * @param x f64 - Value to truncate
@@ -169,7 +169,7 @@
  */
 
 /**
- * @nog_fn pow
+ * @bishop_fn pow
  * @module math
  * @description Raises base to the power of exponent.
  * @param base f64 - Base value
@@ -180,7 +180,7 @@
  */
 
 /**
- * @nog_fn sqrt
+ * @bishop_fn sqrt
  * @module math
  * @description Computes the square root.
  * @param x f64 - Input value (must be >= 0)
@@ -190,7 +190,7 @@
  */
 
 /**
- * @nog_fn cbrt
+ * @bishop_fn cbrt
  * @module math
  * @description Computes the cube root.
  * @param x f64 - Input value
@@ -200,7 +200,7 @@
  */
 
 /**
- * @nog_fn exp
+ * @bishop_fn exp
  * @module math
  * @description Computes e raised to the power of x.
  * @param x f64 - Exponent
@@ -210,7 +210,7 @@
  */
 
 /**
- * @nog_fn log
+ * @bishop_fn log
  * @module math
  * @description Computes the natural logarithm (base e).
  * @param x f64 - Input value (must be > 0)
@@ -220,7 +220,7 @@
  */
 
 /**
- * @nog_fn log10
+ * @bishop_fn log10
  * @module math
  * @description Computes the base-10 logarithm.
  * @param x f64 - Input value (must be > 0)
@@ -230,7 +230,7 @@
  */
 
 /**
- * @nog_fn log2
+ * @bishop_fn log2
  * @module math
  * @description Computes the base-2 logarithm.
  * @param x f64 - Input value (must be > 0)
@@ -240,7 +240,7 @@
  */
 
 /**
- * @nog_fn sin
+ * @bishop_fn sin
  * @module math
  * @description Computes the sine of an angle in radians.
  * @param x f64 - Angle in radians
@@ -250,7 +250,7 @@
  */
 
 /**
- * @nog_fn cos
+ * @bishop_fn cos
  * @module math
  * @description Computes the cosine of an angle in radians.
  * @param x f64 - Angle in radians
@@ -260,7 +260,7 @@
  */
 
 /**
- * @nog_fn tan
+ * @bishop_fn tan
  * @module math
  * @description Computes the tangent of an angle in radians.
  * @param x f64 - Angle in radians
@@ -270,7 +270,7 @@
  */
 
 /**
- * @nog_fn asin
+ * @bishop_fn asin
  * @module math
  * @description Computes the arc sine (inverse sine).
  * @param x f64 - Value between -1 and 1
@@ -280,7 +280,7 @@
  */
 
 /**
- * @nog_fn acos
+ * @bishop_fn acos
  * @module math
  * @description Computes the arc cosine (inverse cosine).
  * @param x f64 - Value between -1 and 1
@@ -290,7 +290,7 @@
  */
 
 /**
- * @nog_fn atan
+ * @bishop_fn atan
  * @module math
  * @description Computes the arc tangent (inverse tangent).
  * @param x f64 - Input value
@@ -300,7 +300,7 @@
  */
 
 /**
- * @nog_fn atan2
+ * @bishop_fn atan2
  * @module math
  * @description Computes the arc tangent of y/x using signs to determine quadrant.
  * @param y f64 - Y coordinate
@@ -311,7 +311,7 @@
  */
 
 /**
- * @nog_fn sinh
+ * @bishop_fn sinh
  * @module math
  * @description Computes the hyperbolic sine.
  * @param x f64 - Input value
@@ -321,7 +321,7 @@
  */
 
 /**
- * @nog_fn cosh
+ * @bishop_fn cosh
  * @module math
  * @description Computes the hyperbolic cosine.
  * @param x f64 - Input value
@@ -331,7 +331,7 @@
  */
 
 /**
- * @nog_fn tanh
+ * @bishop_fn tanh
  * @module math
  * @description Computes the hyperbolic tangent.
  * @param x f64 - Input value
@@ -341,7 +341,7 @@
  */
 
 /**
- * @nog_fn is_nan
+ * @bishop_fn is_nan
  * @module math
  * @description Checks if a value is NaN (Not a Number).
  * @param x f64 - Value to check
@@ -351,7 +351,7 @@
  */
 
 /**
- * @nog_fn is_inf
+ * @bishop_fn is_inf
  * @module math
  * @description Checks if a value is infinite (positive or negative).
  * @param x f64 - Value to check
@@ -361,7 +361,7 @@
  */
 
 /**
- * @nog_fn is_finite
+ * @bishop_fn is_finite
  * @module math
  * @description Checks if a value is finite (not NaN or infinite).
  * @param x f64 - Value to check
@@ -371,7 +371,7 @@
  */
 
 /**
- * @nog_fn sign
+ * @bishop_fn sign
  * @module math
  * @description Returns the sign of a number (-1, 0, or 1).
  * @param x f64 - Input value
@@ -381,7 +381,7 @@
  */
 
 /**
- * @nog_fn gcd
+ * @bishop_fn gcd
  * @module math
  * @description Computes the greatest common divisor of two integers.
  * @param a int - First integer
@@ -392,7 +392,7 @@
  */
 
 /**
- * @nog_fn lcm
+ * @bishop_fn lcm
  * @module math
  * @description Computes the least common multiple of two integers.
  * @param a int - First integer
@@ -406,7 +406,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in math module.
@@ -773,4 +773,4 @@ string generate_math_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

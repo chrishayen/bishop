@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_struct Request
+ * @bishop_struct Request
  * @module http
  * @description Represents an incoming HTTP request.
  * @field method str - HTTP method (GET, POST, PUT, DELETE, etc.)
@@ -23,7 +23,7 @@
  */
 
 /**
- * @nog_struct Response
+ * @bishop_struct Response
  * @module http
  * @description Represents an HTTP response to send back to the client.
  * @field status int - HTTP status code (200, 404, 500, etc.)
@@ -34,7 +34,7 @@
  */
 
 /**
- * @nog_struct App
+ * @bishop_struct App
  * @module http
  * @description HTTP application with routing support.
  * @example
@@ -45,7 +45,7 @@
  */
 
 /**
- * @nog_fn text
+ * @bishop_fn text
  * @module http
  * @description Creates a 200 OK response with text/plain content type.
  * @param content str - Response body text
@@ -54,7 +54,7 @@
  */
 
 /**
- * @nog_fn json
+ * @bishop_fn json
  * @module http
  * @description Creates a 200 OK response with application/json content type.
  * @param content str - JSON string to send
@@ -63,7 +63,7 @@
  */
 
 /**
- * @nog_fn not_found
+ * @bishop_fn not_found
  * @module http
  * @description Creates a 404 Not Found response.
  * @returns http.Response - A 404 response
@@ -74,7 +74,7 @@
  */
 
 /**
- * @nog_fn serve
+ * @bishop_fn serve
  * @module http
  * @async
  * @description Starts an HTTP server on the specified port with a single handler function.
@@ -88,7 +88,7 @@
  */
 
 /**
- * @nog_method get
+ * @bishop_method get
  * @type http.App
  * @description Registers a handler for GET requests at the specified path.
  * @param path str - URL path to match
@@ -99,7 +99,7 @@
  */
 
 /**
- * @nog_method post
+ * @bishop_method post
  * @type http.App
  * @description Registers a handler for POST requests at the specified path.
  * @param path str - URL path to match
@@ -108,7 +108,7 @@
  */
 
 /**
- * @nog_method listen
+ * @bishop_method listen
  * @type http.App
  * @async
  * @description Starts the HTTP server and begins listening for requests.
@@ -120,7 +120,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * List of built-in stdlib modules.
@@ -241,4 +241,4 @@ string generate_http_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

@@ -2,7 +2,7 @@
  * @file docgen.cpp
  * @brief Nog documentation generator.
  *
- * Extracts @nog_* tagged documentation from C++ source files
+ * Extracts @bishop_* tagged documentation from C++ source files
  * and generates markdown reference documentation.
  *
  * Usage: docgen <source_dir> <output_dir>
@@ -108,7 +108,7 @@ std::vector<std::string> extract_doc_blocks(const std::string& content) {
     for (auto it = begin; it != end; ++it) {
         std::string block = it->str();
 
-        if (block.find("@nog_") != std::string::npos) {
+        if (block.find("@bishop_") != std::string::npos) {
             blocks.push_back(block);
         }
     }
@@ -213,24 +213,24 @@ void parse_doc_block(const std::string& block, Documentation& docs) {
             continue;
         }
 
-        if (cleaned.starts_with("@nog_struct ")) {
+        if (cleaned.starts_with("@bishop_struct ")) {
             doc_type = "struct";
-            name = cleaned.substr(12);
+            name = cleaned.substr(15);
             in_example = false;
             in_description = false;
-        } else if (cleaned.starts_with("@nog_fn ")) {
+        } else if (cleaned.starts_with("@bishop_fn ")) {
             doc_type = "fn";
-            name = cleaned.substr(8);
+            name = cleaned.substr(11);
             in_example = false;
             in_description = false;
-        } else if (cleaned.starts_with("@nog_method ")) {
+        } else if (cleaned.starts_with("@bishop_method ")) {
             doc_type = "method";
-            name = cleaned.substr(12);
+            name = cleaned.substr(15);
             in_example = false;
             in_description = false;
         } else if (cleaned.starts_with("@bishop_syntax ")) {
             doc_type = "syntax";
-            name = cleaned.substr(12);
+            name = cleaned.substr(15);
             in_example = false;
             in_description = false;
         } else if (cleaned.starts_with("@module ")) {
@@ -450,7 +450,7 @@ std::string generate_syntax_markdown(const Documentation& docs) {
             }
 
             if (!s->example.empty()) {
-                ss << "**Example:**\n```nog\n" << s->example << "\n```\n\n";
+                ss << "**Example:**\n```bishop\n" << s->example << "\n```\n\n";
             }
 
             for (const auto& note : s->notes) {
@@ -472,7 +472,7 @@ std::string generate_module_markdown(const std::string& module, const Documentat
         ss << "# Built-in Functions\n\n";
     } else {
         ss << "# " << module << " Module\n\n";
-        ss << "```nog\nimport " << module << ";\n```\n\n";
+        ss << "```bishop\nimport " << module << ";\n```\n\n";
     }
 
     // Structs
@@ -504,7 +504,7 @@ std::string generate_module_markdown(const std::string& module, const Documentat
             }
 
             if (!s.example.empty()) {
-                ss << "**Example:**\n```nog\n" << s.example << "\n```\n\n";
+                ss << "**Example:**\n```bishop\n" << s.example << "\n```\n\n";
             }
         }
     }
@@ -526,7 +526,7 @@ std::string generate_module_markdown(const std::string& module, const Documentat
             }
 
             // Signature
-            ss << "```nog\n";
+            ss << "```bishop\n";
 
             if (f.is_async) {
                 ss << "async ";
@@ -571,7 +571,7 @@ std::string generate_module_markdown(const std::string& module, const Documentat
             }
 
             if (!f.example.empty()) {
-                ss << "**Example:**\n```nog\n" << f.example << "\n```\n\n";
+                ss << "**Example:**\n```bishop\n" << f.example << "\n```\n\n";
             }
         }
     }
@@ -595,7 +595,7 @@ std::string generate_methods_markdown(const std::string& type_name, const Docume
             }
 
             // Signature
-            ss << "```nog\n";
+            ss << "```bishop\n";
             ss << "s." << m.name << "(";
 
             for (size_t i = 0; i < m.params.size(); i++) {
@@ -635,7 +635,7 @@ std::string generate_methods_markdown(const std::string& type_name, const Docume
             }
 
             if (!m.example.empty()) {
-                ss << "**Example:**\n```nog\n" << m.example << "\n```\n\n";
+                ss << "**Example:**\n```bishop\n" << m.example << "\n```\n\n";
             }
         }
     }

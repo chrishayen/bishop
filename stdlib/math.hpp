@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in math module.
@@ -32,4 +32,4 @@ std::unique_ptr<Program> create_math_module();
  */
 std::string generate_math_runtime();
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib
