@@ -205,6 +205,14 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         string ident = ident_tok.value;
         advance(state);
 
+        // or expression as statement: x or fail "msg"; or x or continue;
+        if (check(state, TokenType::OR)) {
+            state.pos = saved_pos;
+            auto expr = parse_expression(state);
+            consume(state, TokenType::SEMICOLON);
+            return expr;
+        }
+
         if (check(state, TokenType::COLON_ASSIGN)) {
             state.pos = saved_pos;
             return parse_inferred_decl(state);

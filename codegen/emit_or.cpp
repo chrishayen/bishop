@@ -129,6 +129,11 @@ string emit_or_match_handler(CodeGenState& state, const OrMatch& handler, const 
  * Generates code for an OrExpr as part of a variable declaration.
  * Returns the statements that should be emitted before the variable,
  * and sets the value expression to use for the variable.
+ *
+ * Uses bishop::is_or_falsy() for the condition check, which handles
+ * both Result<T> types (.is_error()) and falsy types (!truthy(value)).
+ * Uses bishop::or_value() to extract the value, which returns .value()
+ * for Result types or the value as-is for falsy types.
  */
 OrEmitResult emit_or_for_decl(CodeGenState& state, const OrExpr& expr, const string& var_name) {
     OrEmitResult result;
@@ -138,24 +143,45 @@ OrEmitResult emit_or_for_decl(CodeGenState& state, const OrExpr& expr, const str
     // Generate the temp variable with the result
     result.preamble = fmt::format("auto {} = {};", temp, emit(state, *expr.expr));
 
+    // Use bishop::is_or_falsy() for condition check (works for both Result and falsy types)
+    // Use bishop::or_value() for value extraction (returns .value() for Result, value as-is for falsy)
+    string condition = fmt::format("bishop::is_or_falsy({})", temp);
+    string value_extraction = fmt::format("bishop::or_value({})", temp);
+
     // Generate error check
     string handler_code;
 
     if (auto* ret = dynamic_cast<const OrReturn*>(expr.handler.get())) {
         handler_code = emit_or_return_handler(state, *ret);
-        result.check = fmt::format("if ({}.is_error()) {{ {} }}", temp, handler_code);
-        result.value_expr = temp + ".value()";
+        result.check = fmt::format("if ({}) {{ {} }}", condition, handler_code);
+        result.value_expr = value_extraction;
     } else if (auto* fail = dynamic_cast<const OrFail*>(expr.handler.get())) {
-        // For or fail, we need to define err before returning it
-        handler_code = "auto err = " + temp + ".error(); " + emit_or_fail_handler(state, *fail);
-        result.check = fmt::format("if ({}.is_error()) {{ {} }}", temp, handler_code);
-        result.value_expr = temp + ".value()";
+        // For or fail with Result types, we need to define err before returning it
+        // For falsy types, the typechecker already rejected 'or fail err' so we just use the message
+        if (auto* var = dynamic_cast<const VariableRef*>(fail->error_expr.get())) {
+            if (var->name == "err") {
+                // This is 'or fail err' - only valid for Result types
+                handler_code = "auto err = " + temp + ".error(); " + emit_or_fail_handler(state, *fail);
+            } else {
+                handler_code = emit_or_fail_handler(state, *fail);
+            }
+        } else {
+            // 'or fail "message"' - works for both Result and falsy types
+            handler_code = emit_or_fail_handler(state, *fail);
+        }
+        result.check = fmt::format("if ({}) {{ {} }}", condition, handler_code);
+        result.value_expr = value_extraction;
     } else if (auto* block = dynamic_cast<const OrBlock*>(expr.handler.get())) {
-        handler_code = "auto err = " + temp + ".error();\n" + emit_or_block_handler(state, *block);
-        result.check = fmt::format("if ({}.is_error()) {{ {} }}", temp, handler_code);
-        result.value_expr = temp + ".value()";
+        // For blocks, bind 'err' using bishop::or_error() which handles both Result and falsy types
+        // The typechecker already validated that 'err' is only used with fallible expressions
+        handler_code = emit_or_block_handler(state, *block);
+        // Bind err using or_error() - for Result types this gets .error(),
+        // for falsy types it returns a synthetic error (but should never be accessed)
+        result.check = fmt::format("if ({}) {{ auto err = bishop::or_error({}); {} }}",
+                                   condition, temp, handler_code);
+        result.value_expr = value_extraction;
     } else if (auto* match = dynamic_cast<const OrMatch*>(expr.handler.get())) {
-        // Match is special - we need to declare var first, then assign in branches
+        // Match is only valid for Result types (typechecker already validated this)
         string match_code = emit_or_match_handler(state, *match, var_name);
         result.check = fmt::format(
             "if ({}.is_error()) {{\n\t\tauto err = {}.error();\n\t\t{}\n\t}} else {{\n\t\t{} = {}.value();\n\t}}",
@@ -164,12 +190,12 @@ OrEmitResult emit_or_for_decl(CodeGenState& state, const OrExpr& expr, const str
         result.is_match = true;
     } else if (dynamic_cast<const OrContinue*>(expr.handler.get())) {
         handler_code = emit_or_continue_handler();
-        result.check = fmt::format("if ({}.is_error()) {{ {} }}", temp, handler_code);
-        result.value_expr = temp + ".value()";
+        result.check = fmt::format("if ({}) {{ {} }}", condition, handler_code);
+        result.value_expr = value_extraction;
     } else if (dynamic_cast<const OrBreak*>(expr.handler.get())) {
         handler_code = emit_or_break_handler();
-        result.check = fmt::format("if ({}.is_error()) {{ {} }}", temp, handler_code);
-        result.value_expr = temp + ".value()";
+        result.check = fmt::format("if ({}) {{ {} }}", condition, handler_code);
+        result.value_expr = value_extraction;
     }
 
     return result;
