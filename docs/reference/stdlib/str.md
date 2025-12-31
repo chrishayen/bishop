@@ -4,14 +4,14 @@
 
 Returns the number of characters in the string.
 
-```nog
+```bishop
 s.length() -> int
 ```
 
 **Returns:** `int` - The string length
 
 **Example:**
-```nog
+```bishop
 s := "hello";
 len := s.length();  // 5
 ```
@@ -20,14 +20,14 @@ len := s.length();  // 5
 
 Returns true if the string has no characters.
 
-```nog
+```bishop
 s.empty() -> bool
 ```
 
 **Returns:** `bool` - True if empty, false otherwise
 
 **Example:**
-```nog
+```bishop
 s := "";
 if s.empty() {
     print("String is empty");
@@ -38,7 +38,7 @@ if s.empty() {
 
 Checks if the string contains the given substring.
 
-```nog
+```bishop
 s.contains(str substr) -> bool
 ```
 
@@ -49,7 +49,7 @@ s.contains(str substr) -> bool
 **Returns:** `bool` - True if found, false otherwise
 
 **Example:**
-```nog
+```bishop
 s := "hello world";
 if s.contains("world") {
     print("Found it!");
@@ -60,7 +60,7 @@ if s.contains("world") {
 
 Checks if the string starts with the given prefix.
 
-```nog
+```bishop
 s.starts_with(str prefix) -> bool
 ```
 
@@ -71,7 +71,7 @@ s.starts_with(str prefix) -> bool
 **Returns:** `bool` - True if string starts with prefix
 
 **Example:**
-```nog
+```bishop
 path := "/api/users";
 if path.starts_with("/api") {
     print("API route");
@@ -82,7 +82,7 @@ if path.starts_with("/api") {
 
 Checks if the string ends with the given suffix.
 
-```nog
+```bishop
 s.ends_with(str suffix) -> bool
 ```
 
@@ -93,7 +93,7 @@ s.ends_with(str suffix) -> bool
 **Returns:** `bool` - True if string ends with suffix
 
 **Example:**
-```nog
+```bishop
 file := "image.png";
 if file.ends_with(".png") {
     print("PNG image");
@@ -104,7 +104,7 @@ if file.ends_with(".png") {
 
 Returns the index of the first occurrence of a substring, or -1 if not found.
 
-```nog
+```bishop
 s.find(str substr) -> int
 ```
 
@@ -115,7 +115,7 @@ s.find(str substr) -> int
 **Returns:** `int` - Index of first occurrence, or -1
 
 **Example:**
-```nog
+```bishop
 s := "hello world";
 idx := s.find("world");  // 6
 ```
@@ -124,7 +124,7 @@ idx := s.find("world");  // 6
 
 Extracts a portion of the string.
 
-```nog
+```bishop
 s.substr(int start, int length) -> str
 ```
 
@@ -136,7 +136,7 @@ s.substr(int start, int length) -> str
 **Returns:** `str` - The extracted substring
 
 **Example:**
-```nog
+```bishop
 s := "hello world";
 sub := s.substr(0, 5);  // "hello"
 ```
@@ -145,7 +145,7 @@ sub := s.substr(0, 5);  // "hello"
 
 Returns the character at the specified index as a single-character string.
 
-```nog
+```bishop
 s.at(int index) -> str
 ```
 
@@ -156,7 +156,7 @@ s.at(int index) -> str
 **Returns:** `str` - A single-character string at that position
 
 **Example:**
-```nog
+```bishop
 s := "hello";
 c := s.at(0);  // "h"
 ```

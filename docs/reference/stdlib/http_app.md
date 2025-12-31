@@ -4,7 +4,7 @@
 
 Registers a handler for GET requests at the specified path.
 
-```nog
+```bishop
 s.get(str path, fn(http.Request) handler)
 ```
 
@@ -14,7 +14,7 @@ s.get(str path, fn(http.Request) handler)
 - `handler` (`fn(http.Request)`): Handler function
 
 **Example:**
-```nog
+```bishop
 app.get("/", home);
 app.get("/about", about);
 ```
@@ -23,7 +23,7 @@ app.get("/about", about);
 
 Registers a handler for POST requests at the specified path.
 
-```nog
+```bishop
 s.post(str path, fn(http.Request) handler)
 ```
 
@@ -33,7 +33,7 @@ s.post(str path, fn(http.Request) handler)
 - `handler` (`fn(http.Request)`): Handler function
 
 **Example:**
-```nog
+```bishop
 app.post("/submit", handle_submit);
 ```
 
@@ -41,7 +41,7 @@ app.post("/submit", handle_submit);
 
 Starts the HTTP server and begins listening for requests.
 
-```nog
+```bishop
 s.listen(int port)
 ```
 
@@ -50,7 +50,7 @@ s.listen(int port)
 - `port` (`int`): Port number to listen on
 
 **Example:**
-```nog
+```bishop
 app.listen(8080);
 ```
 

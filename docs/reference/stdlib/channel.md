@@ -4,7 +4,7 @@
 
 Sends a value through the channel.
 
-```nog
+```bishop
 s.send(T value)
 ```
 
@@ -13,7 +13,7 @@ s.send(T value)
 - `value` (`T`): The value to send
 
 **Example:**
-```nog
+```bishop
 ch.send(42);
 ```
 
@@ -21,14 +21,14 @@ ch.send(42);
 
 Receives a value from the channel.
 
-```nog
+```bishop
 s.recv() -> T
 ```
 
 **Returns:** `T` - The received value
 
 **Example:**
-```nog
+```bishop
 val := ch.recv();
 ```
 

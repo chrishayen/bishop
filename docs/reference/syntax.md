@@ -12,7 +12,7 @@ int
 ```
 
 **Example:**
-```nog
+```bishop
 int x = 42;
 ```
 
@@ -26,7 +26,7 @@ str
 ```
 
 **Example:**
-```nog
+```bishop
 str name = "Chris";
 ```
 
@@ -40,7 +40,7 @@ bool
 ```
 
 **Example:**
-```nog
+```bishop
 bool flag = true;
 ```
 
@@ -54,7 +54,7 @@ char
 ```
 
 **Example:**
-```nog
+```bishop
 char c = 'a';
 ```
 
@@ -68,7 +68,7 @@ f32
 ```
 
 **Example:**
-```nog
+```bishop
 f32 pi = 3.14;
 ```
 
@@ -82,7 +82,7 @@ f64
 ```
 
 **Example:**
-```nog
+```bishop
 f64 precise = 3.14159265359;
 ```
 
@@ -96,7 +96,7 @@ u32
 ```
 
 **Example:**
-```nog
+```bishop
 u32 count = 100;
 ```
 
@@ -110,7 +110,7 @@ u64
 ```
 
 **Example:**
-```nog
+```bishop
 u64 big_num = 9999999999;
 ```
 
@@ -124,7 +124,7 @@ T?
 ```
 
 **Example:**
-```nog
+```bishop
 int? maybe_num = none;
 int? value = 42;
 if value is none {
@@ -146,7 +146,7 @@ type name = expr;
 ```
 
 **Example:**
-```nog
+```bishop
 int x = 42;
 str name = "Chris";
 bool flag = true;
@@ -162,7 +162,7 @@ name := expr;
 ```
 
 **Example:**
-```nog
+```bishop
 x := 100;
 name := "Hello";
 pi := 3.14;
@@ -180,7 +180,7 @@ fn name(type param, ...) -> return_type { }
 ```
 
 **Example:**
-```nog
+```bishop
 fn add(int a, int b) -> int {
     return a + b;
 }
@@ -196,7 +196,7 @@ fn name(params) { }
 ```
 
 **Example:**
-```nog
+```bishop
 fn greet(str name) {
     print("Hello, " + name);
 }
@@ -212,7 +212,7 @@ fn(param_types) -> return_type
 ```
 
 **Example:**
-```nog
+```bishop
 fn apply_op(int x, int y, fn(int, int) -> int op) -> int {
     return op(x, y);
 }
@@ -231,7 +231,7 @@ Name :: struct { field type, ... }
 ```
 
 **Example:**
-```nog
+```bishop
 Person :: struct {
     name str,
     age int
@@ -248,7 +248,7 @@ TypeName { field: value, field: value }
 ```
 
 **Example:**
-```nog
+```bishop
 p := Person { name: "Chris", age: 32 };
 req := http.Request { method: "GET", path: "/", body: "" };
 ```
@@ -263,7 +263,7 @@ instance.field
 ```
 
 **Example:**
-```nog
+```bishop
 name := p.name;
 p.age = 33;
 ```
@@ -280,7 +280,7 @@ Type :: name(self, params) -> return_type { }
 ```
 
 **Example:**
-```nog
+```bishop
 Person :: get_name(self) -> str {
     return self.name;
 }
@@ -300,7 +300,7 @@ instance.method(args)
 ```
 
 **Example:**
-```nog
+```bishop
 name := p.get_name();
 msg := p.greet("Hello");
 ```
@@ -317,7 +317,7 @@ if condition { ... } else { ... }
 ```
 
 **Example:**
-```nog
+```bishop
 if x > 10 {
     print("big");
 } else {
@@ -335,7 +335,7 @@ while condition { ... }
 ```
 
 **Example:**
-```nog
+```bishop
 i := 0;
 while i < 5 {
     print(i);
@@ -355,7 +355,7 @@ Mathematical operations.
 ```
 
 **Example:**
-```nog
+```bishop
 sum := a + b;
 diff := a - b;
 prod := a * b;
@@ -374,7 +374,7 @@ Group expressions to override precedence and enable postfix access on expression
 ```
 
 **Example:**
-```nog
+```bishop
 result := (1 + 2) * 3;
 len := ("hi" + "there").length();
 ```
@@ -389,7 +389,7 @@ Compare values.
 ```
 
 **Example:**
-```nog
+```bishop
 if x == y { }
 if x != y { }
 if x < y { }
@@ -406,7 +406,7 @@ str + str
 ```
 
 **Example:**
-```nog
+```bishop
 msg := "Hello, " + name + "!";
 ```
 
@@ -422,7 +422,7 @@ import module_name;
 ```
 
 **Example:**
-```nog
+```bishop
 import http;
 import myproject.utils;
 ```
@@ -439,7 +439,7 @@ module.member
 ```
 
 **Example:**
-```nog
+```bishop
 resp := http.text("Hello");
 result := utils.helper();
 ```
@@ -467,7 +467,7 @@ Document functions, structs, and fields with /// comments.
 ```
 
 **Example:**
-```nog
+```bishop
 /// This is a doc comment for the function
 fn add(int a, int b) -> int {
     return a + b;
