@@ -6,6 +6,9 @@
  * Boost-dependent features (Channel) are in separate headers.
  */
 
+#ifndef BISHOP_STD_HPP
+#define BISHOP_STD_HPP
+
 #pragma once
 
 #include <iostream>
@@ -198,3 +201,5 @@ inline bool truthy(const T& value) {
 }
 
 }  // namespace bishop
+
+#endif  // BISHOP_STD_HPP
