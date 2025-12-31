@@ -86,7 +86,7 @@ std::unique_ptr<UsingStmt> parse_using(ParserState& state);
 Visibility parse_visibility(ParserState& state);
 std::unique_ptr<FunctionDef> parse_function(ParserState& state, Visibility vis);
 std::unique_ptr<ExternFunctionDef> parse_extern_function(ParserState& state, const std::string& library);
-std::unique_ptr<MethodDef> parse_method_def(ParserState& state, const std::string& struct_name, Visibility vis);
+std::unique_ptr<MethodDef> parse_method_def(ParserState& state, const std::string& struct_name, Visibility vis, bool is_static = false);
 
 // Go spawn parsing
 std::unique_ptr<GoSpawn> parse_go_spawn(ParserState& state);
