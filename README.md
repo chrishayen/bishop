@@ -296,6 +296,44 @@ p.set_age(33);          // mutates p.age
 p.birth_year(2025);     // 1993
 ```
 
+### Static Methods
+
+Static methods belong to the type itself rather than an instance. Define them with the `@static` decorator:
+
+```bishop
+Counter :: struct {
+    value int
+}
+
+@static
+Counter :: create() -> Counter {
+    return Counter { value: 0 };
+}
+
+@static
+Counter :: from_value(int val) -> Counter {
+    return Counter { value: val };
+}
+
+@static
+Counter :: add(int a, int b) -> int {
+    return a + b;
+}
+```
+
+Call static methods on the type name:
+
+```bishop
+c := Counter.create();           // Counter { value: 0 }
+c := Counter.from_value(42);     // Counter { value: 42 }
+result := Counter.add(10, 20);   // 30
+```
+
+Static methods have no `self` parameter and cannot access instance fields. They're useful for:
+- Factory methods that create instances
+- Utility functions related to a type
+- Namespace grouping of related functions
+
 ## Control Flow
 
 ### If/Else
@@ -697,6 +735,46 @@ for item in items {
 while running {
     data := fetch() or break;
     process(data);
+}
+```
+
+### Using `or` with Falsy Values
+
+The `or` keyword also works with falsy expressions (not just fallible functions). Falsy values are: `false`, `0`, and empty string `""`.
+
+```bishop
+// Guard clauses with booleans
+fn validate(bool exists, bool valid) -> str or err {
+    exists or fail "not found";
+    valid or fail "not valid";
+    return "success";
+}
+
+// or return with booleans
+fn process(bool flag) -> int {
+    flag or return 0;
+    return 1;
+}
+
+// or continue/break with integers
+for i in 0..5 {
+    i or continue;    // skip when i is 0
+    print(i);
+}
+
+values := [1, 2, 0, 4, 5];
+for v in values {
+    v or break;       // stop at first 0
+    print(v);
+}
+```
+
+This enables guard clause patterns similar to:
+```bishop
+fn handle_request(bool authenticated, bool authorized) -> Response or err {
+    authenticated or fail AuthError { message: "not authenticated" };
+    authorized or fail AuthError { message: "not authorized" };
+    return process_request();
 }
 ```
 
@@ -1957,6 +2035,499 @@ uniq := algo.unique_int(dups);  // [1, 2, 3]
 | `unique_int(list) -> List<int>` | Unique integers (order preserved) |
 | `unique_str(list) -> List<str>` | Unique strings (order preserved) |
 
+### JSON Module
+
+```bishop
+import json;
+```
+
+Parse, create, and manipulate JSON data.
+
+#### Parsing JSON
+
+```bishop
+// Parse JSON string (fallible)
+data := json.parse('{"name": "Alice", "age": 30}') or return;
+
+// Check types
+data.is_object();   // true
+data.is_list();     // false
+data.is_str();      // false
+data.is_int();      // false
+data.is_float();    // false
+data.is_bool();     // false
+data.is_null();     // false
+```
+
+#### Accessing Values
+
+```bishop
+data := json.parse('{"user": {"name": "Bob", "scores": [95, 87, 92]}}') or return;
+
+// Direct field access
+name := data.get_str("user") or return;       // fails - user is object
+user := data.get_object("user") or return;    // json.Value object
+name := user.get_str("name") or return;       // "Bob"
+
+// Typed getters
+data.get_str("key") or return;      // -> str or err
+data.get_int("key") or return;      // -> int or err
+data.get_bool("key") or return;     // -> bool or err
+data.get_list("key") or return;     // -> json.Value or err
+data.get_object("key") or return;   // -> json.Value or err
+
+// Path access for nested values
+city := data.path("user.address.city") or return;
+city_str := city.as_str() or return;
+
+// Convert value to native type
+val.as_str() or return;    // -> str or err
+val.as_int() or return;    // -> int or err
+val.as_bool() or return;   // -> bool or err
+
+// Check for key existence
+data.has("name");   // -> bool
+data.length();      // -> int (object keys or array elements)
+data.keys();        // -> List<str> (object keys)
+```
+
+#### Creating JSON
+
+```bishop
+// Create empty structures
+obj := json.object();
+arr := json.array();
+
+// Set values on objects
+obj.set_str("name", "Charlie");
+obj.set_int("age", 25);
+obj.set_bool("active", true);
+obj.set_float("score", 95.5);
+obj.set_null("empty");
+
+// Push values to arrays
+arr.push_int(1);
+arr.push_str("hello");
+arr.push_bool(true);
+arr.push_null();
+
+// Remove keys
+obj.remove("temp");
+```
+
+#### Serialization
+
+```bishop
+// Compact JSON string
+json_str := json.stringify(obj);
+
+// Pretty-printed JSON
+json_str := json.stringify_pretty(obj);
+```
+
+#### json.Value Methods
+
+| Method | Description |
+|--------|-------------|
+| `is_object() -> bool` | Check if value is an object |
+| `is_list() -> bool` | Check if value is an array |
+| `is_str() -> bool` | Check if value is a string |
+| `is_int() -> bool` | Check if value is an integer |
+| `is_float() -> bool` | Check if value is a float |
+| `is_bool() -> bool` | Check if value is a boolean |
+| `is_null() -> bool` | Check if value is null |
+| `as_str() -> str or err` | Convert to string |
+| `as_int() -> int or err` | Convert to integer |
+| `as_bool() -> bool or err` | Convert to boolean |
+| `get(key) -> json.Value or err` | Get value by key or index |
+| `get_str(key) -> str or err` | Get string field |
+| `get_int(key) -> int or err` | Get integer field |
+| `get_bool(key) -> bool or err` | Get boolean field |
+| `get_list(key) -> json.Value or err` | Get array field |
+| `get_object(key) -> json.Value or err` | Get object field |
+| `path(str) -> json.Value or err` | Access nested value by dot path |
+| `has(key) -> bool` | Check if key exists |
+| `keys() -> List<str>` | Get all keys (objects only) |
+| `length() -> int` | Number of keys or elements |
+| `set_str(key, val)` | Set string field |
+| `set_int(key, val)` | Set integer field |
+| `set_bool(key, val)` | Set boolean field |
+| `set_float(key, val)` | Set float field |
+| `set_null(key)` | Set null field |
+| `push_str(val)` | Append string to array |
+| `push_int(val)` | Append integer to array |
+| `push_bool(val)` | Append boolean to array |
+| `push_null()` | Append null to array |
+| `remove(key)` | Remove key from object |
+
+#### Module Functions
+
+| Function | Description |
+|----------|-------------|
+| `json.parse(str) -> json.Value or err` | Parse JSON string |
+| `json.object() -> json.Value` | Create empty object |
+| `json.array() -> json.Value` | Create empty array |
+| `json.stringify(val) -> str` | Serialize to compact JSON |
+| `json.stringify_pretty(val) -> str` | Serialize to formatted JSON |
+
+### Log Module
+
+```bishop
+import log;
+```
+
+Structured logging with configurable levels and outputs.
+
+#### Log Levels
+
+```bishop
+// Level constants (in order of severity)
+log.DEBUG   // detailed debugging info
+log.INFO    // general information
+log.WARN    // warning conditions
+log.ERROR   // error conditions
+```
+
+#### Basic Logging
+
+```bishop
+log.debug("Debugging details");
+log.info("Application started");
+log.warn("High memory usage");
+log.error("Connection failed");
+```
+
+#### Logging with Key-Value Pairs
+
+```bishop
+log.info_kv("User logged in", "user_id", "12345");
+log.debug_kv("Request received", "method", "GET");
+log.warn_kv("High memory usage", "percent", "95");
+log.error_kv("Connection failed", "host", "example.com");
+```
+
+#### Configuration
+
+```bishop
+// Set minimum log level (messages below this level are suppressed)
+log.set_level(log.INFO);   // suppresses DEBUG
+log.set_level(log.WARN);   // suppresses DEBUG and INFO
+log.set_level(log.ERROR);  // only shows ERROR
+
+// Set custom format (strftime specifiers)
+log.set_format("[%Y-%m-%d %H:%M:%S] [%l] %v");
+```
+
+#### File Output
+
+```bishop
+// Add file output (receives all logged messages)
+log.add_file("/var/log/app.log");
+
+// Add file output with specific level filter
+log.add_file_level("/var/log/errors.log", log.ERROR);
+```
+
+#### Log Module Functions
+
+| Function | Description |
+|----------|-------------|
+| `log.debug(msg)` | Log at DEBUG level |
+| `log.info(msg)` | Log at INFO level |
+| `log.warn(msg)` | Log at WARN level |
+| `log.error(msg)` | Log at ERROR level |
+| `log.debug_kv(msg, key, val)` | Log DEBUG with key-value |
+| `log.info_kv(msg, key, val)` | Log INFO with key-value |
+| `log.warn_kv(msg, key, val)` | Log WARN with key-value |
+| `log.error_kv(msg, key, val)` | Log ERROR with key-value |
+| `log.set_level(level)` | Set minimum log level |
+| `log.set_format(fmt)` | Set output format |
+| `log.add_file(path)` | Add file output |
+| `log.add_file_level(path, level)` | Add file output with level filter |
+
+### Sync Module
+
+```bishop
+import sync;
+```
+
+Synchronization primitives for concurrent programming.
+
+#### Mutex
+
+```bishop
+// Create a mutex
+mtx := sync.mutex_create();
+
+// Lock and unlock
+sync.mutex_lock(mtx);
+// ... critical section ...
+sync.mutex_unlock(mtx);
+
+// Try to acquire lock (non-blocking)
+if sync.mutex_try_lock(mtx) {
+    // acquired lock
+    sync.mutex_unlock(mtx);
+}
+```
+
+#### WaitGroup
+
+Coordinate multiple goroutines:
+
+```bishop
+wg := sync.waitgroup_create();
+
+// Add count before spawning
+sync.waitgroup_add(wg, 3);
+
+go fn() {
+    // ... work ...
+    sync.waitgroup_done(wg);
+}();
+
+go fn() {
+    // ... work ...
+    sync.waitgroup_done(wg);
+}();
+
+go fn() {
+    // ... work ...
+    sync.waitgroup_done(wg);
+}();
+
+// Wait for all to complete
+sync.waitgroup_wait(wg);
+```
+
+#### Once
+
+Execute a function exactly once:
+
+```bishop
+once := sync.once_create();
+
+// Only the first call executes
+sync.once_do(once, fn() {
+    print("This runs once");
+});
+```
+
+#### AtomicInt
+
+Thread-safe integer operations:
+
+```bishop
+// Create with initial value
+counter := sync.atomic_int_create(0);
+
+// Load current value
+val := sync.atomic_int_load(counter);
+
+// Store new value
+sync.atomic_int_store(counter, 100);
+
+// Add and return previous value
+prev := sync.atomic_int_add(counter, 5);
+
+// Swap and return old value
+old := sync.atomic_int_swap(counter, 42);
+
+// Compare and swap (returns bool)
+success := sync.atomic_int_compare_swap(counter, 42, 100);
+```
+
+#### Sync Module Functions
+
+| Function | Description |
+|----------|-------------|
+| `sync.mutex_create() -> Mutex` | Create a mutex |
+| `sync.mutex_lock(mtx)` | Acquire lock (blocking) |
+| `sync.mutex_unlock(mtx)` | Release lock |
+| `sync.mutex_try_lock(mtx) -> bool` | Try to acquire lock |
+| `sync.waitgroup_create() -> WaitGroup` | Create a wait group |
+| `sync.waitgroup_add(wg, n)` | Add n to counter |
+| `sync.waitgroup_done(wg)` | Decrement counter by 1 |
+| `sync.waitgroup_wait(wg)` | Block until counter is 0 |
+| `sync.once_create() -> Once` | Create a once guard |
+| `sync.once_do(once, fn)` | Execute fn exactly once |
+| `sync.atomic_int_create(n) -> AtomicInt` | Create atomic integer |
+| `sync.atomic_int_load(a) -> int` | Load current value |
+| `sync.atomic_int_store(a, n)` | Store new value |
+| `sync.atomic_int_add(a, n) -> int` | Add and return previous |
+| `sync.atomic_int_swap(a, n) -> int` | Swap and return old |
+| `sync.atomic_int_compare_swap(a, expected, new) -> bool` | CAS operation |
+
+### YAML Module
+
+```bishop
+import yaml;
+```
+
+Parse, create, and manipulate YAML data. The API mirrors the JSON module.
+
+#### Parsing YAML
+
+```bishop
+// Parse YAML string (fallible)
+data := yaml.parse("name: Alice\nage: 30") or return;
+
+// Parse lists
+list := yaml.parse("- 1\n- 2\n- 3") or return;
+
+// Check types (same as JSON)
+data.is_object();
+data.is_list();
+data.is_str();
+data.is_int();
+data.is_float();
+data.is_bool();
+data.is_null();
+```
+
+#### YAML-Specific Parsing
+
+```bishop
+// Boolean variations
+yaml.parse("yes") or return;    // true
+yaml.parse("no") or return;     // false
+yaml.parse("true") or return;   // true
+yaml.parse("false") or return;  // false
+
+// Null variations
+yaml.parse("null") or return;   // null
+yaml.parse("~") or return;      // null
+
+// Inline syntax
+yaml.parse("items: [1, 2, 3]") or return;
+yaml.parse("person: {name: Alice, age: 30}") or return;
+
+// Multiline strings
+yaml.parse("text: |\n  line1\n  line2") or return;
+
+// Comments are ignored
+yaml.parse("# comment\nname: test") or return;
+```
+
+#### Accessing Values
+
+```bishop
+data := yaml.parse("user:\n  name: Bob\n  city: NYC") or return;
+
+// Typed getters
+name := data.get_str("key") or return;
+count := data.get_int("key") or return;
+flag := data.get_bool("key") or return;
+list := data.get_list("key") or return;
+obj := data.get_object("key") or return;
+
+// Path access
+city := data.path("user.city") or return;
+city_str := city.as_str() or return;   // "NYC"
+
+// Key operations
+data.has("name");   // -> bool
+data.keys();        // -> List<str>
+data.length();      // -> int
+```
+
+#### Creating YAML
+
+```bishop
+// Create structures
+obj := yaml.object();
+arr := yaml.array();
+
+// Set values
+obj.set_str("name", "Charlie");
+obj.set_int("age", 25);
+obj.set_bool("active", true);
+obj.set_float("score", 95.5);
+
+// Push to arrays
+arr.push_int(1);
+arr.push_str("hello");
+arr.push_bool(true);
+
+// Remove keys
+obj.remove("temp");
+```
+
+#### Serialization
+
+```bishop
+yaml_str := yaml.stringify(obj);
+```
+
+#### Module Functions
+
+| Function | Description |
+|----------|-------------|
+| `yaml.parse(str) -> yaml.Value or err` | Parse YAML string |
+| `yaml.object() -> yaml.Value` | Create empty object |
+| `yaml.array() -> yaml.Value` | Create empty array |
+| `yaml.stringify(val) -> str` | Serialize to YAML |
+
+### Markdown Module
+
+```bishop
+import markdown;
+```
+
+Parse and render Markdown documents.
+
+#### Converting Markdown to HTML
+
+```bishop
+// Direct conversion
+html := markdown.to_html("# Title\n\nParagraph with **bold**.");
+// <h1>Title</h1>\n<p>Paragraph with <strong>bold</strong>.</p>
+
+// Supports common syntax:
+// - Headings: # ## ### etc.
+// - Bold: **text**
+// - Italic: *text*
+// - Code: `inline` and ```blocks```
+// - Links: [text](url)
+// - Images: ![alt](url)
+// - Lists: - item or 1. item
+```
+
+#### Extracting Plain Text
+
+```bishop
+text := markdown.to_text("# Hello **World**");
+// "Hello World"
+```
+
+#### Document Parsing
+
+```bishop
+// Parse to document object
+doc := markdown.parse("# Title\n\nContent") or return;
+
+// Convert document to HTML
+html := doc.to_html();
+
+// Serialize back to Markdown
+md := markdown.stringify(doc);
+```
+
+#### Module Functions
+
+| Function | Description |
+|----------|-------------|
+| `markdown.to_html(str) -> str` | Convert Markdown to HTML |
+| `markdown.to_text(str) -> str` | Extract plain text from Markdown |
+| `markdown.parse(str) -> markdown.Document or err` | Parse to document |
+| `markdown.stringify(doc) -> str` | Serialize document to Markdown |
+
+#### markdown.Document Methods
+
+| Method | Description |
+|--------|-------------|
+| `to_html() -> str` | Render document as HTML |
+
 ## Import System
 
 Import modules using dot notation:
@@ -2158,3 +2729,7 @@ fn test_math() {
 ## Keywords
 
 `fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `using`, `select`, `case`, `Channel`, `List`, `Pair`, `Tuple`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`
+
+## Decorators
+
+`@static`, `@private`, `@extern`
