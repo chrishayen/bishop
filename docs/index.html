@@ -4,21 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bishop Language Reference</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/style.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-mono/style.min.css">
     <style>
         :root {
-            --bg-primary: #1a1a2e;
-            --bg-secondary: #16213e;
-            --bg-tertiary: #0f0f23;
-            --bg-code: #0d1117;
-            --text-primary: #e4e4e7;
+            --bg-primary: #121215;
+            --bg-secondary: #18181b;
+            --bg-tertiary: #1f1f23;
+            --bg-code: #0a0a0c;
+            --text-primary: #fafafa;
             --text-secondary: #a1a1aa;
-            --text-muted: #71717a;
-            --accent-primary: #6366f1;
-            --accent-secondary: #8b5cf6;
-            --accent-success: #22c55e;
-            --accent-warning: #f59e0b;
-            --accent-error: #ef4444;
-            --border-color: #27273a;
+            --text-muted: #52525b;
+            --accent-primary: #10b981;
+            --accent-secondary: #059669;
+            --accent-glow: rgba(16, 185, 129, 0.15);
+            --accent-success: #34d399;
+            --accent-warning: #fbbf24;
+            --accent-error: #f87171;
+            --border-color: #27272a;
             --sidebar-width: 280px;
             --header-height: 60px;
         }
@@ -30,7 +33,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
@@ -43,7 +46,9 @@
             left: 0;
             right: 0;
             height: var(--header-height);
-            background-color: var(--bg-secondary);
+            background-color: rgba(24, 24, 27, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
@@ -135,12 +140,12 @@
 
         .nav-link:hover {
             color: var(--text-primary);
-            background-color: rgba(99, 102, 241, 0.1);
+            background-color: var(--accent-glow);
         }
 
         .nav-link.active {
             color: var(--accent-primary);
-            background-color: rgba(99, 102, 241, 0.15);
+            background-color: var(--accent-glow);
             border-right: 2px solid var(--accent-primary);
         }
 
@@ -215,7 +220,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 8px 16px;
-            background-color: #161b22;
+            background-color: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             border-bottom: none;
             border-radius: 8px 8px 0 0;
@@ -265,28 +270,28 @@
         }
 
         code {
-            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+            font-family: 'Geist Mono', 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
         }
 
         :not(pre) > code {
-            background-color: rgba(99, 102, 241, 0.15);
+            background-color: var(--accent-glow);
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 0.875em;
-            color: var(--accent-secondary);
+            color: var(--accent-primary);
         }
 
         /* Syntax highlighting */
-        .token-keyword { color: #ff79c6; }
-        .token-type { color: #8be9fd; }
-        .token-function { color: #50fa7b; }
-        .token-string { color: #f1fa8c; }
-        .token-number { color: #bd93f9; }
-        .token-comment { color: #6272a4; font-style: italic; }
-        .token-operator { color: #ff79c6; }
-        .token-punctuation { color: #f8f8f2; }
-        .token-decorator { color: #ffb86c; }
-        .token-builtin { color: #8be9fd; }
+        .token-keyword { color: #f472b6; }
+        .token-type { color: #10b981; }
+        .token-function { color: #a78bfa; }
+        .token-string { color: #fcd34d; }
+        .token-number { color: #fb923c; }
+        .token-comment { color: #52525b; font-style: italic; }
+        .token-operator { color: #f472b6; }
+        .token-punctuation { color: #a1a1aa; }
+        .token-decorator { color: #fbbf24; }
+        .token-builtin { color: #10b981; }
 
         /* Tables */
         table {
@@ -312,7 +317,7 @@
         }
 
         tr:nth-child(even) {
-            background-color: rgba(22, 33, 62, 0.3);
+            background-color: rgba(39, 39, 42, 0.3);
         }
 
         /* Collapsible sections */
@@ -333,7 +338,7 @@
         }
 
         .collapsible-header:hover {
-            background-color: rgba(99, 102, 241, 0.1);
+            background-color: var(--accent-glow);
         }
 
         .collapsible-header.active {
@@ -360,7 +365,7 @@
             border: 1px solid var(--border-color);
             border-top: none;
             border-radius: 0 0 8px 8px;
-            background-color: rgba(22, 33, 62, 0.3);
+            background-color: rgba(39, 39, 42, 0.2);
         }
 
         .collapsible-content.show {
@@ -383,7 +388,7 @@
             margin: 16px 0;
             padding: 16px 20px;
             border-left: 4px solid var(--accent-primary);
-            background-color: rgba(99, 102, 241, 0.1);
+            background-color: var(--accent-glow);
             border-radius: 0 8px 8px 0;
         }
 
@@ -411,6 +416,7 @@
         .card:hover {
             border-color: var(--accent-primary);
             transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--accent-glow);
         }
 
         .card-title {
@@ -456,7 +462,7 @@
         }
 
         .search-result-item:hover {
-            background-color: rgba(99, 102, 241, 0.1);
+            background-color: var(--accent-glow);
         }
 
         .search-result-item:last-child {
@@ -507,7 +513,7 @@
 
         /* Highlight for search */
         .highlight {
-            background-color: rgba(245, 158, 11, 0.3);
+            background-color: rgba(251, 191, 36, 0.3);
             padding: 2px 0;
         }
     </style>
@@ -517,7 +523,7 @@
         <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
         <div class="logo">Bishop</div>
         <div class="search-container">
-            <input type="text" id="search-input" placeholder="Search documentation..." autocomplete="off">
+            <input type="text" id="search-input" placeholder="Search... (⌘K)" autocomplete="off">
             <div class="search-results" id="search-results"></div>
         </div>
         <div class="header-links">
@@ -632,19 +638,45 @@
 
         <section id="quick-start">
             <h2>Quick Start</h2>
+            <h3>Installation</h3>
+            <p>Bishop is currently in <strong>alpha</strong> and available for <strong>Linux x64</strong> only. Download the latest release from <a href="https://github.com/chrishayen/bishop/releases" target="_blank">GitHub Releases</a>.</p>
+            <h4>Debian/Ubuntu</h4>
             <div class="code-block">
                 <div class="code-header">
                     <span class="code-lang">bash</span>
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                 </div>
-                <pre><code><span class="token-comment"># Build the compiler</span>
-make
+                <pre><code><span class="token-comment"># Download from https://github.com/chrishayen/bishop/releases</span>
+sudo dpkg -i bishop-linux-x64-v0.14.0.deb</code></pre>
+            </div>
+            <h4>Manual Installation</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bash</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-comment"># Download bishop-linux-x64-v0.14.0.tar.gz from</span>
+<span class="token-comment"># https://github.com/chrishayen/bishop/releases</span>
+tar -xzf bishop-linux-x64-v0.14.0.tar.gz
+cd bishop-linux-x64-v0.14.0
 
-<span class="token-comment"># Run a Bishop program</span>
-./bishop run examples/serve.b
+<span class="token-comment"># Install binary, libraries, and includes</span>
+sudo mv bin/bishop /usr/local/bin/
+sudo cp -r lib/* /usr/local/lib/
+sudo cp -r include/* /usr/local/include/
+sudo ldconfig</code></pre>
+            </div>
+            <h3>Usage</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">bash</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="token-comment"># Run a Bishop program</span>
+bishop run examples/serve.b
 
 <span class="token-comment"># Run tests</span>
-./bishop test tests/</code></pre>
+bishop test tests/</code></pre>
             </div>
             <p>Bishop source files use the <code>.b</code> extension.</p>
         </section>
@@ -1789,6 +1821,24 @@ x := <span class="token-function">sin</span>(PI / <span class="token-number">2.0
         // Close search results when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.search-container')) {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        // Cmd+K (Mac) or Ctrl+K (other) to focus search
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        searchInput.placeholder = isMac ? 'Search... (⌘K)' : 'Search... (Ctrl+K)';
+
+        document.addEventListener('keydown', (e) => {
+            const modifierPressed = isMac ? e.metaKey : e.ctrlKey;
+            if (modifierPressed && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+
+            if (e.key === 'Escape' && document.activeElement === searchInput) {
+                searchInput.blur();
                 searchResults.classList.remove('active');
             }
         });
