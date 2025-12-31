@@ -14,14 +14,10 @@ namespace parser {
 
 /**
  * Parses an or handler after an expression.
- * Returns nullptr if no 'or' token is present.
- * Throws an error if 'or' is present but no valid handler follows.
+ * Call only when check(state, TokenType::OR) is true.
+ * Takes ownership of expr and returns an OrExpr.
  */
-unique_ptr<OrExpr> try_parse_or_handler(ParserState& state, unique_ptr<ASTNode> expr) {
-    if (!check(state, TokenType::OR)) {
-        return nullptr;
-    }
-
+unique_ptr<OrExpr> parse_or_handler(ParserState& state, unique_ptr<ASTNode> expr) {
     int or_line = current(state).line;
     advance(state);  // consume 'or'
 
@@ -303,7 +299,8 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
                 consume(state, TokenType::RPAREN);
 
                 // Check for 'or' handler (standalone or expression)
-                if (auto or_expr = try_parse_or_handler(state, move(call))) {
+                if (check(state, TokenType::OR)) {
+                    auto or_expr = parse_or_handler(state, move(call));
                     consume(state, TokenType::SEMICOLON);
                     return or_expr;
                 }
@@ -367,7 +364,8 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
                 consume(state, TokenType::RPAREN);
 
                 // Check for 'or' handler (standalone or expression)
-                if (auto or_expr = try_parse_or_handler(state, move(call))) {
+                if (check(state, TokenType::OR)) {
+                    auto or_expr = parse_or_handler(state, move(call));
                     consume(state, TokenType::SEMICOLON);
                     return or_expr;
                 }
@@ -438,7 +436,8 @@ unique_ptr<ASTNode> parse_function_call(ParserState& state) {
     consume(state, TokenType::RPAREN);
 
     // Check for 'or' handler (standalone or expression)
-    if (auto or_expr = try_parse_or_handler(state, move(call))) {
+    if (check(state, TokenType::OR)) {
+        auto or_expr = parse_or_handler(state, move(call));
         consume(state, TokenType::SEMICOLON);
         return or_expr;
     }
