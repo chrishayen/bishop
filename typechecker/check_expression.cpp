@@ -122,22 +122,56 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
     if (auto* or_expr = dynamic_cast<const OrExpr*>(&expr)) {
         TypeInfo expr_type = infer_type(state, *or_expr->expr);
 
-        if (!expr_type.is_fallible) {
-            error(state, "or handler requires a fallible expression", or_expr->line);
+        // Check if expression is fallible (Result<T>) or falsy (bool, int, float, str, list, optional)
+        auto is_falsy_type = [](const TypeInfo& type) -> bool {
+            if (type.is_fallible) return true;
+            if (type.is_optional) return true;
+            if (type.base_type == "bool") return true;
+            if (type.base_type == "str") return true;
+            if (type.base_type == "int") return true;
+            if (type.base_type == "float") return true;
+            if (type.base_type.rfind("List<", 0) == 0) return true;
+            return false;
+        };
+
+        bool is_fallible = expr_type.is_fallible;
+        bool is_falsy = is_falsy_type(expr_type);
+
+        if (!is_falsy) {
+            error(state, "or handler requires a fallible or falsy expression (bool, int, float, str, list, optional)", or_expr->line);
         }
 
-        // Check if or fail err is used in a non-fallible function
-        if (auto* or_fail = dynamic_cast<const OrFail*>(or_expr->handler.get())) {
-            if (!state.current_function_is_fallible) {
-                error(state, "or fail err can only be used in fallible functions", or_fail->line);
+        // Validate handler combinations for falsy (non-fallible) expressions
+        if (is_falsy && !is_fallible) {
+            // or fail err - not valid with falsy (no err available)
+            if (auto* or_fail = dynamic_cast<const OrFail*>(or_expr->handler.get())) {
+                if (auto* var = dynamic_cast<const VariableRef*>(or_fail->error_expr.get())) {
+                    if (var->name == "err") {
+                        error(state, "'or fail err' cannot be used with falsy expressions (no error to propagate); use 'or fail \"message\"' instead", or_fail->line);
+                    }
+                }
+            }
+
+            // or match - not valid with falsy (nothing to match on)
+            if (dynamic_cast<const OrMatch*>(or_expr->handler.get())) {
+                error(state, "'or match' cannot be used with falsy expressions (no error to match); use 'or return', 'or fail \"message\"', or 'or { block }' instead", or_expr->line);
             }
         }
 
-        // If this is an OrBlock, typecheck its body with 'err' in scope
+        // Check if or fail is used in a non-fallible function
+        if (auto* or_fail = dynamic_cast<const OrFail*>(or_expr->handler.get())) {
+            if (!state.current_function_is_fallible) {
+                error(state, "or fail can only be used in fallible functions (functions with -> T or err)", or_fail->line);
+            }
+        }
+
+        // If this is an OrBlock, typecheck its body with 'err' in scope only for fallible expressions
         if (auto* or_block = dynamic_cast<const OrBlock*>(or_expr->handler.get())) {
             push_scope(state);
-            // Add 'err' to scope - it's the error type from the fallible expression
-            declare_local(state, "err", {"err", false, false}, or_expr->line);
+            // Only add 'err' to scope if the expression is fallible (not just falsy)
+            if (is_fallible) {
+                declare_local(state, "err", {"err", false, false}, or_expr->line);
+            }
 
             for (const auto& stmt : or_block->body) {
                 check_statement(state, *stmt);

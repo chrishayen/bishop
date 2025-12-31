@@ -163,6 +163,14 @@ string emit(CodeGenState& state, const ASTNode& node) {
 
     if (auto* ret = dynamic_cast<const ReturnStmt*>(&node)) {
         if (ret->value) {
+            // Special handling for OrExpr in return - need to generate statements first
+            if (auto* or_expr = dynamic_cast<const OrExpr*>(ret->value.get())) {
+                auto result = emit_or_for_decl(state, *or_expr, "_ret_tmp");
+                string out = result.preamble + "\n\t";
+                out += result.check + "\n\t";
+                out += "return " + result.value_expr + ";";
+                return out;
+            }
             return "return " + emit(state, *ret->value) + ";";
         }
 

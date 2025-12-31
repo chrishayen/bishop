@@ -197,4 +197,77 @@ inline bool truthy(const T& value) {
     }
 }
 
+namespace detail {
+    // Type trait to detect Result types (have .is_error() method)
+    template<typename T, typename = void>
+    struct is_result : std::false_type {};
+
+    template<typename T>
+    struct is_result<T, std::void_t<decltype(std::declval<T>().is_error())>> : std::true_type {};
+
+    template<typename T>
+    inline constexpr bool is_result_v = is_result<T>::value;
+}
+
+/**
+ * Check if a value should trigger the 'or' handler.
+ * Used by 'or fail', 'or return', 'or continue', 'or break', etc.
+ *
+ * For Result<T> types: returns is_error()
+ * For falsy types (bool, int, float, str, list, optional): returns !truthy(value)
+ */
+template<typename T>
+inline bool is_or_falsy(const T& value) {
+    if constexpr (detail::is_result_v<std::decay_t<T>>) {
+        // Result types: check is_error()
+        return value.is_error();
+    } else {
+        // Falsy types: check !truthy(value)
+        return !truthy(value);
+    }
+}
+
+/**
+ * Get the actual value from either a Result or falsy type.
+ * Used by 'or' handlers to extract the value when condition passes.
+ *
+ * For Result<T> types: returns .value()
+ * For falsy types: returns the value as-is
+ */
+template<typename T>
+inline decltype(auto) or_value(const T& value) {
+    if constexpr (detail::is_result_v<std::decay_t<T>>) {
+        return value.value();
+    } else {
+        return value;
+    }
+}
+
+template<typename T>
+inline decltype(auto) or_value(T& value) {
+    if constexpr (detail::is_result_v<std::decay_t<T>>) {
+        return value.value();
+    } else {
+        return value;
+    }
+}
+
+/**
+ * Get the error from a Result type, or a synthetic error for falsy types.
+ * Used by 'or' blocks that may access the 'err' variable.
+ *
+ * For Result<T> types: returns .error()
+ * For falsy types: returns a shared_ptr to a generic error (falsy values don't have errors)
+ */
+template<typename T>
+inline auto or_error(const T& value) {
+    if constexpr (detail::is_result_v<std::decay_t<T>>) {
+        return value.error();
+    } else {
+        // Falsy types don't have errors, return a synthetic one
+        // This should never be called if typechecker is working correctly
+        return std::make_shared<rt::Error>("falsy value");
+    }
+}
+
 }  // namespace bishop

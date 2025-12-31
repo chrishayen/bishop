@@ -14,6 +14,8 @@ using namespace std;
 
 namespace codegen {
 
+static int or_stmt_counter = 0;
+
 /**
  * Generates C++ code for a statement. Handles print(), assert_eq() (in test mode),
  * if/while statements, method calls, field assignments, and other statements.
@@ -198,6 +200,43 @@ string generate_statement(CodeGenState& state, const ASTNode& node) {
 
     if (auto* brk = dynamic_cast<const BreakStmt*>(&node)) {
         return "break;";
+    }
+
+    // Handle OrExpr as a statement (e.g., "b or fail msg;" or "x or continue;")
+    if (auto* or_expr = dynamic_cast<const OrExpr*>(&node)) {
+        string temp = "_or_stmt_tmp" + to_string(++or_stmt_counter);
+        string preamble = fmt::format("auto {} = {};", temp, emit(state, *or_expr->expr));
+        string condition = fmt::format("bishop::is_or_falsy({})", temp);
+
+        string handler_code;
+        if (auto* ret = dynamic_cast<const OrReturn*>(or_expr->handler.get())) {
+            if (ret->value) {
+                handler_code = "return " + emit(state, *ret->value) + ";";
+            } else {
+                handler_code = state.in_fallible_function ? "return {};" : "return;";
+            }
+        } else if (auto* fail = dynamic_cast<const OrFail*>(or_expr->handler.get())) {
+            // or fail "message" generates error return
+            // Check if it's a string literal
+            if (auto* str_lit = dynamic_cast<const StringLiteral*>(fail->error_expr.get())) {
+                handler_code = fmt::format("return std::make_shared<bishop::rt::Error>({});",
+                                           string_literal(str_lit->value));
+            } else {
+                // For other expressions (variable ref to err, etc.)
+                handler_code = "return " + emit(state, *fail->error_expr) + ";";
+            }
+        } else if (dynamic_cast<const OrContinue*>(or_expr->handler.get())) {
+            handler_code = "continue;";
+        } else if (dynamic_cast<const OrBreak*>(or_expr->handler.get())) {
+            handler_code = "break;";
+        } else if (auto* block = dynamic_cast<const OrBlock*>(or_expr->handler.get())) {
+            handler_code = "";
+            for (const auto& stmt : block->body) {
+                handler_code += generate_statement(state, *stmt) + " ";
+            }
+        }
+
+        return preamble + "\n\tif (" + condition + ") { " + handler_code + " }";
     }
 
     return emit(state, node);
