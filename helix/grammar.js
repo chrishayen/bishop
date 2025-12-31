@@ -434,6 +434,8 @@ module.exports = grammar({
       choice(
         seq('return', optional($._expression)),
         seq('fail', choice('err', $._expression)),
+        'continue',
+        'break',
         $.match_expression,
         $.block,
       ),

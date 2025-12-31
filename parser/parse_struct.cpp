@@ -71,9 +71,15 @@ unique_ptr<StructDef> parse_struct_def(ParserState& state, const string& name, V
             field.type = token_to_type(current(state).type);
             advance(state);
         } else if (check(state, TokenType::IDENT)) {
-            // Custom type (another struct)
+            // Custom type (another struct), possibly qualified (e.g., yaml.Value)
             field.type = current(state).value;
             advance(state);
+
+            // Check for qualified type: module.Type
+            if (check(state, TokenType::DOT)) {
+                advance(state);  // consume '.'
+                field.type += "." + consume(state, TokenType::IDENT).value;
+            }
         }
 
         def->fields.push_back(field);

@@ -154,33 +154,131 @@ string read_file(const string& path) {
 }
 
 /**
- * Transpiles Bishop source to C++ code.
- * Runs lexer -> parser -> module loading -> type checker -> code generator pipeline.
- * Returns result with empty cpp_code and prints errors if type checking or module loading fails.
+ * @brief Merges all .b files from a directory into a single AST.
+ * The root directory follows the same rules as any module directory -
+ * all .b files are merged and share scope (Go-style implicit packages).
+ *
+ * Uses a two-pass approach:
+ * 1. First pass: collect all struct/error names from all files
+ * 2. Second pass: parse each file with the combined struct names
  */
-TranspileResult transpile(const string& source, const string& filename, bool test_mode) {
+unique_ptr<Program> merge_package_files(const fs::path& dir, const string& filename) {
+    auto files = get_module_files(dir);
+    auto merged = make_unique<Program>();
+
+    // First pass: collect all struct and error names from all files
+    vector<string> all_struct_names;
+
+    for (const auto& file : files) {
+        string source = read_file(file.string());
+
+        if (source.empty()) {
+            continue;
+        }
+
+        Lexer lexer(source);
+        vector<Token> tokens;
+
+        try {
+            tokens = lexer.tokenize();
+        } catch (const runtime_error&) {
+            continue;
+        }
+
+        // Scan for struct and error definitions: Name :: struct or Name :: err
+        for (size_t i = 0; i + 2 < tokens.size(); i++) {
+            if (tokens[i].type == TokenType::IDENT &&
+                tokens[i+1].type == TokenType::DOUBLE_COLON &&
+                (tokens[i+2].type == TokenType::STRUCT || tokens[i+2].type == TokenType::ERR)) {
+                all_struct_names.push_back(tokens[i].value);
+            }
+        }
+    }
+
+    // Second pass: parse each file with the combined struct names
+    for (const auto& file : files) {
+        string source = read_file(file.string());
+
+        if (source.empty()) {
+            continue;
+        }
+
+        Lexer lexer(source);
+        vector<Token> tokens;
+
+        try {
+            tokens = lexer.tokenize();
+        } catch (const runtime_error& e) {
+            cerr << file.string() << ": lexer error: " << e.what() << endl;
+            continue;
+        }
+
+        ParserState state(tokens);
+
+        // Pre-populate struct names from all files in the package
+        for (const auto& name : all_struct_names) {
+            state.struct_names.push_back(name);
+        }
+
+        unique_ptr<Program> ast;
+
+        try {
+            ast = parser::parse(state);
+        } catch (const runtime_error& e) {
+            cerr << file.string() << ": parse error: " << e.what() << endl;
+            continue;
+        }
+
+        // Merge imports
+        for (auto& imp : ast->imports) {
+            merged->imports.push_back(move(imp));
+        }
+
+        // Merge structs
+        for (auto& s : ast->structs) {
+            merged->structs.push_back(move(s));
+        }
+
+        // Merge functions
+        for (auto& f : ast->functions) {
+            merged->functions.push_back(move(f));
+        }
+
+        // Merge methods
+        for (auto& m : ast->methods) {
+            merged->methods.push_back(move(m));
+        }
+
+        // Merge constants
+        for (auto& c : ast->constants) {
+            merged->constants.push_back(move(c));
+        }
+
+        // Merge externs
+        for (auto& e : ast->externs) {
+            merged->externs.push_back(move(e));
+        }
+
+        // Merge error definitions
+        for (auto& e : ast->errors) {
+            merged->errors.push_back(move(e));
+        }
+
+        // Merge using statements
+        for (auto& u : ast->usings) {
+            merged->usings.push_back(move(u));
+        }
+    }
+
+    return merged;
+}
+
+/**
+ * Transpiles a pre-parsed AST to C++ code.
+ * Used when files have already been merged at the AST level.
+ */
+TranspileResult transpile_ast(unique_ptr<Program> ast, const string& filename, bool test_mode) {
     TranspileResult result;
-
-    Lexer lexer(source);
-    vector<Token> tokens;
-
-    try {
-        tokens = lexer.tokenize();
-    } catch (const runtime_error& e) {
-        cerr << filename << ": lexer error: " << e.what() << endl;
-        return result;
-    }
-
-    ParserState state(tokens);
-
-    unique_ptr<Program> ast;
-
-    try {
-        ast = parser::parse(state);
-    } catch (const runtime_error& e) {
-        cerr << filename << ": parse error: " << e.what() << endl;
-        return result;
-    }
 
     // Detect which builtin modules are used from the parsed AST
     for (const auto& imp : ast->imports) {
@@ -253,6 +351,39 @@ TranspileResult transpile(const string& source, const string& filename, bool tes
     }
 
     return result;
+}
+
+/**
+ * Transpiles Bishop source to C++ code.
+ * Runs lexer -> parser -> module loading -> type checker -> code generator pipeline.
+ * Returns result with empty cpp_code and prints errors if type checking or module loading fails.
+ */
+TranspileResult transpile(const string& source, const string& filename, bool test_mode) {
+    TranspileResult result;
+
+    Lexer lexer(source);
+    vector<Token> tokens;
+
+    try {
+        tokens = lexer.tokenize();
+    } catch (const runtime_error& e) {
+        cerr << filename << ": lexer error: " << e.what() << endl;
+        return result;
+    }
+
+    ParserState state(tokens);
+
+    unique_ptr<Program> ast;
+
+    try {
+        ast = parser::parse(state);
+    } catch (const runtime_error& e) {
+        cerr << filename << ": parse error: " << e.what() << endl;
+        return result;
+    }
+
+    // Delegate to transpile_ast
+    return transpile_ast(move(ast), filename, test_mode);
 }
 
 /**
@@ -541,13 +672,21 @@ int run_file(const string& path) {
         filename = path;
     }
 
-    string source = read_file(filename);
+    // Merge all .b files in the directory as the 'main' package
+    fs::path entry_dir = fs::path(filename).parent_path();
 
-    if (source.empty()) {
+    if (entry_dir.empty()) {
+        entry_dir = ".";
+    }
+
+    auto ast = merge_package_files(entry_dir, filename);
+
+    if (!ast || (ast->functions.empty() && ast->structs.empty())) {
+        cerr << "Error: No valid source files found" << endl;
         return 1;
     }
 
-    TranspileResult result = transpile(source, filename, false);
+    TranspileResult result = transpile_ast(move(ast), filename, false);
 
     if (result.cpp_code.empty()) {
         return 1;
@@ -631,13 +770,21 @@ int build_file(const string& path) {
         exe_name = fs::path(path).stem().string();
     }
 
-    string source = read_file(filename);
+    // Merge all .b files in the directory as the 'main' package
+    fs::path entry_dir = fs::path(filename).parent_path();
 
-    if (source.empty()) {
+    if (entry_dir.empty()) {
+        entry_dir = ".";
+    }
+
+    auto ast = merge_package_files(entry_dir, filename);
+
+    if (!ast || (ast->functions.empty() && ast->structs.empty())) {
+        cerr << "Error: No valid source files found" << endl;
         return 1;
     }
 
-    TranspileResult result = transpile(source, filename, false);
+    TranspileResult result = transpile_ast(move(ast), filename, false);
 
     if (result.cpp_code.empty()) {
         return 1;

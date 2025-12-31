@@ -1,0 +1,3 @@
+[project]
+name = "test_main_package"
+entry = "entry.b"

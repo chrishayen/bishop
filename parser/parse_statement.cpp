@@ -231,6 +231,13 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return decl;
     }
 
+    // NOT expression statement: !expr or fail "msg"; !valid or continue; etc.
+    if (check(state, TokenType::NOT)) {
+        auto expr = parse_expression(state);
+        consume(state, TokenType::SEMICOLON);
+        return expr;
+    }
+
     // inferred variable, assignment, function call, method call, field assignment, or struct-typed variable
     if (check(state, TokenType::IDENT)) {
         Token ident_tok = current(state);
@@ -238,8 +245,14 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         string ident = ident_tok.value;
         advance(state);
 
-        // or expression as statement: x or fail "msg"; or x or continue;
-        if (check(state, TokenType::OR)) {
+        // Expression statement: x or fail "msg"; x >= 3 or fail "msg"; etc.
+        // If the next token is 'or' or a comparison/arithmetic operator, parse as expression
+        if (check(state, TokenType::OR) ||
+            check(state, TokenType::EQ) || check(state, TokenType::NE) ||
+            check(state, TokenType::LT) || check(state, TokenType::GT) ||
+            check(state, TokenType::LE) || check(state, TokenType::GE) ||
+            check(state, TokenType::PLUS) || check(state, TokenType::MINUS) ||
+            check(state, TokenType::STAR) || check(state, TokenType::SLASH)) {
             state.pos = saved_pos;
             auto expr = parse_expression(state);
             consume(state, TokenType::SEMICOLON);
@@ -277,6 +290,7 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
             string qualified_name = ident + "." + member_name;
 
             // Qualified function call: module.func() or module.func() or handler
+            // Or complex expressions like: module.func() >= 3 or fail "msg";
             if (check(state, TokenType::LPAREN)) {
                 auto call = make_unique<FunctionCall>();
                 call->name = qualified_name;
@@ -303,6 +317,19 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
                     auto or_expr = parse_or_handler(state, move(call));
                     consume(state, TokenType::SEMICOLON);
                     return or_expr;
+                }
+
+                // If next token is a comparison/arithmetic operator, this is part of a larger expression
+                // Fall back to parse_expression to handle cases like: module.func() >= 3 or fail "msg";
+                if (check(state, TokenType::EQ) || check(state, TokenType::NE) ||
+                    check(state, TokenType::LT) || check(state, TokenType::GT) ||
+                    check(state, TokenType::LE) || check(state, TokenType::GE) ||
+                    check(state, TokenType::PLUS) || check(state, TokenType::MINUS) ||
+                    check(state, TokenType::STAR) || check(state, TokenType::SLASH)) {
+                    state.pos = saved_pos;
+                    auto expr = parse_expression(state);
+                    consume(state, TokenType::SEMICOLON);
+                    return expr;
                 }
 
                 consume(state, TokenType::SEMICOLON);
@@ -339,6 +366,7 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
             string field_name = member_tok.value;
 
             // Method call as statement: obj.method(args); or obj.method(args) or handler;
+            // Or complex expressions like: obj.method() >= 3 or fail "msg";
             if (check(state, TokenType::LPAREN)) {
                 auto call = make_unique<MethodCall>();
                 auto obj = make_unique<VariableRef>(ident);
@@ -368,6 +396,19 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
                     auto or_expr = parse_or_handler(state, move(call));
                     consume(state, TokenType::SEMICOLON);
                     return or_expr;
+                }
+
+                // If next token is a comparison/arithmetic operator, this is part of a larger expression
+                // Fall back to parse_expression to handle cases like: obj.method() >= 3 or fail "msg";
+                if (check(state, TokenType::EQ) || check(state, TokenType::NE) ||
+                    check(state, TokenType::LT) || check(state, TokenType::GT) ||
+                    check(state, TokenType::LE) || check(state, TokenType::GE) ||
+                    check(state, TokenType::PLUS) || check(state, TokenType::MINUS) ||
+                    check(state, TokenType::STAR) || check(state, TokenType::SLASH)) {
+                    state.pos = saved_pos;
+                    auto expr = parse_expression(state);
+                    consume(state, TokenType::SEMICOLON);
+                    return expr;
                 }
 
                 consume(state, TokenType::SEMICOLON);

@@ -229,6 +229,111 @@ string generate_method(CodeGenState& state, const MethodDef& method) {
 }
 
 /**
+ * Generates a method declaration (without body) for use in struct definitions.
+ * The actual implementation will be generated separately.
+ */
+string generate_method_declaration(CodeGenState& state, const MethodDef& method) {
+    string rt;
+
+    if (method.is_static) {
+        if (!method.error_type.empty()) {
+            if (method.return_type.empty()) {
+                rt = "bishop::rt::Result<void>";
+            } else {
+                rt = "bishop::rt::Result<" + map_type(method.return_type) + ">";
+            }
+        } else {
+            rt = method.return_type.empty() ? "void" : map_type(method.return_type);
+        }
+
+        vector<string> param_strs;
+
+        for (const auto& p : method.params) {
+            param_strs.push_back(fmt::format("{} {}", map_type(p.type), p.name));
+        }
+
+        return fmt::format("\tstatic {} {}({});\n", rt, method.name, fmt::join(param_strs, ", "));
+    }
+
+    // Instance method
+    rt = method.return_type.empty() ? "void" : map_type(method.return_type);
+
+    vector<string> param_strs;
+
+    for (size_t i = 1; i < method.params.size(); i++) {
+        param_strs.push_back(fmt::format("{} {}", map_type(method.params[i].type), method.params[i].name));
+    }
+
+    return fmt::format("\t{} {}({});\n", rt, method.name, fmt::join(param_strs, ", "));
+}
+
+/**
+ * Generates a standalone method implementation (outside of struct body).
+ * Used with forward declarations to avoid incomplete type errors.
+ */
+string generate_standalone_method(CodeGenState& state, const MethodDef& method) {
+    string rt;
+    string struct_name = method.struct_name;
+
+    if (method.is_static) {
+        if (!method.error_type.empty()) {
+            if (method.return_type.empty()) {
+                rt = "bishop::rt::Result<void>";
+            } else {
+                rt = "bishop::rt::Result<" + map_type(method.return_type) + ">";
+            }
+        } else {
+            rt = method.return_type.empty() ? "void" : map_type(method.return_type);
+        }
+
+        vector<string> param_strs;
+
+        for (const auto& p : method.params) {
+            param_strs.push_back(fmt::format("{} {}", map_type(p.type), p.name));
+        }
+
+        vector<string> body;
+
+        for (const auto& stmt : method.body) {
+            body.push_back(generate_statement(state, *stmt));
+        }
+
+        string out = fmt::format("{} {}::{}({}) {{\n", rt, struct_name, method.name, fmt::join(param_strs, ", "));
+
+        for (const auto& stmt : body) {
+            out += fmt::format("\t{}\n", stmt);
+        }
+
+        out += "}\n";
+        return out;
+    }
+
+    // Instance method
+    rt = method.return_type.empty() ? "void" : map_type(method.return_type);
+
+    vector<string> param_strs;
+
+    for (size_t i = 1; i < method.params.size(); i++) {
+        param_strs.push_back(fmt::format("{} {}", map_type(method.params[i].type), method.params[i].name));
+    }
+
+    vector<string> body;
+
+    for (const auto& stmt : method.body) {
+        body.push_back(generate_statement(state, *stmt));
+    }
+
+    string out = fmt::format("{} {}::{}({}) {{\n", rt, struct_name, method.name, fmt::join(param_strs, ", "));
+
+    for (const auto& stmt : body) {
+        out += fmt::format("\t{}\n", stmt);
+    }
+
+    out += "}\n";
+    return out;
+}
+
+/**
  * Recursively checks if an AST node contains a ChannelCreate.
  */
 static bool node_uses_channels(const ASTNode& node);
@@ -464,12 +569,27 @@ string generate_test_harness(CodeGenState& state, const unique_ptr<Program>& pro
     out += "\t}\n";
     out += "}\n\n";
 
+    // Forward declare all structs
     for (const auto& s : program->structs) {
-        out += generate_struct(state, *s) + "\n\n";
+        out += "struct " + s->name + ";\n";
+    }
+
+    if (!program->structs.empty()) {
+        out += "\n";
+    }
+
+    // Generate struct definitions with fields and method declarations only
+    for (const auto& s : program->structs) {
+        out += generate_struct_fields_only(state, *s) + "\n\n";
     }
 
     for (const auto& e : program->errors) {
         out += generate_error(state, *e) + "\n";
+    }
+
+    // Generate standalone method implementations after all structs are defined
+    for (const auto& method : program->methods) {
+        out += generate_standalone_method(state, *method) + "\n";
     }
 
     // Emit module-level constants

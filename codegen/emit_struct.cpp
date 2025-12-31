@@ -116,4 +116,33 @@ string generate_struct(CodeGenState& state, const StructDef& def) {
     return struct_def_with_methods(def.name, fields, method_bodies);
 }
 
+/**
+ * Generates a C++ struct with only field declarations (no method bodies).
+ * Used for forward-declaration-friendly code generation.
+ */
+string generate_struct_fields_only(CodeGenState& state, const StructDef& def) {
+    vector<pair<string, string>> fields;
+
+    for (const auto& f : def.fields) {
+        fields.push_back({f.name, f.type});
+    }
+
+    // Find methods for this struct and generate declarations only
+    vector<string> method_decls;
+
+    if (state.current_program) {
+        for (const auto& method : state.current_program->methods) {
+            if (method->struct_name == def.name) {
+                method_decls.push_back(generate_method_declaration(state, *method));
+            }
+        }
+    }
+
+    if (method_decls.empty()) {
+        return struct_def(def.name, fields);
+    }
+
+    return struct_def_with_methods(def.name, fields, method_decls);
+}
+
 } // namespace codegen

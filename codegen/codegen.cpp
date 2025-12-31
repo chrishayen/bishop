@@ -338,12 +338,27 @@ string generate(CodeGenState& state, const unique_ptr<Program>& program, bool te
 
     out += generate_extern_declarations(program);
 
+    // Forward declare all structs
     for (const auto& s : program->structs) {
-        out += generate_struct(state, *s) + "\n\n";
+        out += "struct " + s->name + ";\n";
+    }
+
+    if (!program->structs.empty()) {
+        out += "\n";
+    }
+
+    // Generate struct definitions with fields and method declarations only
+    for (const auto& s : program->structs) {
+        out += generate_struct_fields_only(state, *s) + "\n\n";
     }
 
     for (const auto& e : program->errors) {
         out += generate_error(state, *e) + "\n";
+    }
+
+    // Generate standalone method implementations after all structs are defined
+    for (const auto& method : program->methods) {
+        out += generate_standalone_method(state, *method) + "\n";
     }
 
     // Emit module-level constants
@@ -572,12 +587,27 @@ string generate_with_imports(
         out += generate_module_namespace(state, alias, *mod);
     }
 
+    // Forward declare all structs
     for (const auto& s : program->structs) {
-        out += generate_struct(state, *s) + "\n\n";
+        out += "struct " + s->name + ";\n";
+    }
+
+    if (!program->structs.empty()) {
+        out += "\n";
+    }
+
+    // Generate struct definitions with fields and method declarations only
+    for (const auto& s : program->structs) {
+        out += generate_struct_fields_only(state, *s) + "\n\n";
     }
 
     for (const auto& e : program->errors) {
         out += generate_error(state, *e) + "\n";
+    }
+
+    // Generate standalone method implementations after all structs are defined
+    for (const auto& method : program->methods) {
+        out += generate_standalone_method(state, *method) + "\n";
     }
 
     // Emit module-level constants

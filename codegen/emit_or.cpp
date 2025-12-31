@@ -61,6 +61,12 @@ string emit_or_fail_handler(CodeGenState& state, const OrFail& handler) {
         }
     }
 
+    // String literal: wrap in Error
+    if (auto* str_lit = dynamic_cast<const StringLiteral*>(handler.error_expr.get())) {
+        return fmt::format("return std::make_shared<bishop::rt::Error>({});",
+                           string_literal(str_lit->value));
+    }
+
     return "return " + emit(state, *handler.error_expr) + ";";
 }
 
@@ -248,10 +254,11 @@ string emit_default_expr(CodeGenState& state, const DefaultExpr& expr) {
         }
     }
 
-    // Use bishop::truthy() for universal falsy checking
+    // Use bishop::is_or_falsy() which handles both Result types and falsy values
+    // Use bishop::or_value() to extract the value (works for Results and falsy types)
     // Wrap in lambda to avoid double-evaluation of expr
     string expr_str = emit(state, *expr.expr);
-    return fmt::format("[&]() {{ auto _v = {}; return bishop::truthy(_v) ? _v : {}; }}()",
+    return fmt::format("[&]() {{ auto _v = {}; return bishop::is_or_falsy(_v) ? {} : bishop::or_value(_v); }}()",
                        expr_str, fallback);
 }
 

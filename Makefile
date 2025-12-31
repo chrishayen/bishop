@@ -48,6 +48,7 @@ install: build
 	@cp $(BUILD_DIR)/include/bishop/log.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/sync.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/algo.hpp ~/.local/include/bishop/
+	@cp $(BUILD_DIR)/include/bishop/yaml.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/fiber_asio/*.hpp ~/.local/include/bishop/fiber_asio/
 	@cp $(BUILD_DIR)/include/llhttp.h ~/.local/include/
 	@echo "Installed bishop to ~/.local/bin/"

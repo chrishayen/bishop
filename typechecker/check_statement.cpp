@@ -43,6 +43,9 @@ void check_statement(TypeCheckerState& state, const ASTNode& stmt) {
         infer_type(state, *mcall);
     } else if (auto* lcall = dynamic_cast<const LambdaCall*>(&stmt)) {
         infer_type(state, *lcall);
+    } else if (auto* or_expr = dynamic_cast<const OrExpr*>(&stmt)) {
+        // Standalone or expression (e.g., "x >= 3 or fail msg;")
+        infer_type(state, *or_expr);
     }
 }
 

@@ -152,12 +152,15 @@ struct FunctionParam {
 };
 std::string generate_function(CodeGenState& state, const FunctionDef& fn);
 std::string generate_method(CodeGenState& state, const MethodDef& method);
+std::string generate_method_declaration(CodeGenState& state, const MethodDef& method);
+std::string generate_standalone_method(CodeGenState& state, const MethodDef& method);
 std::string generate_test_harness(CodeGenState& state, const std::unique_ptr<Program>& program);
 std::string function_def(const std::string& name, const std::vector<FunctionParam>& params, const std::string& return_type, const std::vector<std::string>& body);
 std::string method_def(const std::string& name, const std::vector<std::pair<std::string, std::string>>& params, const std::string& return_type, const std::vector<std::string>& body_stmts);
 
 // Struct emission (emit_struct.cpp)
 std::string generate_struct(CodeGenState& state, const StructDef& def);
+std::string generate_struct_fields_only(CodeGenState& state, const StructDef& def);
 std::string struct_def(const std::string& name, const std::vector<std::pair<std::string, std::string>>& fields);
 std::string struct_def_with_methods(const std::string& name, const std::vector<std::pair<std::string, std::string>>& fields, const std::vector<std::string>& method_bodies);
 std::string struct_literal(const std::string& name, const std::vector<std::pair<std::string, std::string>>& field_values);

@@ -22,11 +22,14 @@ namespace parser {
  */
 unique_ptr<ASTNode> parse_primary(ParserState& state) {
     // Handle NOT expression: !expr
+    // Parse the operand including postfix (method calls, field access)
+    // so that !content.empty() parses as !(content.empty()) not (!content).empty()
     if (check(state, TokenType::NOT)) {
         int start_line = current(state).line;
         advance(state);
         auto not_expr = make_unique<NotExpr>();
-        not_expr->value = parse_primary(state);
+        auto operand = parse_primary(state);
+        not_expr->value = parse_postfix(state, move(operand));
         not_expr->line = start_line;
         return not_expr;
     }

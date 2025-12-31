@@ -254,3 +254,66 @@ fn test_multiple_standalone_last_fails() {
     };
     assert_eq(result, "failed");
 }
+
+// ============================================================
+// Test: Comparison expressions with or fail
+// ============================================================
+
+fn helper_comparison_or_fail_pass() -> int or err {
+    x := 5;
+    x >= 3 or fail "x should be at least 3";
+    return 1;
+}
+
+fn helper_comparison_or_fail_fail() -> int or err {
+    x := 2;
+    x >= 3 or fail "x should be at least 3";
+    return 1;
+}
+
+fn test_comparison_or_fail_pass() or err {
+    result := helper_comparison_or_fail_pass() or fail err;
+    assert_eq(result, 1);
+}
+
+fn test_comparison_or_fail_fail() {
+    result := helper_comparison_or_fail_fail() or match err {
+        _ => 0
+    };
+    assert_eq(result, 0);
+}
+
+fn helper_method_comparison_or_fail_pass() -> int or err {
+    parts := ["a", "b", "c"];
+    parts.length() >= 3 or fail "need at least 3 parts";
+    return 1;
+}
+
+fn helper_method_comparison_or_fail_fail() -> int or err {
+    parts := ["a", "b"];
+    parts.length() >= 3 or fail "need at least 3 parts";
+    return 1;
+}
+
+fn test_method_comparison_or_fail_pass() or err {
+    result := helper_method_comparison_or_fail_pass() or fail err;
+    assert_eq(result, 1);
+}
+
+fn test_method_comparison_or_fail_fail() {
+    result := helper_method_comparison_or_fail_fail() or match err {
+        _ => 0
+    };
+    assert_eq(result, 0);
+}
+
+fn helper_complex_expr_or_fail() -> int or err {
+    items := [1, 2, 3, 4, 5];
+    items.length() + 1 > 5 or fail "should have more than 5 items after adding 1";
+    return 1;
+}
+
+fn test_complex_expr_or_fail() or err {
+    result := helper_complex_expr_or_fail() or fail err;
+    assert_eq(result, 1);
+}
