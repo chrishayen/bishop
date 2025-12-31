@@ -23,6 +23,7 @@
 #include "stdlib/json.hpp"
 #include "stdlib/algo.hpp"
 #include "stdlib/yaml.hpp"
+#include "stdlib/markdown.hpp"
 #include <fstream>
 #include <sstream>
 
@@ -205,6 +206,8 @@ unique_ptr<Module> ModuleManager::create_builtin_module(const string& name) {
         mod->ast = nog::stdlib::create_algo_module();
     } else if (name == "yaml") {
         mod->ast = nog::stdlib::create_yaml_module();
+    } else if (name == "markdown") {
+        mod->ast = nog::stdlib::create_markdown_module();
     } else {
         return nullptr;
     }

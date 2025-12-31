@@ -69,6 +69,7 @@
 #include "stdlib/log.hpp"
 #include "stdlib/algo.hpp"
 #include "stdlib/yaml.hpp"
+#include "stdlib/markdown.hpp"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
@@ -198,6 +199,13 @@ static bool has_yaml_import(const map<string, const Module*>& imports) {
 }
 
 /**
+ * Checks if the program imports the markdown module.
+ */
+static bool has_markdown_import(const map<string, const Module*>& imports) {
+    return imports.find("markdown") != imports.end();
+}
+
+/**
  * Checks if the program uses channels (requires boost fiber).
  */
 static bool uses_channels(const Program& program) {
@@ -270,6 +278,10 @@ string generate_module_namespace(CodeGenState& state, const string& name, const 
 
     if (name == "yaml") {
         return nog::stdlib::generate_yaml_runtime();
+    }
+
+    if (name == "markdown") {
+        return nog::stdlib::generate_markdown_runtime();
     }
 
     string out = "namespace " + name + " {\n\n";
@@ -426,6 +438,10 @@ string generate_with_imports(
 
     if (has_yaml_import(imports)) {
         out += "#include <bishop/yaml.hpp>\n";
+    }
+
+    if (has_markdown_import(imports)) {
+        out += "#include <bishop/markdown.hpp>\n";
     }
 
     if (uses_channels(*program)) {

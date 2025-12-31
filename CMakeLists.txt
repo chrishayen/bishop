@@ -37,6 +37,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(yaml-cpp)
 
+# Fetch maddy for Markdown parsing (header-only)
+FetchContent_Declare(
+    maddy
+    GIT_REPOSITORY https://github.com/progsource/maddy.git
+    GIT_TAG 1.3.0
+)
+FetchContent_MakeAvailable(maddy)
+
 # Bishop compiler library
 add_library(bishop_lib
     lexer/lexer.cpp
@@ -134,6 +142,7 @@ add_library(bishop_lib
     stdlib/json.cpp
     stdlib/algo.cpp
     stdlib/yaml.cpp
+    stdlib/markdown.cpp
 )
 target_link_libraries(bishop_lib fmt::fmt tomlplusplus::tomlplusplus)
 target_include_directories(bishop_lib PUBLIC ${llhttp_SOURCE_DIR}/include)
@@ -200,6 +209,9 @@ add_custom_target(bishop_runtime_headers ALL
         ${CMAKE_SOURCE_DIR}/runtime/yaml/yaml.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/yaml.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/markdown/markdown.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/markdown.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/fiber_asio/round_robin.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/fiber_asio/round_robin.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
@@ -214,9 +226,12 @@ add_custom_target(bishop_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${yaml-cpp_SOURCE_DIR}/include/yaml-cpp
         ${CMAKE_BINARY_DIR}/include/yaml-cpp
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${maddy_SOURCE_DIR}/include/maddy
+        ${CMAKE_BINARY_DIR}/include/maddy
     COMMENT "Copying runtime headers"
 )
-add_dependencies(bishop_runtime_headers llhttp_static yaml-cpp)
+add_dependencies(bishop_runtime_headers llhttp_static yaml-cpp maddy)
 
 # Copy llhttp library after it's built
 add_custom_command(TARGET bishop_runtime_headers POST_BUILD
