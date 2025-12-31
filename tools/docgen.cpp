@@ -450,7 +450,7 @@ std::string generate_syntax_markdown(const Documentation& docs) {
             }
 
             if (!s->example.empty()) {
-                ss << "**Example:**\n```nog\n" << s->example << "\n```\n\n";
+                ss << "**Example:**\n```bishop\n" << s->example << "\n```\n\n";
             }
 
             for (const auto& note : s->notes) {
@@ -472,7 +472,7 @@ std::string generate_module_markdown(const std::string& module, const Documentat
         ss << "# Built-in Functions\n\n";
     } else {
         ss << "# " << module << " Module\n\n";
-        ss << "```nog\nimport " << module << ";\n```\n\n";
+        ss << "```bishop\nimport " << module << ";\n```\n\n";
     }
 
     // Structs
@@ -504,7 +504,7 @@ std::string generate_module_markdown(const std::string& module, const Documentat
             }
 
             if (!s.example.empty()) {
-                ss << "**Example:**\n```nog\n" << s.example << "\n```\n\n";
+                ss << "**Example:**\n```bishop\n" << s.example << "\n```\n\n";
             }
         }
     }
@@ -526,7 +526,7 @@ std::string generate_module_markdown(const std::string& module, const Documentat
             }
 
             // Signature
-            ss << "```nog\n";
+            ss << "```bishop\n";
 
             if (f.is_async) {
                 ss << "async ";
@@ -571,7 +571,7 @@ std::string generate_module_markdown(const std::string& module, const Documentat
             }
 
             if (!f.example.empty()) {
-                ss << "**Example:**\n```nog\n" << f.example << "\n```\n\n";
+                ss << "**Example:**\n```bishop\n" << f.example << "\n```\n\n";
             }
         }
     }
@@ -595,7 +595,7 @@ std::string generate_methods_markdown(const std::string& type_name, const Docume
             }
 
             // Signature
-            ss << "```nog\n";
+            ss << "```bishop\n";
             ss << "s." << m.name << "(";
 
             for (size_t i = 0; i < m.params.size(); i++) {
@@ -635,7 +635,7 @@ std::string generate_methods_markdown(const std::string& type_name, const Docume
             }
 
             if (!m.example.empty()) {
-                ss << "**Example:**\n```nog\n" << m.example << "\n```\n\n";
+                ss << "**Example:**\n```bishop\n" << m.example << "\n```\n\n";
             }
         }
     }
