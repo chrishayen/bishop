@@ -539,15 +539,8 @@
                 display: block;
             }
 
-            .logo {
-                display: none;
-            }
-
             .search-container {
-                position: static;
-                transform: none;
-                flex: 1;
-                margin-right: 16px;
+                display: none;
             }
 
             .header-links {
@@ -1793,6 +1786,13 @@ x := <span class="token-function">sin</span>(PI / <span class="token-number">2.0
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
         }
+
+        // Close sidebar when nav link clicked on mobile
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('sidebar').classList.remove('open');
+            });
+        });
 
         // Search functionality
         const searchInput = document.getElementById('search-input');
