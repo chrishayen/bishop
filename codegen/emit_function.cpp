@@ -154,11 +154,65 @@ string generate_function(CodeGenState& state, const FunctionDef& fn) {
 }
 
 /**
+ * Emits a static method definition as a C++ static member function.
+ */
+string static_method_def(const string& name,
+                         const vector<pair<string, string>>& params,
+                         const string& return_type,
+                         const vector<string>& body_stmts,
+                         const string& error_type) {
+    string rt;
+    if (!error_type.empty()) {
+        // Fallible static method
+        if (return_type.empty()) {
+            rt = "bishop::rt::Result<void>";
+        } else {
+            rt = "bishop::rt::Result<" + map_type(return_type) + ">";
+        }
+    } else {
+        rt = return_type.empty() ? "void" : map_type(return_type);
+    }
+
+    vector<string> param_strs;
+
+    for (const auto& [ptype, pname] : params) {
+        param_strs.push_back(fmt::format("{} {}", map_type(ptype), pname));
+    }
+
+    string out = fmt::format("\tstatic {} {}({}) {{\n", rt, name, fmt::join(param_strs, ", "));
+
+    for (const auto& stmt : body_stmts) {
+        out += fmt::format("\t\t{}\n", stmt);
+    }
+
+    out += "\t}\n";
+    return out;
+}
+
+/**
  * Generates a C++ member function from a Nog MethodDef.
  * Transforms self.field into this->field.
+ * Static methods (@static) are generated with the 'static' keyword and no 'self' parameter.
  */
 string generate_method(CodeGenState& state, const MethodDef& method) {
-    // Skip 'self' parameter for C++ method (it becomes 'this')
+    if (method.is_static) {
+        // Static method: all params are actual params (no self)
+        vector<pair<string, string>> params;
+
+        for (const auto& p : method.params) {
+            params.push_back({p.type, p.name});
+        }
+
+        vector<string> body;
+
+        for (const auto& stmt : method.body) {
+            body.push_back(generate_statement(state, *stmt));
+        }
+
+        return static_method_def(method.name, params, method.return_type, body, method.error_type);
+    }
+
+    // Instance method: skip 'self' parameter for C++ method (it becomes 'this')
     vector<pair<string, string>> params;
 
     for (size_t i = 1; i < method.params.size(); i++) {
