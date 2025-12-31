@@ -1,0 +1,40 @@
+{
+  "grammars": [
+    {
+      "name": "bishop",
+      "camelcase": "Bishop",
+      "scope": "source.bishop",
+      "path": ".",
+      "file-types": [
+        "b"
+      ],
+      "injection-regex": "bishop",
+      "highlights": "queries/bishop/highlights.scm",
+      "locals": "queries/bishop/locals.scm",
+      "injections": "queries/bishop/injections.scm",
+      "indents": "queries/bishop/indents.scm",
+      "textobjects": "queries/bishop/textobjects.scm"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "Tree-sitter grammar for the Bishop programming language",
+    "authors": [
+      {
+        "name": "Chris Hayen"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/chrishayen/bishop.git"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true
+  }
+}

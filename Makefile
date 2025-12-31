@@ -1,4 +1,4 @@
-.PHONY: all build clean test run configure rebuild install docs docker
+.PHONY: all build clean test run configure rebuild install docs docker helix-test helix-install
 
 BUILD_DIR := build
 
@@ -54,9 +54,35 @@ install: build
 	@echo "Installed runtime libraries to ~/.local/lib/bishop/"
 	@echo "Installed headers to ~/.local/include/"
 	@echo "Installed precompiled headers to ~/.local/include/bishop/"
+	@$(MAKE) helix-install
 
 docs: build
 	@$(BUILD_DIR)/docgen src/ docs/reference/
+
+helix-test:
+	@echo "Testing Helix tree-sitter grammar..."
+	@cd helix && npm install --silent
+	@cd helix && npx tree-sitter generate
+	@cd helix && npx tree-sitter test
+	@echo "Helix grammar tests passed"
+
+helix-install:
+	@echo "Installing Helix syntax highlighting..."
+	@mkdir -p ~/.config/helix/runtime/queries/bishop
+	@mkdir -p ~/.config/helix/runtime/grammars
+	@cp helix/queries/bishop/*.scm ~/.config/helix/runtime/queries/bishop/
+	@cd helix && npm install --silent && npx tree-sitter generate
+	@if [ -f helix/libtree-sitter-bishop.so ]; then \
+		cp helix/libtree-sitter-bishop.so ~/.config/helix/runtime/grammars/bishop.so; \
+	elif [ -f helix/bishop.so ]; then \
+		cp helix/bishop.so ~/.config/helix/runtime/grammars/bishop.so; \
+	else \
+		cd helix && cc -shared -fPIC -o bishop.so src/parser.c -I src && \
+		cp bishop.so ~/.config/helix/runtime/grammars/bishop.so; \
+	fi
+	@echo "Installed query files to ~/.config/helix/runtime/queries/bishop/"
+	@echo "Installed grammar to ~/.config/helix/runtime/grammars/bishop.so"
+	@echo "NOTE: Add bishop language config to ~/.config/helix/languages.toml"
 
 docker:
 	@cp ~/.claude/CLAUDE.md docker/CLAUDE.md

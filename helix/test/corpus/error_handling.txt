@@ -1,0 +1,93 @@
+================================================================================
+Fallible function
+================================================================================
+
+fn might_fail() -> int or err {
+    return 42;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    return_type: (return_type
+      (type_expr
+        (primitive_type)))
+    body: (block
+      (return_statement
+        value: (integer_literal)))))
+
+================================================================================
+Fail expression with string
+================================================================================
+
+fn fail_with_message() -> int or err {
+    fail "something went wrong";
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    return_type: (return_type
+      (type_expr
+        (primitive_type)))
+    body: (block
+      (expression_statement
+        (fail_expression
+          (string_literal))))))
+
+================================================================================
+Fail expression with error type
+================================================================================
+
+fn fail_with_type() -> int or err {
+    fail NetworkError { code: 500, message: "server error" };
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    return_type: (return_type
+      (type_expr
+        (primitive_type)))
+    body: (block
+      (expression_statement
+        (fail_expression
+          (struct_instantiation
+            type: (type_identifier)
+            (field_initializer
+              name: (identifier)
+              value: (integer_literal))
+            (field_initializer
+              name: (identifier)
+              value: (string_literal))))))))
+
+================================================================================
+Or return expression
+================================================================================
+
+fn test() {
+    x := might_fail() or return;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (variable_declaration
+        name: (identifier)
+        value: (or_expression
+          (call_expression
+            function: (identifier)
+            arguments: (argument_list)))))))

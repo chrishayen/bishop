@@ -1,0 +1,177 @@
+================================================================================
+If statement
+================================================================================
+
+fn test() {
+    if x > 0 {
+        return 1;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (if_statement
+        condition: (binary_expression
+          (identifier)
+          (integer_literal))
+        consequence: (block
+          (return_statement
+            value: (integer_literal)))))))
+
+================================================================================
+If-else statement
+================================================================================
+
+fn test() {
+    if x > 0 {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (if_statement
+        condition: (binary_expression
+          (identifier)
+          (integer_literal))
+        consequence: (block
+          (return_statement
+            value: (integer_literal)))
+        alternative: (block
+          (return_statement
+            value: (integer_literal)))))))
+
+================================================================================
+While loop
+================================================================================
+
+fn test() {
+    while i < 10 {
+        i = i + 1;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (while_statement
+        condition: (binary_expression
+          (identifier)
+          (integer_literal))
+        body: (block
+          (variable_declaration
+            name: (identifier)
+            value: (binary_expression
+              (identifier)
+              (integer_literal))))))))
+
+================================================================================
+For range loop
+================================================================================
+
+fn test() {
+    for i in 0..10 {
+        x = x + i;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (for_statement
+        variable: (identifier)
+        iterable: (integer_literal)
+        end: (integer_literal)
+        body: (block
+          (variable_declaration
+            name: (identifier)
+            value: (binary_expression
+              (identifier)
+              (identifier))))))))
+
+================================================================================
+For-each loop
+================================================================================
+
+fn test() {
+    for item in items {
+        process(item);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (for_statement
+        variable: (identifier)
+        iterable: (identifier)
+        body: (block
+          (expression_statement
+            (call_expression
+              function: (identifier)
+              arguments: (argument_list
+                (identifier)))))))))
+
+================================================================================
+Select statement
+================================================================================
+
+fn test() {
+    select {
+        case val := ch.recv() {
+            process(val);
+        }
+        default {
+            return;
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    name: (identifier)
+    parameters: (parameter_list)
+    body: (block
+      (select_statement
+        (case_clause
+          variable: (identifier)
+          (call_expression
+            function: (member_expression
+              object: (identifier)
+              member: (identifier))
+            arguments: (argument_list))
+          body: (block
+            (expression_statement
+              (call_expression
+                function: (identifier)
+                arguments: (argument_list
+                  (identifier))))))
+        (default_clause
+          body: (block
+            (return_statement)))))))

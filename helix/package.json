@@ -1,0 +1,29 @@
+{
+  "name": "tree-sitter-bishop",
+  "version": "1.0.0",
+  "description": "Tree-sitter grammar for the Bishop programming language",
+  "main": "bindings/node",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chrishayen/bishop.git"
+  },
+  "keywords": [
+    "tree-sitter",
+    "parser",
+    "bishop",
+    "syntax-highlighting"
+  ],
+  "author": "Chris Hayen",
+  "license": "MIT",
+  "dependencies": {
+    "nan": "^2.17.0"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.24.0"
+  },
+  "scripts": {
+    "build": "tree-sitter generate",
+    "test": "tree-sitter test",
+    "parse": "tree-sitter parse"
+  }
+}
