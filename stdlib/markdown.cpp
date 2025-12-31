@@ -3,7 +3,7 @@
  * @brief Built-in markdown module implementation.
  *
  * Creates the AST definitions for the markdown module.
- * The actual runtime is in src/runtime/markdown/markdown.hpp and included as a header.
+ * The actual runtime is in runtime/markdown/markdown.hpp and included as a header.
  */
 
 /**
