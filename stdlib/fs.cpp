@@ -463,7 +463,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in fs module.
@@ -900,4 +900,4 @@ string generate_fs_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

@@ -116,7 +116,7 @@ const Module* ModuleManager::load_module(const string& module_path) {
     // Check if this is a built-in module
     unique_ptr<Module> mod;
 
-    if (nog::stdlib::is_builtin_module(alias)) {
+    if (bishop::stdlib::is_builtin_module(alias)) {
         mod = create_builtin_module(alias);
     } else {
         mod = load_module_internal(module_path);
@@ -179,35 +179,35 @@ unique_ptr<Module> ModuleManager::create_builtin_module(const string& name) {
     mod->full_path = name;
 
     if (name == "http") {
-        mod->ast = nog::stdlib::create_http_module();
+        mod->ast = bishop::stdlib::create_http_module();
     } else if (name == "fs") {
-        mod->ast = nog::stdlib::create_fs_module();
+        mod->ast = bishop::stdlib::create_fs_module();
     } else if (name == "crypto") {
-        mod->ast = nog::stdlib::create_crypto_module();
+        mod->ast = bishop::stdlib::create_crypto_module();
     } else if (name == "net") {
-        mod->ast = nog::stdlib::create_net_module();
+        mod->ast = bishop::stdlib::create_net_module();
     } else if (name == "process") {
-        mod->ast = nog::stdlib::create_process_module();
+        mod->ast = bishop::stdlib::create_process_module();
     } else if (name == "regex") {
-        mod->ast = nog::stdlib::create_regex_module();
+        mod->ast = bishop::stdlib::create_regex_module();
     } else if (name == "time") {
-        mod->ast = nog::stdlib::create_time_module();
+        mod->ast = bishop::stdlib::create_time_module();
     } else if (name == "math") {
-        mod->ast = nog::stdlib::create_math_module();
+        mod->ast = bishop::stdlib::create_math_module();
     } else if (name == "random") {
-        mod->ast = nog::stdlib::create_random_module();
+        mod->ast = bishop::stdlib::create_random_module();
     } else if (name == "log") {
-        mod->ast = nog::stdlib::create_log_module();
+        mod->ast = bishop::stdlib::create_log_module();
     } else if (name == "sync") {
-        mod->ast = nog::stdlib::create_sync_module();
+        mod->ast = bishop::stdlib::create_sync_module();
     } else if (name == "json") {
-        mod->ast = nog::stdlib::create_json_module();
+        mod->ast = bishop::stdlib::create_json_module();
     } else if (name == "algo") {
-        mod->ast = nog::stdlib::create_algo_module();
+        mod->ast = bishop::stdlib::create_algo_module();
     } else if (name == "yaml") {
-        mod->ast = nog::stdlib::create_yaml_module();
+        mod->ast = bishop::stdlib::create_yaml_module();
     } else if (name == "markdown") {
-        mod->ast = nog::stdlib::create_markdown_module();
+        mod->ast = bishop::stdlib::create_markdown_module();
     } else {
         return nullptr;
     }

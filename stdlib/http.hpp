@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in http module.
@@ -38,4 +38,4 @@ std::string generate_http_runtime();
  */
 bool is_builtin_module(const std::string& name);
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

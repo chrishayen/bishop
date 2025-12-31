@@ -190,7 +190,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in markdown module.
@@ -387,4 +387,4 @@ string generate_markdown_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

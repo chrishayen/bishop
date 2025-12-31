@@ -22,7 +22,7 @@
 
 #include <map>
 
-namespace nog {
+namespace bishop {
 
 std::optional<PairMethodInfo> get_pair_method_info(const std::string& method_name) {
     // "T" is placeholder for element type, substituted at type check time
@@ -40,4 +40,4 @@ std::optional<PairMethodInfo> get_pair_method_info(const std::string& method_nam
     return std::nullopt;
 }
 
-}  // namespace nog
+}  // namespace bishop

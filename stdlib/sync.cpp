@@ -207,7 +207,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in sync module.
@@ -360,4 +360,4 @@ string generate_sync_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

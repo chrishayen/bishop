@@ -44,7 +44,7 @@ TypeInfo check_tuple_create(TypeCheckerState& state, const TupleCreate& tuple) {
  * Type checks a method call on a tuple.
  */
 TypeInfo check_tuple_method(TypeCheckerState& state, const MethodCall& mcall, const string& element_type) {
-    auto method_info = nog::get_tuple_method_info(mcall.method_name);
+    auto method_info = bishop::get_tuple_method_info(mcall.method_name);
 
     if (!method_info) {
         error(state, "Tuple has no method '" + mcall.method_name + "'", mcall.line);

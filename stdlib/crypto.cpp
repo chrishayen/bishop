@@ -146,7 +146,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in crypto module.
@@ -272,4 +272,4 @@ string generate_crypto_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

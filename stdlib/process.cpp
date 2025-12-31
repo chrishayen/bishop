@@ -123,7 +123,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in process module.
@@ -223,4 +223,4 @@ string generate_process_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

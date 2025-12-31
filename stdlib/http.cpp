@@ -120,7 +120,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * List of built-in stdlib modules.
@@ -241,4 +241,4 @@ string generate_http_runtime() {
     return "";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

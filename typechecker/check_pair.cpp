@@ -36,7 +36,7 @@ TypeInfo check_pair_create(TypeCheckerState& state, const PairCreate& pair) {
  * Type checks a method call on a pair.
  */
 TypeInfo check_pair_method(TypeCheckerState& state, const MethodCall& mcall, const string& element_type) {
-    auto method_info = nog::get_pair_method_info(mcall.method_name);
+    auto method_info = bishop::get_pair_method_info(mcall.method_name);
 
     if (!method_info) {
         error(state, "Pair has no method '" + mcall.method_name + "'", mcall.line);

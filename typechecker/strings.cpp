@@ -292,7 +292,7 @@
 
 #include <map>
 
-namespace nog {
+namespace bishop {
 
 /**
  * Returns type information for built-in str methods.
@@ -352,4 +352,4 @@ std::optional<StrMethodInfo> get_str_method_info(const std::string& method_name)
     return std::nullopt;
 }
 
-}  // namespace nog
+}  // namespace bishop

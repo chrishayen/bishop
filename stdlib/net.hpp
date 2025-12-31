@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in net module.
@@ -24,4 +24,4 @@ std::unique_ptr<Program> create_net_module();
  */
 std::string generate_net_runtime();
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

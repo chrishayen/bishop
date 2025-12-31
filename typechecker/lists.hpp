@@ -4,7 +4,7 @@
 #include <vector>
 #include <optional>
 
-namespace nog {
+namespace bishop {
 
 /**
  * Represents a list method signature with parameter types and return type.
@@ -21,4 +21,4 @@ struct ListMethodInfo {
  */
 std::optional<ListMethodInfo> get_list_method_info(const std::string& method_name);
 
-}  // namespace nog
+}  // namespace bishop

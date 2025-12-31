@@ -225,63 +225,63 @@ static bool uses_channels(const Program& program) {
  */
 string generate_module_namespace(CodeGenState& state, const string& name, const Module& module) {
     if (name == "http") {
-        return nog::stdlib::generate_http_runtime();
+        return bishop::stdlib::generate_http_runtime();
     }
 
     if (name == "fs") {
-        return nog::stdlib::generate_fs_runtime();
+        return bishop::stdlib::generate_fs_runtime();
     }
 
     if (name == "crypto") {
-        return nog::stdlib::generate_crypto_runtime();
+        return bishop::stdlib::generate_crypto_runtime();
     }
 
     if (name == "net") {
-        return nog::stdlib::generate_net_runtime();
+        return bishop::stdlib::generate_net_runtime();
     }
 
     if (name == "process") {
-        return nog::stdlib::generate_process_runtime();
+        return bishop::stdlib::generate_process_runtime();
     }
 
     if (name == "regex") {
-        return nog::stdlib::generate_regex_runtime();
+        return bishop::stdlib::generate_regex_runtime();
     }
 
     if (name == "time") {
-        return nog::stdlib::generate_time_runtime();
+        return bishop::stdlib::generate_time_runtime();
     }
 
     if (name == "math") {
-        return nog::stdlib::generate_math_runtime();
+        return bishop::stdlib::generate_math_runtime();
     }
 
     if (name == "random") {
-        return nog::stdlib::generate_random_runtime();
+        return bishop::stdlib::generate_random_runtime();
     }
 
     if (name == "sync") {
-        return nog::stdlib::generate_sync_runtime();
+        return bishop::stdlib::generate_sync_runtime();
     }
 
     if (name == "json") {
-        return nog::stdlib::generate_json_runtime();
+        return bishop::stdlib::generate_json_runtime();
     }
 
     if (name == "log") {
-        return nog::stdlib::generate_log_runtime();
+        return bishop::stdlib::generate_log_runtime();
     }
 
     if (name == "algo") {
-        return nog::stdlib::generate_algo_runtime();
+        return bishop::stdlib::generate_algo_runtime();
     }
 
     if (name == "yaml") {
-        return nog::stdlib::generate_yaml_runtime();
+        return bishop::stdlib::generate_yaml_runtime();
     }
 
     if (name == "markdown") {
-        return nog::stdlib::generate_markdown_runtime();
+        return bishop::stdlib::generate_markdown_runtime();
     }
 
     string out = "namespace " + name + " {\n\n";

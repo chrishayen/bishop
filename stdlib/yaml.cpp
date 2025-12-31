@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 unique_ptr<Program> create_yaml_module() {
     auto program = make_unique<Program>();
@@ -354,4 +354,4 @@ inline Yaml array() {
 )";
 }
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib

@@ -22,7 +22,7 @@
 
 #include <map>
 
-namespace nog {
+namespace bishop {
 
 std::optional<TupleMethodInfo> get_tuple_method_info(const std::string& method_name) {
     // "T" is placeholder for element type, substituted at type check time
@@ -40,4 +40,4 @@ std::optional<TupleMethodInfo> get_tuple_method_info(const std::string& method_n
     return std::nullopt;
 }
 
-}  // namespace nog
+}  // namespace bishop

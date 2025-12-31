@@ -137,7 +137,7 @@
 
 #include <map>
 
-namespace nog {
+namespace bishop {
 
 std::optional<ListMethodInfo> get_list_method_info(const std::string& method_name) {
     // "T" is placeholder for element type, substituted at type check time
@@ -170,4 +170,4 @@ std::optional<ListMethodInfo> get_list_method_info(const std::string& method_nam
     return std::nullopt;
 }
 
-}  // namespace nog
+}  // namespace bishop

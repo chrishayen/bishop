@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-namespace nog::stdlib {
+namespace bishop::stdlib {
 
 /**
  * Creates the AST for the built-in process module.
@@ -34,4 +34,4 @@ std::unique_ptr<Program> create_process_module();
  */
 std::string generate_process_runtime();
 
-}  // namespace nog::stdlib
+}  // namespace bishop::stdlib
