@@ -171,7 +171,7 @@ fn test_remove_key() {
 fn test_keys() {
     data := yaml.parse("a: 1\nb: 2") or return;
     key_list := data.keys();
-    assert_eq(true, key_list.length() > 0);
+    assert_eq(2, key_list.length());
 }
 
 fn test_stringify() {

@@ -249,12 +249,11 @@ public:
         }
     }
 
-    std::string keys() const {
-        if (!is_object()) return "";
-        std::string result;
+    std::vector<std::string> keys() const {
+        std::vector<std::string> result;
+        if (!is_object()) return result;
         for (auto it = node_.begin(); it != node_.end(); ++it) {
-            if (!result.empty()) result += "\n";
-            result += it->first.Scalar();
+            result.push_back(it->first.Scalar());
         }
         return result;
     }

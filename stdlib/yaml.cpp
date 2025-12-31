@@ -249,13 +249,13 @@ unique_ptr<Program> create_yaml_module() {
     has_method->return_type = "bool";
     program->methods.push_back(move(has_method));
 
-    // Yaml :: keys(self) -> str
+    // Yaml :: keys(self) -> List<str>
     auto keys_method = make_unique<MethodDef>();
     keys_method->struct_name = "Yaml";
     keys_method->name = "keys";
     keys_method->visibility = Visibility::Public;
     keys_method->params.push_back({"yaml.Yaml", "self"});
-    keys_method->return_type = "str";
+    keys_method->return_type = "List<str>";
     program->methods.push_back(move(keys_method));
 
     // Yaml :: set_str(self, str key, str value)
