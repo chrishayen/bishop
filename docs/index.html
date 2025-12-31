@@ -1696,11 +1696,13 @@ x := <span class="token-function">sin</span>(PI / <span class="token-number">2.0
                     <span class="code-lang">bishop</span>
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                 </div>
-                <pre><code><span class="token-decorator">@private</span> <span class="token-keyword">fn</span> <span class="token-function">internal_helper</span>() -> <span class="token-type">int</span> {
+                <pre><code><span class="token-decorator">@private</span>
+<span class="token-keyword">fn</span> <span class="token-function">internal_helper</span>() -> <span class="token-type">int</span> {
     <span class="token-keyword">return</span> <span class="token-number">42</span>;
 }
 
-<span class="token-decorator">@private</span> <span class="token-type">MyStruct</span> :: <span class="token-keyword">struct</span> {
+<span class="token-decorator">@private</span>
+<span class="token-type">MyStruct</span> :: <span class="token-keyword">struct</span> {
     value <span class="token-type">int</span>
 }</code></pre>
             </div>
@@ -1724,8 +1726,11 @@ x := <span class="token-function">sin</span>(PI / <span class="token-number">2.0
                     <span class="code-lang">bishop</span>
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                 </div>
-                <pre><code><span class="token-decorator">@extern</span>(<span class="token-string">"c"</span>) <span class="token-keyword">fn</span> <span class="token-function">puts</span>(<span class="token-type">cstr</span> s) -> <span class="token-type">cint</span>;
-<span class="token-decorator">@extern</span>(<span class="token-string">"m"</span>) <span class="token-keyword">fn</span> <span class="token-function">sqrt</span>(<span class="token-type">f64</span> x) -> <span class="token-type">f64</span>;
+                <pre><code><span class="token-decorator">@extern</span>(<span class="token-string">"c"</span>)
+<span class="token-keyword">fn</span> <span class="token-function">puts</span>(<span class="token-type">cstr</span> s) -> <span class="token-type">cint</span>;
+
+<span class="token-decorator">@extern</span>(<span class="token-string">"m"</span>)
+<span class="token-keyword">fn</span> <span class="token-function">sqrt</span>(<span class="token-type">f64</span> x) -> <span class="token-type">f64</span>;
 
 <span class="token-keyword">fn</span> <span class="token-function">main</span>() {
     <span class="token-function">puts</span>(<span class="token-string">"Hello from C!"</span>);

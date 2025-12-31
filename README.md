@@ -2612,7 +2612,8 @@ Notes:
 Use `@private` to restrict visibility to the current file:
 
 ```bishop
-@private fn internal_helper() -> int {
+@private
+fn internal_helper() -> int {
     return 42;
 }
 
