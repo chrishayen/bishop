@@ -221,8 +221,15 @@ string generate_statement(CodeGenState& state, const ASTNode& node) {
             if (auto* str_lit = dynamic_cast<const StringLiteral*>(fail->error_expr.get())) {
                 handler_code = fmt::format("return std::make_shared<bishop::rt::Error>({});",
                                            string_literal(str_lit->value));
+            } else if (auto* var = dynamic_cast<const VariableRef*>(fail->error_expr.get())) {
+                if (var->name == "err") {
+                    // 'or fail err' - need to extract error from Result type
+                    handler_code = fmt::format("auto err = {}.error(); return err;", temp);
+                } else {
+                    handler_code = "return " + emit(state, *fail->error_expr) + ";";
+                }
             } else {
-                // For other expressions (variable ref to err, etc.)
+                // For other expressions
                 handler_code = "return " + emit(state, *fail->error_expr) + ";";
             }
         } else if (dynamic_cast<const OrContinue*>(or_expr->handler.get())) {
@@ -230,10 +237,12 @@ string generate_statement(CodeGenState& state, const ASTNode& node) {
         } else if (dynamic_cast<const OrBreak*>(or_expr->handler.get())) {
             handler_code = "break;";
         } else if (auto* block = dynamic_cast<const OrBlock*>(or_expr->handler.get())) {
-            handler_code = "";
+            // Bind err using or_error() for block handlers
+            string block_code = "";
             for (const auto& stmt : block->body) {
-                handler_code += generate_statement(state, *stmt) + " ";
+                block_code += generate_statement(state, *stmt) + " ";
             }
+            handler_code = fmt::format("auto err = bishop::or_error({}); {}", temp, block_code);
         }
 
         return preamble + "\n\tif (" + condition + ") { " + handler_code + " }";

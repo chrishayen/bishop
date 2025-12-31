@@ -243,7 +243,7 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
             string member_name = member_tok.value;
             string qualified_name = ident + "." + member_name;
 
-            // Qualified function call: module.func()
+            // Qualified function call: module.func() or module.func() or handler
             if (check(state, TokenType::LPAREN)) {
                 auto call = make_unique<FunctionCall>();
                 call->name = qualified_name;
@@ -264,6 +264,35 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
                 }
 
                 consume(state, TokenType::RPAREN);
+
+                // Check for 'or' handler (standalone or expression)
+                if (check(state, TokenType::OR)) {
+                    int or_line = current(state).line;
+                    advance(state);  // consume 'or'
+
+                    auto or_expr = make_unique<OrExpr>();
+                    or_expr->line = or_line;
+                    or_expr->expr = move(call);
+
+                    // Parse handler based on next token
+                    if (check(state, TokenType::RETURN)) {
+                        or_expr->handler = parse_or_return(state);
+                    } else if (check(state, TokenType::FAIL)) {
+                        or_expr->handler = parse_or_fail(state);
+                    } else if (check(state, TokenType::MATCH)) {
+                        or_expr->handler = parse_or_match(state);
+                    } else if (check(state, TokenType::LBRACE)) {
+                        or_expr->handler = parse_or_block(state);
+                    } else if (check(state, TokenType::CONTINUE)) {
+                        or_expr->handler = parse_or_continue(state);
+                    } else if (check(state, TokenType::BREAK)) {
+                        or_expr->handler = parse_or_break(state);
+                    }
+
+                    consume(state, TokenType::SEMICOLON);
+                    return or_expr;
+                }
+
                 consume(state, TokenType::SEMICOLON);
                 return call;
             }
@@ -297,7 +326,7 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
             Token member_tok = consume(state, TokenType::IDENT);
             string field_name = member_tok.value;
 
-            // Method call as statement: obj.method(args);
+            // Method call as statement: obj.method(args); or obj.method(args) or handler;
             if (check(state, TokenType::LPAREN)) {
                 auto call = make_unique<MethodCall>();
                 auto obj = make_unique<VariableRef>(ident);
@@ -321,6 +350,35 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
                 }
 
                 consume(state, TokenType::RPAREN);
+
+                // Check for 'or' handler (standalone or expression)
+                if (check(state, TokenType::OR)) {
+                    int or_line = current(state).line;
+                    advance(state);  // consume 'or'
+
+                    auto or_expr = make_unique<OrExpr>();
+                    or_expr->line = or_line;
+                    or_expr->expr = move(call);
+
+                    // Parse handler based on next token
+                    if (check(state, TokenType::RETURN)) {
+                        or_expr->handler = parse_or_return(state);
+                    } else if (check(state, TokenType::FAIL)) {
+                        or_expr->handler = parse_or_fail(state);
+                    } else if (check(state, TokenType::MATCH)) {
+                        or_expr->handler = parse_or_match(state);
+                    } else if (check(state, TokenType::LBRACE)) {
+                        or_expr->handler = parse_or_block(state);
+                    } else if (check(state, TokenType::CONTINUE)) {
+                        or_expr->handler = parse_or_continue(state);
+                    } else if (check(state, TokenType::BREAK)) {
+                        or_expr->handler = parse_or_break(state);
+                    }
+
+                    consume(state, TokenType::SEMICOLON);
+                    return or_expr;
+                }
+
                 consume(state, TokenType::SEMICOLON);
                 return call;
             }
@@ -361,10 +419,10 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
 }
 
 /**
- * Parses a function call statement: name(args);
+ * Parses a function call statement: name(args); or name(args) or handler;
  * Includes the trailing semicolon.
  */
-unique_ptr<FunctionCall> parse_function_call(ParserState& state) {
+unique_ptr<ASTNode> parse_function_call(ParserState& state) {
     Token name = consume(state, TokenType::IDENT);
     consume(state, TokenType::LPAREN);
 
@@ -385,6 +443,35 @@ unique_ptr<FunctionCall> parse_function_call(ParserState& state) {
     }
 
     consume(state, TokenType::RPAREN);
+
+    // Check for 'or' handler (standalone or expression)
+    if (check(state, TokenType::OR)) {
+        int or_line = current(state).line;
+        advance(state);  // consume 'or'
+
+        auto or_expr = make_unique<OrExpr>();
+        or_expr->line = or_line;
+        or_expr->expr = move(call);
+
+        // Parse handler based on next token
+        if (check(state, TokenType::RETURN)) {
+            or_expr->handler = parse_or_return(state);
+        } else if (check(state, TokenType::FAIL)) {
+            or_expr->handler = parse_or_fail(state);
+        } else if (check(state, TokenType::MATCH)) {
+            or_expr->handler = parse_or_match(state);
+        } else if (check(state, TokenType::LBRACE)) {
+            or_expr->handler = parse_or_block(state);
+        } else if (check(state, TokenType::CONTINUE)) {
+            or_expr->handler = parse_or_continue(state);
+        } else if (check(state, TokenType::BREAK)) {
+            or_expr->handler = parse_or_break(state);
+        }
+
+        consume(state, TokenType::SEMICOLON);
+        return or_expr;
+    }
+
     consume(state, TokenType::SEMICOLON);
     return call;
 }

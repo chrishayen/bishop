@@ -738,6 +738,25 @@ while running {
 }
 ```
 
+#### Standalone `or` Statements
+
+The `or` keyword can be used as a standalone statement without assignment. This enables clean guard clause patterns:
+
+```bishop
+fn load(str path) -> Data or err {
+    // Guard clauses without dummy assignment
+    fs.exists(path) or fail "not found";
+    validate(path) or fail err;
+
+    content := fs.read_file(path);
+    content or fail "empty file";
+
+    return parse(content);
+}
+```
+
+Standalone `or` works with function calls, method calls, and variables:
+
 ### Using `or` with Falsy Values
 
 The `or` keyword also works with falsy expressions (not just fallible functions). Falsy values are: `false`, `0`, and empty string `""`.
