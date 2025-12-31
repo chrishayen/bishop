@@ -40,13 +40,14 @@ bool has_return(const vector<unique_ptr<ASTNode>>& stmts) {
 }
 
 /**
- * Validates a method definition. Ensures 'self' is the first parameter,
+ * Validates a method definition. Ensures 'self' is the first parameter for instance methods,
  * validates parameter types, and checks the method body.
+ * Static methods (@static) do not have a 'self' parameter.
  */
 void check_method(TypeCheckerState& state, const MethodDef& method) {
     state.local_scopes.clear();
     push_scope(state);  // method scope (parameters + body)
-    state.current_struct = method.struct_name;
+    state.current_struct = method.is_static ? "" : method.struct_name;  // No 'self' access in static methods
     state.current_function_is_fallible = !method.error_type.empty();
 
     if (method.return_type.empty()) {
@@ -55,9 +56,12 @@ void check_method(TypeCheckerState& state, const MethodDef& method) {
         state.current_return = {method.return_type, false, false};
     }
 
-    if (method.params.empty() || method.params[0].name != "self") {
-        error(state, "method '" + method.name + "' must have 'self' as first parameter", method.line);
-        return;
+    // Static methods don't have 'self' parameter
+    if (!method.is_static) {
+        if (method.params.empty() || method.params[0].name != "self") {
+            error(state, "method '" + method.name + "' must have 'self' as first parameter", method.line);
+            return;
+        }
     }
 
     for (const auto& param : method.params) {

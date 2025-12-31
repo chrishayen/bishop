@@ -83,6 +83,54 @@ TypeInfo check_str_method(TypeCheckerState& state, const MethodCall& mcall) {
 }
 
 /**
+ * Type checks a static method call on a struct.
+ * Static methods don't have 'self' so all args map directly to params.
+ */
+TypeInfo check_static_method(TypeCheckerState& state, const MethodCall& mcall, const string& struct_name) {
+    const MethodDef* method = nullptr;
+    size_t dot_pos = struct_name.find('.');
+
+    if (dot_pos != string::npos) {
+        string module_name = struct_name.substr(0, dot_pos);
+        string sname = struct_name.substr(dot_pos + 1);
+        method = get_qualified_method(state, module_name, sname, mcall.method_name);
+    } else {
+        method = get_method(state, struct_name, mcall.method_name);
+    }
+
+    if (!method) {
+        error(state, "static method '" + mcall.method_name + "' not found on struct '" + struct_name + "'", mcall.line);
+        return {"unknown", false, false};
+    }
+
+    if (!method->is_static) {
+        error(state, "method '" + mcall.method_name + "' is not static; use an instance to call it", mcall.line);
+        return {"unknown", false, false};
+    }
+
+    // Static methods: all params are actual params (no self)
+    size_t expected_args = method->params.size();
+
+    if (mcall.args.size() != expected_args) {
+        error(state, "static method '" + mcall.method_name + "' expects " + to_string(expected_args) + " arguments, got " + to_string(mcall.args.size()), mcall.line);
+    }
+
+    for (size_t i = 0; i < mcall.args.size() && i < method->params.size(); i++) {
+        TypeInfo arg_type = infer_type(state, *mcall.args[i]);
+        TypeInfo param_type = {method->params[i].type, false, false};
+
+        if (!types_compatible(param_type, arg_type)) {
+            error(state, "argument " + to_string(i + 1) + " of static method '" + mcall.method_name +
+                  "' expects '" + format_type(param_type) + "', got '" + format_type(arg_type) + "'", mcall.line);
+        }
+    }
+
+    bool is_fallible = !method->error_type.empty();
+    return method->return_type.empty() ? TypeInfo{"void", false, true, is_fallible}
+                                       : TypeInfo{method->return_type, false, false, is_fallible};
+}
+
+/**
  * Type checks a method call on a struct.
  */
 TypeInfo check_struct_method(TypeCheckerState& state, const MethodCall& mcall, const TypeInfo& obj_type) {
@@ -109,6 +157,7 @@ TypeInfo check_struct_method(TypeCheckerState& state, const MethodCall& mcall, c
         return {"unknown", false, false};
     }
 
+    // Instance method: skip self parameter
     size_t expected_args = method->params.size() - 1;
 
     if (mcall.args.size() != expected_args) {
@@ -133,8 +182,22 @@ TypeInfo check_struct_method(TypeCheckerState& state, const MethodCall& mcall, c
 /**
  * Infers the type of a method call expression.
  * Auto-dereferences pointer types (like Go).
+ * Detects static method calls when the object is a type name.
  */
 TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall) {
+    // Check for static method call: TypeName.method(...)
+    // This happens when the object is a VariableRef whose name is a struct type
+    if (auto* ref = dynamic_cast<const VariableRef*>(mcall.object.get())) {
+        // Check if the name is a struct type (static method call)
+        const StructDef* sdef = get_struct(state, ref->name);
+
+        if (sdef) {
+            // This is a static method call: TypeName.method(...)
+            mcall.object_type = ref->name;  // Store struct name for codegen
+            return check_static_method(state, mcall, ref->name);
+        }
+    }
+
     TypeInfo obj_type = infer_type(state, *mcall.object);
     mcall.object_type = obj_type.base_type;  // Store for codegen (includes pointer suffix)
 
