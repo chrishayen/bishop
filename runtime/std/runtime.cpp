@@ -6,7 +6,9 @@
  * User code only sees declarations in std.hpp.
  */
 
+#ifndef BOOST_ASIO_SEPARATE_COMPILATION
 #define BOOST_ASIO_SEPARATE_COMPILATION
+#endif
 #include <boost/fiber/all.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
