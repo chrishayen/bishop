@@ -508,6 +508,16 @@
             margin-top: 4px;
         }
 
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 16px;
+        }
+
         /* Responsive */
         @media (max-width: 900px) {
             aside {
@@ -527,16 +537,6 @@
             .menu-toggle {
                 display: block;
             }
-        }
-
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 1.5rem;
-            cursor: pointer;
-            margin-right: 16px;
         }
 
         /* Highlight for search */
@@ -1150,6 +1150,9 @@ x := <span class="token-function">fallible</span>() <span class="token-keyword">
 
 <span class="token-comment">// Propagate error</span>
 x := <span class="token-function">fallible</span>() <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-keyword">err</span>;
+
+<span class="token-comment">// Standalone guard clause</span>
+fs.<span class="token-function">exists</span>(path) <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-string">"skill not found"</span>;
 
 <span class="token-comment">// Block with error access</span>
 x := <span class="token-function">fallible</span>() <span class="token-keyword">or</span> {
