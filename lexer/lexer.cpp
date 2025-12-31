@@ -50,6 +50,7 @@ static unordered_map<string, TokenType> keywords = {
     {"continue", TokenType::CONTINUE},
     {"break", TokenType::BREAK},
     {"using", TokenType::USING},
+    {"static", TokenType::STATIC},
     {"int", TokenType::TYPE_INT},
     {"str", TokenType::TYPE_STR},
     {"bool", TokenType::TYPE_BOOL},

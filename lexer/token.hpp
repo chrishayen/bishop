@@ -175,6 +175,7 @@ enum class TokenType {
     CONTINUE,
     BREAK,
     USING,
+    STATIC,
 
     // Annotations
     AT,

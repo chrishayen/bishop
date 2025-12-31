@@ -110,6 +110,19 @@ unique_ptr<FunctionDef> parse_function(ParserState& state, Visibility vis) {
 }
 
 /**
+ * @bishop_syntax Static Method Definition
+ * @category Methods
+ * @order 2
+ * @description Define a static method on a struct type (no self parameter).
+ * @syntax @static Type :: name(params) -> return_type { }
+ * @example
+ * @static
+ * Skill :: load(str path) -> Skill or err {
+ *     return Skill { name: "example" };
+ * }
+ */
+
+/**
  * @bishop_syntax Method Definition
  * @category Methods
  * @order 1
@@ -120,7 +133,7 @@ unique_ptr<FunctionDef> parse_function(ParserState& state, Visibility vis) {
  *     return self.name;
  * }
  */
-unique_ptr<MethodDef> parse_method_def(ParserState& state, const string& struct_name, Visibility vis) {
+unique_ptr<MethodDef> parse_method_def(ParserState& state, const string& struct_name, Visibility vis, bool is_static) {
     // We're past "Name ::", now at method_name
     Token method_name = consume(state, TokenType::IDENT);
     consume(state, TokenType::LPAREN);
@@ -130,8 +143,9 @@ unique_ptr<MethodDef> parse_method_def(ParserState& state, const string& struct_
     method->name = method_name.value;
     method->line = method_name.line;
     method->visibility = vis;
+    method->is_static = is_static;
 
-    // Parse parameters (first should be 'self')
+    // Parse parameters (first should be 'self' for instance methods)
     while (!check(state, TokenType::RPAREN) && !check(state, TokenType::EOF_TOKEN)) {
         FunctionParam param;
 
@@ -154,10 +168,35 @@ unique_ptr<MethodDef> parse_method_def(ParserState& state, const string& struct_
 
     consume(state, TokenType::RPAREN);
 
-    // Parse return type: -> type
+    // Parse return type: -> type or -> type or err
     if (check(state, TokenType::ARROW)) {
         advance(state);
         method->return_type = parse_type(state);
+
+        // Check for fallible return type: -> T or err
+        if (check(state, TokenType::OR)) {
+            advance(state);
+
+            if (check(state, TokenType::ERR)) {
+                method->error_type = "err";
+                advance(state);
+            } else if (check(state, TokenType::IDENT)) {
+                // Specific error type: -> T or IOError
+                method->error_type = current(state).value;
+                advance(state);
+            }
+        }
+    } else if (check(state, TokenType::OR)) {
+        // Void fallible method: Type :: method() or err { }
+        advance(state);
+
+        if (check(state, TokenType::ERR)) {
+            method->error_type = "err";
+            advance(state);
+        } else if (check(state, TokenType::IDENT)) {
+            method->error_type = current(state).value;
+            advance(state);
+        }
     }
 
     consume(state, TokenType::LBRACE);

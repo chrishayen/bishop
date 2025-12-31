@@ -224,6 +224,13 @@ struct MethodCall : ASTNode {
     mutable string object_type;         ///< Inferred type of object (set by type checker)
 };
 
+/** @brief Static method call on a type: TypeName.method(args) */
+struct StaticMethodCall : ASTNode {
+    string struct_name;                 ///< The struct type to call static method on
+    string method_name;                 ///< Static method name
+    vector<unique_ptr<ASTNode>> args;   ///< Arguments
+};
+
 //------------------------------------------------------------------------------
 // Statements - Nodes that perform actions
 //------------------------------------------------------------------------------
@@ -409,12 +416,13 @@ struct ExternFunctionDef : ASTNode {
 struct MethodDef : ASTNode {
     string struct_name;                   ///< Struct this method belongs to
     string name;                          ///< Method name
-    vector<FunctionParam> params;         ///< Includes self as first param
+    vector<FunctionParam> params;         ///< Includes self as first param (empty for static methods)
     string return_type;                   ///< Return type (empty for void)
     string error_type;                    ///< Error type if fallible ("err" or specific type, empty if not fallible)
     vector<unique_ptr<ASTNode>> body;     ///< Method body statements
     Visibility visibility = Visibility::Public;  ///< Access modifier
     string doc_comment;                   ///< Documentation comment (from ///)
+    bool is_static = false;               ///< True if @static decorator was used
 };
 
 //------------------------------------------------------------------------------

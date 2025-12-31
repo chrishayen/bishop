@@ -197,6 +197,7 @@ TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call);
 TypeInfo check_str_method(TypeCheckerState& state, const MethodCall& mcall);
 TypeInfo check_char_method(TypeCheckerState& state, const MethodCall& mcall);
 TypeInfo check_struct_method(TypeCheckerState& state, const MethodCall& mcall, const TypeInfo& obj_type);
+TypeInfo check_static_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& struct_name);
 TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall);
 
 // Field access type inference (check_field.cpp)

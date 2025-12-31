@@ -122,6 +122,21 @@ unique_ptr<Program> parse(ParserState& state) {
             state.pos = at_pos;
         }
 
+        // Check for @static annotation (must come before visibility)
+        bool is_static = false;
+        if (check(state, TokenType::AT)) {
+            size_t at_pos = state.pos;
+            advance(state);
+
+            if (check(state, TokenType::STATIC)) {
+                advance(state);
+                is_static = true;
+            } else {
+                // Not @static, restore position for visibility parsing
+                state.pos = at_pos;
+            }
+        }
+
         // Check for visibility annotation
         Visibility vis = parse_visibility(state);
 
@@ -174,7 +189,7 @@ unique_ptr<Program> parse(ParserState& state) {
         }
 
         if (check(state, TokenType::IDENT)) {
-            auto m = parse_method_def(state, name, vis);
+            auto m = parse_method_def(state, name, vis, is_static);
             m->doc_comment = doc;
             program->methods.push_back(move(m));
             continue;
