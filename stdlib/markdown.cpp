@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_fn parse
+ * @bishop_fn parse
  * @module markdown
  * @description Parses a Markdown string into a Markdown document.
  * @param text str - The Markdown text to parse
@@ -19,7 +19,7 @@
  */
 
 /**
- * @nog_fn to_html
+ * @bishop_fn to_html
  * @module markdown
  * @description Converts Markdown text directly to HTML.
  * @param text str - The Markdown text to convert
@@ -30,7 +30,7 @@
  */
 
 /**
- * @nog_fn to_text
+ * @bishop_fn to_text
  * @module markdown
  * @description Extracts plain text from Markdown, stripping formatting.
  * @param text str - The Markdown text
@@ -41,7 +41,7 @@
  */
 
 /**
- * @nog_fn stringify
+ * @bishop_fn stringify
  * @module markdown
  * @description Converts a Markdown document back to markdown text.
  * @param doc Markdown - The Markdown document
@@ -52,7 +52,7 @@
  */
 
 /**
- * @nog_struct Markdown
+ * @bishop_struct Markdown
  * @module markdown
  * @description A parsed Markdown document or node. Nodes can be documents,
  *              headings, paragraphs, lists, code blocks, blockquotes, links,
@@ -69,7 +69,7 @@
  */
 
 /**
- * @nog_method to_html
+ * @bishop_method to_html
  * @type Markdown
  * @description Converts the Markdown node/document to HTML.
  * @returns str - HTML representation
@@ -79,7 +79,7 @@
  */
 
 /**
- * @nog_method get_text
+ * @bishop_method get_text
  * @type Markdown
  * @description Extracts plain text content from the node.
  * @returns str - Plain text content
@@ -88,7 +88,7 @@
  */
 
 /**
- * @nog_method is_heading
+ * @bishop_method is_heading
  * @type Markdown
  * @description Checks if this node is a heading.
  * @returns bool - True if heading
@@ -97,21 +97,21 @@
  */
 
 /**
- * @nog_method is_paragraph
+ * @bishop_method is_paragraph
  * @type Markdown
  * @description Checks if this node is a paragraph.
  * @returns bool - True if paragraph
  */
 
 /**
- * @nog_method is_list
+ * @bishop_method is_list
  * @type Markdown
  * @description Checks if this node is a list (ordered or unordered).
  * @returns bool - True if list
  */
 
 /**
- * @nog_method is_code_block
+ * @bishop_method is_code_block
  * @type Markdown
  * @description Checks if this node is a fenced code block.
  * @returns bool - True if code block
@@ -120,14 +120,14 @@
  */
 
 /**
- * @nog_method is_blockquote
+ * @bishop_method is_blockquote
  * @type Markdown
  * @description Checks if this node is a blockquote.
  * @returns bool - True if blockquote
  */
 
 /**
- * @nog_method is_link
+ * @bishop_method is_link
  * @type Markdown
  * @description Checks if this node is a link.
  * @returns bool - True if link
@@ -136,7 +136,7 @@
  */
 
 /**
- * @nog_method is_image
+ * @bishop_method is_image
  * @type Markdown
  * @description Checks if this node is an image.
  * @returns bool - True if image
@@ -145,42 +145,42 @@
  */
 
 /**
- * @nog_method heading_level
+ * @bishop_method heading_level
  * @type Markdown
  * @description Returns the heading level (1-6) for heading nodes.
  * @returns int - Heading level, or 0 if not a heading
  */
 
 /**
- * @nog_method get_code
+ * @bishop_method get_code
  * @type Markdown
  * @description Gets the code content from a code block.
  * @returns str - Code content
  */
 
 /**
- * @nog_method get_language
+ * @bishop_method get_language
  * @type Markdown
  * @description Gets the language identifier from a code block.
  * @returns str - Language string (e.g., "python", "javascript")
  */
 
 /**
- * @nog_method get_url
+ * @bishop_method get_url
  * @type Markdown
  * @description Gets the URL from a link or image node.
  * @returns str - URL string
  */
 
 /**
- * @nog_method get_alt
+ * @bishop_method get_alt
  * @type Markdown
  * @description Gets the alt text from an image node.
  * @returns str - Alt text
  */
 
 /**
- * @nog_method is_ordered_list
+ * @bishop_method is_ordered_list
  * @type Markdown
  * @description Checks if a list node is ordered (numbered).
  * @returns bool - True if ordered list

@@ -8,7 +8,7 @@
  */
 
 /**
- * @nog_method get
+ * @bishop_method get
  * @type Tuple<T>
  * @description Returns the element at the specified index (0 to size-1).
  * @param index int - The index (0-based)

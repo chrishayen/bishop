@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_fn debug
+ * @bishop_fn debug
  * @module log
  * @description Logs a debug-level message.
  * @param message str - The message to log
@@ -18,7 +18,7 @@
  */
 
 /**
- * @nog_fn debug_kv
+ * @bishop_fn debug_kv
  * @module log
  * @description Logs a debug-level message with a key-value pair.
  * @param message str - The message to log
@@ -31,7 +31,7 @@
  */
 
 /**
- * @nog_fn info
+ * @bishop_fn info
  * @module log
  * @description Logs an info-level message.
  * @param message str - The message to log
@@ -42,7 +42,7 @@
  */
 
 /**
- * @nog_fn info_kv
+ * @bishop_fn info_kv
  * @module log
  * @description Logs an info-level message with a key-value pair.
  * @param message str - The message to log
@@ -55,7 +55,7 @@
  */
 
 /**
- * @nog_fn warn
+ * @bishop_fn warn
  * @module log
  * @description Logs a warning-level message.
  * @param message str - The message to log
@@ -66,7 +66,7 @@
  */
 
 /**
- * @nog_fn warn_kv
+ * @bishop_fn warn_kv
  * @module log
  * @description Logs a warning-level message with a key-value pair.
  * @param message str - The message to log
@@ -79,7 +79,7 @@
  */
 
 /**
- * @nog_fn error
+ * @bishop_fn error
  * @module log
  * @description Logs an error-level message.
  * @param message str - The message to log
@@ -90,7 +90,7 @@
  */
 
 /**
- * @nog_fn error_kv
+ * @bishop_fn error_kv
  * @module log
  * @description Logs an error-level message with a key-value pair.
  * @param message str - The message to log
@@ -103,7 +103,7 @@
  */
 
 /**
- * @nog_fn set_level
+ * @bishop_fn set_level
  * @module log
  * @description Sets the minimum logging level. Messages below this level are suppressed.
  * @param level int - The log level (log.DEBUG, log.INFO, log.WARN, log.ERROR)
@@ -114,7 +114,7 @@
  */
 
 /**
- * @nog_fn set_format
+ * @bishop_fn set_format
  * @module log
  * @description Sets the log output format using strftime-style specifiers.
  * @param format str - Format string (e.g., "[%Y-%m-%d %H:%M:%S] [%l] %v")
@@ -125,7 +125,7 @@
  */
 
 /**
- * @nog_fn add_file
+ * @bishop_fn add_file
  * @module log
  * @description Adds a file as a logging output destination.
  * @param path str - Path to the log file
@@ -136,7 +136,7 @@
  */
 
 /**
- * @nog_fn add_file_level
+ * @bishop_fn add_file_level
  * @module log
  * @description Adds a file as a logging output with a specific minimum level.
  * @param path str - Path to the log file

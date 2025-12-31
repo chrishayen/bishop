@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_fn print
+ * @bishop_fn print
  * @module builtins
  * @description Prints values to standard output, followed by a newline.
  * @param args ... - One or more values to print (separated by spaces)
@@ -17,7 +17,7 @@
  */
 
 /**
- * @nog_fn assert_eq
+ * @bishop_fn assert_eq
  * @module builtins
  * @description Asserts that two values are equal. Only available in test mode.
  * @param expected T - The expected value
@@ -29,7 +29,7 @@
  */
 
 /**
- * @nog_struct Channel
+ * @bishop_struct Channel
  * @module builtins
  * @description A typed channel for communication between goroutines.
  * @example
@@ -39,7 +39,7 @@
  */
 
 /**
- * @nog_method send
+ * @bishop_method send
  * @type Channel
  * @description Sends a value through the channel (blocks until received).
  * @param value T - The value to send
@@ -47,7 +47,7 @@
  */
 
 /**
- * @nog_method recv
+ * @bishop_method recv
  * @type Channel
  * @description Receives a value from the channel (blocks until available).
  * @returns T - The received value

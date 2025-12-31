@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_fn compile
+ * @bishop_fn compile
  * @module regex
  * @description Compiles a regular expression pattern.
  * @param pattern str - The regex pattern to compile
@@ -18,7 +18,7 @@
  */
 
 /**
- * @nog_fn split
+ * @bishop_fn split
  * @module regex
  * @description Splits a string by a regex pattern.
  * @param pattern str - The regex pattern to split on
@@ -31,7 +31,7 @@
  */
 
 /**
- * @nog_struct regex.Match
+ * @bishop_struct regex.Match
  * @module regex
  * @description A match result containing matched text and capture groups.
  * @field text str - The matched text (empty if no match)
@@ -41,7 +41,7 @@
  */
 
 /**
- * @nog_method found
+ * @bishop_method found
  * @type regex.Match
  * @description Check if this match is valid (found a match).
  * @returns bool - True if a match was found
@@ -51,7 +51,7 @@
  */
 
 /**
- * @nog_method group
+ * @bishop_method group
  * @type regex.Match
  * @description Get a capture group by index.
  * @param n int - Group index (0 is full match, 1+ are capture groups)
@@ -63,13 +63,13 @@
  */
 
 /**
- * @nog_struct regex.Regex
+ * @bishop_struct regex.Regex
  * @module regex
  * @description A compiled regular expression.
  */
 
 /**
- * @nog_method matches
+ * @bishop_method matches
  * @type regex.Regex
  * @description Check if the entire string matches the pattern.
  * @param text str - The text to match against
@@ -81,7 +81,7 @@
  */
 
 /**
- * @nog_method contains
+ * @bishop_method contains
  * @type regex.Regex
  * @description Check if the string contains the pattern anywhere.
  * @param text str - The text to search
@@ -92,7 +92,7 @@
  */
 
 /**
- * @nog_method find
+ * @bishop_method find
  * @type regex.Regex
  * @description Find the first match in the string.
  * @param text str - The text to search
@@ -105,7 +105,7 @@
  */
 
 /**
- * @nog_method find_all
+ * @bishop_method find_all
  * @type regex.Regex
  * @description Find all matches in the string.
  * @param text str - The text to search
@@ -117,7 +117,7 @@
  */
 
 /**
- * @nog_method replace
+ * @bishop_method replace
  * @type regex.Regex
  * @description Replace the first match with the replacement string.
  * @param text str - The text to search
@@ -129,7 +129,7 @@
  */
 
 /**
- * @nog_method replace_all
+ * @bishop_method replace_all
  * @type regex.Regex
  * @description Replace all matches with the replacement string.
  * @param text str - The text to search

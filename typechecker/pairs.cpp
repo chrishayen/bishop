@@ -8,7 +8,7 @@
  */
 
 /**
- * @nog_method get
+ * @bishop_method get
  * @type Pair<T>
  * @description Returns the element at the specified index (0 or 1).
  * @param index int - The index (0 for first, 1 for second)

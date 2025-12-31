@@ -7,7 +7,7 @@
  */
 
 /**
- * @nog_fn read_file
+ * @bishop_fn read_file
  * @module fs
  * @description Reads the entire contents of a file as a string.
  * @param path str - Path to the file to read
@@ -18,7 +18,7 @@
  */
 
 /**
- * @nog_fn exists
+ * @bishop_fn exists
  * @module fs
  * @description Checks if a file or directory exists at the given path.
  * @param path str - Path to check
@@ -31,7 +31,7 @@
  */
 
 /**
- * @nog_fn is_dir
+ * @bishop_fn is_dir
  * @module fs
  * @description Checks if the given path is a directory.
  * @param path str - Path to check
@@ -44,7 +44,7 @@
  */
 
 /**
- * @nog_fn is_file
+ * @bishop_fn is_file
  * @module fs
  * @description Checks if the given path is a regular file.
  * @param path str - Path to check
@@ -57,7 +57,7 @@
  */
 
 /**
- * @nog_fn read_dir
+ * @bishop_fn read_dir
  * @module fs
  * @description Lists all entries in a directory, separated by newlines.
  * @param path str - Path to the directory
@@ -68,7 +68,7 @@
  */
 
 /**
- * @nog_fn write_file
+ * @bishop_fn write_file
  * @module fs
  * @description Writes content to a file, creating it if it doesn't exist.
  * @param path str - Path to the file
@@ -80,7 +80,7 @@
  */
 
 /**
- * @nog_fn append_file
+ * @bishop_fn append_file
  * @module fs
  * @description Appends content to a file, creating it if it doesn't exist.
  * @param path str - Path to the file
@@ -92,7 +92,7 @@
  */
 
 /**
- * @nog_fn read_bytes
+ * @bishop_fn read_bytes
  * @module fs
  * @description Reads binary content from a file.
  * @param path str - Path to the file
@@ -103,7 +103,7 @@
  */
 
 /**
- * @nog_fn write_bytes
+ * @bishop_fn write_bytes
  * @module fs
  * @description Writes binary content to a file.
  * @param path str - Path to the file
@@ -115,7 +115,7 @@
  */
 
 /**
- * @nog_fn open
+ * @bishop_fn open
  * @module fs
  * @description Opens a file with the specified mode.
  * @param path str - Path to the file
@@ -130,7 +130,7 @@
  */
 
 /**
- * @nog_fn list_dir
+ * @bishop_fn list_dir
  * @module fs
  * @description Lists all entries in a directory as a List<str>.
  * @param path str - Path to the directory
@@ -144,7 +144,7 @@
  */
 
 /**
- * @nog_fn mkdir
+ * @bishop_fn mkdir
  * @module fs
  * @description Creates a single directory.
  * @param path str - Path to create
@@ -155,7 +155,7 @@
  */
 
 /**
- * @nog_fn mkdir_all
+ * @bishop_fn mkdir_all
  * @module fs
  * @description Creates a directory and all parent directories.
  * @param path str - Path to create
@@ -166,7 +166,7 @@
  */
 
 /**
- * @nog_fn remove
+ * @bishop_fn remove
  * @module fs
  * @description Removes a single file.
  * @param path str - Path to the file
@@ -177,7 +177,7 @@
  */
 
 /**
- * @nog_fn remove_dir
+ * @bishop_fn remove_dir
  * @module fs
  * @description Removes an empty directory.
  * @param path str - Path to the directory
@@ -188,7 +188,7 @@
  */
 
 /**
- * @nog_fn remove_all
+ * @bishop_fn remove_all
  * @module fs
  * @description Removes a file or directory and all its contents.
  * @param path str - Path to remove
@@ -199,7 +199,7 @@
  */
 
 /**
- * @nog_fn rename
+ * @bishop_fn rename
  * @module fs
  * @description Renames or moves a file or directory.
  * @param from str - Source path
@@ -211,7 +211,7 @@
  */
 
 /**
- * @nog_fn copy
+ * @bishop_fn copy
  * @module fs
  * @description Copies a single file.
  * @param from str - Source path
@@ -223,7 +223,7 @@
  */
 
 /**
- * @nog_fn copy_dir
+ * @bishop_fn copy_dir
  * @module fs
  * @description Copies a directory and all its contents.
  * @param from str - Source path
@@ -235,7 +235,7 @@
  */
 
 /**
- * @nog_fn join
+ * @bishop_fn join
  * @module fs
  * @description Joins two path components together.
  * @param a str - First path component
@@ -247,7 +247,7 @@
  */
 
 /**
- * @nog_fn dirname
+ * @bishop_fn dirname
  * @module fs
  * @description Gets the directory part of a path.
  * @param path str - Path to get directory from
@@ -258,7 +258,7 @@
  */
 
 /**
- * @nog_fn basename
+ * @bishop_fn basename
  * @module fs
  * @description Gets the filename part of a path.
  * @param path str - Path to get filename from
@@ -269,7 +269,7 @@
  */
 
 /**
- * @nog_fn extension
+ * @bishop_fn extension
  * @module fs
  * @description Gets the extension of a path (without the dot).
  * @param path str - Path to get extension from
@@ -280,7 +280,7 @@
  */
 
 /**
- * @nog_fn stem
+ * @bishop_fn stem
  * @module fs
  * @description Gets the stem (filename without extension) of a path.
  * @param path str - Path to get stem from
@@ -291,7 +291,7 @@
  */
 
 /**
- * @nog_fn is_absolute
+ * @bishop_fn is_absolute
  * @module fs
  * @description Checks if a path is absolute.
  * @param path str - Path to check
@@ -304,7 +304,7 @@
  */
 
 /**
- * @nog_fn absolute
+ * @bishop_fn absolute
  * @module fs
  * @description Converts a path to an absolute path.
  * @param path str - Path to convert
@@ -315,7 +315,7 @@
  */
 
 /**
- * @nog_fn canonical
+ * @bishop_fn canonical
  * @module fs
  * @description Returns the canonical (resolved) absolute path.
  * @param path str - Path to resolve
@@ -326,7 +326,7 @@
  */
 
 /**
- * @nog_fn stat
+ * @bishop_fn stat
  * @module fs
  * @description Gets file information.
  * @param path str - Path to get info for
@@ -339,7 +339,7 @@
  */
 
 /**
- * @nog_fn file_size
+ * @bishop_fn file_size
  * @module fs
  * @description Gets the size of a file in bytes.
  * @param path str - Path to the file
@@ -350,7 +350,7 @@
  */
 
 /**
- * @nog_fn walk
+ * @bishop_fn walk
  * @module fs
  * @description Walks a directory tree recursively.
  * @param path str - Path to walk
@@ -365,7 +365,7 @@
  */
 
 /**
- * @nog_fn temp_file
+ * @bishop_fn temp_file
  * @module fs
  * @description Creates a unique temporary file path.
  * @returns str or err - Temporary file path or error
@@ -376,7 +376,7 @@
  */
 
 /**
- * @nog_fn temp_dir
+ * @bishop_fn temp_dir
  * @module fs
  * @description Creates a unique temporary directory.
  * @returns str or err - Temporary directory path or error
@@ -386,7 +386,7 @@
  */
 
 /**
- * @nog_struct FileInfo
+ * @bishop_struct FileInfo
  * @module fs
  * @description File information returned by stat().
  * @field size int - File size in bytes
@@ -399,7 +399,7 @@
  */
 
 /**
- * @nog_struct DirEntry
+ * @bishop_struct DirEntry
  * @module fs
  * @description Directory entry returned by walk().
  * @field path str - Full path to the entry
@@ -410,35 +410,35 @@
  */
 
 /**
- * @nog_struct File
+ * @bishop_struct File
  * @module fs
  * @description File handle for reading and writing.
  * Supports the `with` statement for automatic resource cleanup.
  */
 
 /**
- * @nog_method read_line
+ * @bishop_method read_line
  * @type fs.File
  * @description Reads a single line from the file.
  * @returns str or err - Line content or error
  */
 
 /**
- * @nog_method read_lines
+ * @bishop_method read_lines
  * @type fs.File
  * @description Reads all lines from the file.
  * @returns List<str> or err - List of lines or error
  */
 
 /**
- * @nog_method read_all
+ * @bishop_method read_all
  * @type fs.File
  * @description Reads all content from the file.
  * @returns str or err - File content or error
  */
 
 /**
- * @nog_method write
+ * @bishop_method write
  * @type fs.File
  * @description Writes data to the file.
  * @param data str - Data to write
@@ -446,7 +446,7 @@
  */
 
 /**
- * @nog_method write_line
+ * @bishop_method write_line
  * @type fs.File
  * @description Writes data followed by a newline to the file.
  * @param data str - Data to write
@@ -454,7 +454,7 @@
  */
 
 /**
- * @nog_method close
+ * @bishop_method close
  * @type fs.File
  * @description Closes the file.
  */
