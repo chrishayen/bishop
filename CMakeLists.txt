@@ -25,6 +25,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(llhttp)
 
+# Fetch maddy for Markdown parsing (header-only)
+FetchContent_Declare(
+    maddy
+    GIT_REPOSITORY https://github.com/progsource/maddy.git
+    GIT_TAG 1.3.0
+)
+FetchContent_MakeAvailable(maddy)
+
 # Bishop compiler library
 add_library(bishop_lib
     lexer/lexer.cpp
@@ -199,9 +207,12 @@ add_custom_target(bishop_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E copy
         ${llhttp_SOURCE_DIR}/include/llhttp.h
         ${CMAKE_BINARY_DIR}/include/llhttp.h
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${maddy_SOURCE_DIR}/include/maddy
+        ${CMAKE_BINARY_DIR}/include/maddy
     COMMENT "Copying runtime headers"
 )
-add_dependencies(bishop_runtime_headers llhttp_static)
+add_dependencies(bishop_runtime_headers llhttp_static maddy)
 
 # Copy llhttp library after it's built
 add_custom_command(TARGET bishop_runtime_headers POST_BUILD
