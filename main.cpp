@@ -37,6 +37,7 @@ struct TranspileResult {
     bool uses_http = false;    ///< True if http module is imported
     bool uses_fs = false;      ///< True if fs module is imported
     bool uses_crypto = false;  ///< True if crypto module is imported
+    bool uses_yaml = false;    ///< True if yaml module is imported
     set<string> extern_libs;   ///< Libraries needed by extern functions
 };
 
@@ -113,6 +114,10 @@ string build_link_cmd(const TranspileResult& result, const string& exe_output,
         cmd += " -lssl -lcrypto";
     }
 
+    if (result.uses_yaml) {
+        cmd += " -lyaml-cpp";
+    }
+
     // Add extern library flags (skip "c" as libc is implicit)
     for (const auto& lib : result.extern_libs) {
         if (lib != "c") {
@@ -185,6 +190,8 @@ TranspileResult transpile(const string& source, const string& filename, bool tes
             result.uses_fs = true;
         } else if (imp->module_path == "crypto") {
             result.uses_crypto = true;
+        } else if (imp->module_path == "yaml") {
+            result.uses_yaml = true;
         }
     }
 
