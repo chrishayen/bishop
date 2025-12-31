@@ -17,9 +17,6 @@
 (lambda_expression
   body: (block) @local.scope)
 
-; Blocks create scopes
-(block) @local.scope
-
 ; If statements create scopes
 (if_statement
   consequence: (block) @local.scope)
@@ -71,5 +68,6 @@
 ; References
 ; ============================================
 
-; Identifiers are references
-(identifier) @local.reference
+; Note: We don't capture all identifiers as references because it's
+; too expensive and can cause crashes. Tree-sitter will automatically
+; resolve references to definitions within the same scope.
