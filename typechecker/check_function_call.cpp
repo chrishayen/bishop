@@ -407,6 +407,37 @@ TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call) 
         }
     }
 
+    // Check for unqualified static method call within the same struct
+    if (!state.current_struct.empty()) {
+        const MethodDef* method = get_method(state, state.current_struct, call.name);
+
+        if (method && method->is_static) {
+            // Store the struct name for codegen to emit StructName::method(...)
+            call.resolved_struct = state.current_struct;
+
+            // Static methods: all params are actual params (no self)
+            size_t expected_args = method->params.size();
+
+            if (call.args.size() != expected_args) {
+                error(state, "static method '" + call.name + "' expects " + to_string(expected_args) + " arguments, got " + to_string(call.args.size()), call.line);
+            }
+
+            for (size_t i = 0; i < call.args.size() && i < method->params.size(); i++) {
+                TypeInfo arg_type = infer_type(state, *call.args[i]);
+                TypeInfo param_type = {method->params[i].type, false, false};
+
+                if (!types_compatible(param_type, arg_type)) {
+                    error(state, "argument " + to_string(i + 1) + " of static method '" + call.name +
+                          "' expects '" + format_type(param_type) + "', got '" + format_type(arg_type) + "'", call.line);
+                }
+            }
+
+            bool is_fallible = !method->error_type.empty();
+            return method->return_type.empty() ? TypeInfo{"void", false, true, is_fallible}
+                                               : TypeInfo{method->return_type, false, false, is_fallible};
+        }
+    }
+
     error(state, "undefined function '" + call.name + "'", call.line);
     return {"unknown", false, false};
 }

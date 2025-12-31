@@ -59,6 +59,12 @@ string emit_function_call(CodeGenState& state, const FunctionCall& call) {
         args.push_back(emit(state, *arg));
     }
 
+    // Check if this is an unqualified static method call (resolved by typechecker)
+    if (!call.resolved_struct.empty()) {
+        string fn_name = escape_reserved_name(call.name);
+        return function_call(call.resolved_struct + "::" + fn_name, args);
+    }
+
     // Handle qualified function call: module.func -> module::func
     string func_name = call.name;
     size_t dot_pos = func_name.find('.');

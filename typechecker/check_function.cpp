@@ -46,7 +46,7 @@ bool has_return(const vector<unique_ptr<ASTNode>>& stmts) {
 void check_method(TypeCheckerState& state, const MethodDef& method) {
     state.local_scopes.clear();
     push_scope(state);  // method scope (parameters + body)
-    state.current_struct = method.is_static ? "" : method.struct_name;  // No 'self' access in static methods
+    state.current_struct = method.struct_name;  // Track struct for static method resolution
     state.current_function_is_fallible = !method.error_type.empty();
 
     if (method.return_type.empty()) {
@@ -67,7 +67,7 @@ void check_method(TypeCheckerState& state, const MethodDef& method) {
         check_statement(state, *stmt);
     }
 
-    if (!method.return_type.empty() && !has_return(method.body)) {
+    if (!method.return_type.empty() && method.return_type != "void" && !has_return(method.body)) {
         error(state, "method '" + method.name + "' must return a value of type '" + method.return_type + "'", method.line);
     }
 
@@ -82,6 +82,7 @@ void check_function(TypeCheckerState& state, const FunctionDef& func) {
     push_scope(state);  // function scope (parameters + body)
     state.current_struct.clear();
     state.current_function_is_fallible = !func.error_type.empty();
+    state.in_main = (func.name == "main");
 
     if (func.return_type.empty()) {
         state.current_return = {"void", false, true};
@@ -101,7 +102,7 @@ void check_function(TypeCheckerState& state, const FunctionDef& func) {
         check_statement(state, *stmt);
     }
 
-    if (!func.return_type.empty() && !has_return(func.body)) {
+    if (!func.return_type.empty() && func.return_type != "void" && !has_return(func.body)) {
         error(state, "function '" + func.name + "' must return a value of type '" + func.return_type + "'", func.line);
     }
 }

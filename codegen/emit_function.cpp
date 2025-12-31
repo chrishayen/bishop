@@ -109,9 +109,11 @@ string generate_function(CodeGenState& state, const FunctionDef& fn) {
     bool is_main = (fn.name == "main" && !state.test_mode);
     bool is_fallible = !fn.error_type.empty();
 
-    // Track fallibility for or-return handling
+    // Track fallibility and main status for or-fail handling
     bool prev_fallible = state.in_fallible_function;
+    bool prev_in_main = state.in_main;
     state.in_fallible_function = is_fallible;
+    state.in_main = is_main;
 
     vector<FunctionParam> params;
 
@@ -126,7 +128,7 @@ string generate_function(CodeGenState& state, const FunctionDef& fn) {
     }
 
     // Add implicit return {} for Result<void> functions without explicit return
-    if (is_fallible && fn.return_type.empty() && !body.empty()) {
+    if (is_fallible && (fn.return_type.empty() || fn.return_type == "void") && !body.empty()) {
         // Check if the last line of the last statement is a return
         // (Statements can be multi-line, e.g. or-expressions generate multiple lines)
         string last = body.back();
@@ -139,6 +141,7 @@ string generate_function(CodeGenState& state, const FunctionDef& fn) {
     }
 
     state.in_fallible_function = prev_fallible;
+    state.in_main = prev_in_main;
 
     string out;
 
@@ -620,6 +623,16 @@ string generate_test_harness(CodeGenState& state, const unique_ptr<Program>& pro
         out += generate_error(state, *e) + "\n";
     }
 
+    // Forward declare all functions before method implementations
+    // so methods can call free functions
+    for (const auto& fn : program->functions) {
+        out += generate_function_declaration(state, *fn);
+    }
+
+    if (!program->functions.empty()) {
+        out += "\n";
+    }
+
     // Generate standalone method implementations after all structs are defined
     for (const auto& method : program->methods) {
         out += generate_standalone_method(state, *method) + "\n";
@@ -631,15 +644,6 @@ string generate_test_harness(CodeGenState& state, const unique_ptr<Program>& pro
     }
 
     if (!program->constants.empty()) {
-        out += "\n";
-    }
-
-    // Forward declare all functions
-    for (const auto& fn : program->functions) {
-        out += generate_function_declaration(state, *fn);
-    }
-
-    if (!program->functions.empty()) {
         out += "\n";
     }
 

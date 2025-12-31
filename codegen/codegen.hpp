@@ -31,6 +31,7 @@ struct CodeGenUsingAlias {
 struct CodeGenState {
     bool test_mode = false;
     bool in_fallible_function = false;  // true if current function returns Result<T>
+    bool in_main = false;  // true when generating main() function body
     const Program* current_program = nullptr;
     std::map<std::string, const Module*> imported_modules;
     std::map<std::string, const ExternFunctionDef*> extern_functions;

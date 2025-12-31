@@ -356,6 +356,16 @@ string generate(CodeGenState& state, const unique_ptr<Program>& program, bool te
         out += generate_error(state, *e) + "\n";
     }
 
+    // Forward declare all functions before method implementations
+    // so methods can call free functions
+    for (const auto& fn : program->functions) {
+        out += generate_function_declaration(state, *fn);
+    }
+
+    if (!program->functions.empty()) {
+        out += "\n";
+    }
+
     // Generate standalone method implementations after all structs are defined
     for (const auto& method : program->methods) {
         out += generate_standalone_method(state, *method) + "\n";
@@ -367,15 +377,6 @@ string generate(CodeGenState& state, const unique_ptr<Program>& program, bool te
     }
 
     if (!program->constants.empty()) {
-        out += "\n";
-    }
-
-    // Forward declare all functions
-    for (const auto& fn : program->functions) {
-        out += generate_function_declaration(state, *fn);
-    }
-
-    if (!program->functions.empty()) {
         out += "\n";
     }
 
@@ -615,6 +616,16 @@ string generate_with_imports(
         out += generate_error(state, *e) + "\n";
     }
 
+    // Forward declare all functions before method implementations
+    // so methods can call free functions
+    for (const auto& fn : program->functions) {
+        out += generate_function_declaration(state, *fn);
+    }
+
+    if (!program->functions.empty()) {
+        out += "\n";
+    }
+
     // Generate standalone method implementations after all structs are defined
     for (const auto& method : program->methods) {
         out += generate_standalone_method(state, *method) + "\n";
@@ -626,15 +637,6 @@ string generate_with_imports(
     }
 
     if (!program->constants.empty()) {
-        out += "\n";
-    }
-
-    // Forward declare all functions
-    for (const auto& fn : program->functions) {
-        out += generate_function_declaration(state, *fn);
-    }
-
-    if (!program->functions.empty()) {
         out += "\n";
     }
 

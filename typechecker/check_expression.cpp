@@ -158,9 +158,9 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
             }
         }
 
-        // Check if or fail is used in a non-fallible function
+        // Check if or fail is used in a non-fallible function (allowed in main)
         if (auto* or_fail = dynamic_cast<const OrFail*>(or_expr->handler.get())) {
-            if (!state.current_function_is_fallible) {
+            if (!state.current_function_is_fallible && !state.in_main) {
                 error(state, "or fail can only be used in fallible functions (functions with -> T or err)", or_fail->line);
             }
         }

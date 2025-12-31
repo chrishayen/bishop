@@ -214,6 +214,7 @@ struct SelectStmt : ASTNode {
 struct FunctionCall : ASTNode {
     string name;                        ///< Function name
     vector<unique_ptr<ASTNode>> args;   ///< Arguments to pass
+    mutable string resolved_struct;     ///< For unqualified static method calls, the struct name (set by type checker)
 };
 
 /** @brief Method call on an object: obj.method(args) */

@@ -326,16 +326,23 @@ Counter :: get(self) -> int {
 }
 ```
 
-Call static methods on the type name or from within the same struct via `self`:
+Call static methods on the type name, or from within the same struct unqualified:
 
 ```bishop
 c := Counter.create();           // Counter { value: 0 }
 c := Counter.from_value(42);     // Counter { value: 42 }
 result := Counter.add(10, 20);   // 30
 
-// From within another method of Counter:
+// From within another method of Counter, all three forms work:
 Counter :: compute(self, int x) -> int {
-    return self.add(self.value, x);  // Calls Counter::add
+    return add(self.value, x);       // Unqualified (preferred)
+    // return self.add(self.value, x);   // Via self
+    // return Counter.add(self.value, x); // Fully qualified
+}
+
+// Static method calling another static method:
+Counter :: double_add(int a, int b) -> int {
+    return add(a, b) * 2;  // Unqualified call to Counter::add
 }
 ```
 

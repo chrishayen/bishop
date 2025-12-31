@@ -54,6 +54,21 @@ string emit_or_break_handler() {
  * Emit the handler code for an OrFail.
  */
 string emit_or_fail_handler(CodeGenState& state, const OrFail& handler) {
+    // In main(), or fail prints the error and exits instead of returning
+    if (state.in_main) {
+        if (auto* var = dynamic_cast<const VariableRef*>(handler.error_expr.get())) {
+            if (var->name == "err") {
+                return "std::cerr << err->message << std::endl; exit(1);";
+            }
+        }
+
+        // String literal error message
+        if (auto* str_lit = dynamic_cast<const StringLiteral*>(handler.error_expr.get())) {
+            return fmt::format("std::cerr << {} << std::endl; exit(1);",
+                               string_literal(str_lit->value));
+        }
+    }
+
     // The err variable is bound in the generated code
     if (auto* var = dynamic_cast<const VariableRef*>(handler.error_expr.get())) {
         if (var->name == "err") {

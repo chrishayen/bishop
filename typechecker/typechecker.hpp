@@ -85,6 +85,7 @@ struct TypeCheckerState {
     std::string current_struct;
     TypeInfo current_return;
     bool current_function_is_fallible = false;
+    bool in_main = false;
     std::string filename;
 
     std::vector<TypeError> errors;
