@@ -93,7 +93,7 @@ std::unique_ptr<GoSpawn> parse_go_spawn(ParserState& state);
 
 // Statement parsing (parse_statement.cpp)
 std::unique_ptr<ASTNode> parse_statement(ParserState& state);
-std::unique_ptr<FunctionCall> parse_function_call(ParserState& state);
+std::unique_ptr<ASTNode> parse_function_call(ParserState& state);
 std::unique_ptr<VariableDecl> parse_variable_decl(ParserState& state, bool is_const = false);
 std::unique_ptr<VariableDecl> parse_inferred_decl(ParserState& state, bool is_const = false);
 std::unique_ptr<VariableDecl> parse_const_decl(ParserState& state);
@@ -114,5 +114,13 @@ std::unique_ptr<ASTNode> parse_comparison(ParserState& state);
 std::unique_ptr<ASTNode> parse_additive(ParserState& state);
 std::unique_ptr<ASTNode> parse_primary(ParserState& state);
 std::unique_ptr<ASTNode> parse_postfix(ParserState& state, std::unique_ptr<ASTNode> left);
+
+// Or expression handler parsing (parse_or.cpp)
+std::unique_ptr<OrReturn> parse_or_return(ParserState& state);
+std::unique_ptr<OrFail> parse_or_fail(ParserState& state);
+std::unique_ptr<OrBlock> parse_or_block(ParserState& state);
+std::unique_ptr<OrMatch> parse_or_match(ParserState& state);
+std::unique_ptr<OrContinue> parse_or_continue(ParserState& state);
+std::unique_ptr<OrBreak> parse_or_break(ParserState& state);
 
 } // namespace parser
