@@ -10,6 +10,8 @@
 
 #include <bishop/std.hpp>
 #include <bishop/error.hpp>
+#include <bishop/channel.hpp>
+#include <boost/fiber/all.hpp>
 #include <cstdlib>
 #include <cstring>
 #include <array>
@@ -19,6 +21,9 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <errno.h>
+#include <thread>
+#include <atomic>
+#include <chrono>
 
 namespace process {
 
@@ -410,6 +415,201 @@ inline void init_args(int argc, char* argv[]) {
  */
 inline std::vector<std::string> args() {
     return args_storage();
+}
+
+/**
+ * Internal process state - non-copyable, stored via shared_ptr.
+ */
+struct ProcessState {
+    bishop::rt::Channel<std::string> stdout_ch{64};  // Buffer for streaming
+    bishop::rt::Channel<std::string> stderr_ch{64};
+    pid_t pid;
+    std::atomic<bool> waited{false};
+    int exit_status{0};
+    boost::fibers::fiber stdout_fiber;
+    boost::fibers::fiber stderr_fiber;
+
+    ProcessState(pid_t p, int stdout_fd, int stderr_fd) : pid(p) {
+        // Start fiber to read stdout and send lines to channel
+        stdout_fiber = boost::fibers::fiber([this, stdout_fd]() {
+            read_lines_to_channel(stdout_fd, stdout_ch);
+        });
+
+        // Start fiber to read stderr and send lines to channel
+        stderr_fiber = boost::fibers::fiber([this, stderr_fd]() {
+            read_lines_to_channel(stderr_fd, stderr_ch);
+        });
+    }
+
+    void read_lines_to_channel(int fd, bishop::rt::Channel<std::string>& ch) {
+        char buffer[4096];
+
+        while (true) {
+            ssize_t bytes_read = read(fd, buffer, sizeof(buffer));
+
+            if (bytes_read < 0) {
+                if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                    boost::this_fiber::sleep_for(std::chrono::milliseconds(1));
+                    continue;
+                }
+
+                // Real error - end the stream
+                ch.send("");
+                break;
+            }
+
+            if (bytes_read == 0) {
+                // EOF - end stream
+                ch.send("");
+                break;
+            }
+
+            // Send data immediately as it arrives
+            ch.send(std::string(buffer, bytes_read));
+            boost::this_fiber::yield();
+        }
+
+        close(fd);
+    }
+};
+
+/**
+ * A spawned process with streaming stdout/stderr channels.
+ * Lines are sent to channels as they become available.
+ * Empty string signals end of stream.
+ */
+struct Process {
+    std::shared_ptr<ProcessState> state_;
+
+    /**
+     * Returns the stdout channel for receiving output lines.
+     */
+    bishop::rt::Channel<std::string>& stdout() {
+        return state_ ? state_->stdout_ch : dummy_ch_;
+    }
+
+    /**
+     * Returns the stderr channel for receiving error lines.
+     */
+    bishop::rt::Channel<std::string>& stderr() {
+        return state_ ? state_->stderr_ch : dummy_ch_;
+    }
+
+    Process() : state_(nullptr) {}
+
+    Process(std::shared_ptr<ProcessState> state) : state_(state) {}
+
+    // Default copy and move
+    Process(const Process&) = default;
+    Process& operator=(const Process&) = default;
+    Process(Process&&) = default;
+    Process& operator=(Process&&) = default;
+
+    /**
+     * Waits for the process to complete and returns the result.
+     */
+    bishop::rt::Result<ProcessResult> wait() {
+        if (!state_) {
+            return std::make_shared<bishop::rt::Error>("Process not initialized");
+        }
+
+        // Wait for reader fibers to complete
+        if (state_->stdout_fiber.joinable()) {
+            state_->stdout_fiber.join();
+        }
+
+        if (state_->stderr_fiber.joinable()) {
+            state_->stderr_fiber.join();
+        }
+
+        // Wait for child process if not already done
+        if (!state_->waited.exchange(true)) {
+            int status;
+            waitpid(state_->pid, &status, 0);
+
+            if (WIFEXITED(status)) {
+                state_->exit_status = WEXITSTATUS(status);
+            } else {
+                state_->exit_status = -1;
+            }
+        }
+
+        ProcessResult result;
+        result.output = "";
+        result.error = "";
+        result.exit_code = state_->exit_status;
+        result.success = (state_->exit_status == 0);
+
+        return result;
+    }
+
+private:
+    static bishop::rt::Channel<std::string> dummy_ch_;
+};
+
+// Static dummy channel for default-constructed Process
+inline bishop::rt::Channel<std::string> Process::dummy_ch_;
+
+/**
+ * Spawns a process and returns a Process with streaming channels.
+ * Stdout and stderr lines are sent to their respective channels.
+ */
+inline bishop::rt::Result<Process> spawn(
+    const std::string& cmd,
+    const std::vector<std::string>& args
+) {
+    int stdout_pipe[2];
+    int stderr_pipe[2];
+
+    if (pipe(stdout_pipe) == -1 || pipe(stderr_pipe) == -1) {
+        return std::make_shared<bishop::rt::Error>("Failed to create pipes");
+    }
+
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        close(stdout_pipe[0]);
+        close(stdout_pipe[1]);
+        close(stderr_pipe[0]);
+        close(stderr_pipe[1]);
+        return std::make_shared<bishop::rt::Error>("Failed to fork process");
+    }
+
+    if (pid == 0) {
+        // Child process
+        close(stdout_pipe[0]);
+        close(stderr_pipe[0]);
+
+        dup2(stdout_pipe[1], STDOUT_FILENO);
+        dup2(stderr_pipe[1], STDERR_FILENO);
+
+        close(stdout_pipe[1]);
+        close(stderr_pipe[1]);
+
+        // Build argv array
+        std::vector<char*> argv;
+        argv.push_back(const_cast<char*>(cmd.c_str()));
+
+        for (const auto& arg : args) {
+            argv.push_back(const_cast<char*>(arg.c_str()));
+        }
+
+        argv.push_back(nullptr);
+
+        execvp(cmd.c_str(), argv.data());
+        _exit(127);
+    }
+
+    // Parent process
+    close(stdout_pipe[1]);
+    close(stderr_pipe[1]);
+
+    // Set non-blocking mode on pipes
+    fcntl(stdout_pipe[0], F_SETFL, O_NONBLOCK);
+    fcntl(stderr_pipe[0], F_SETFL, O_NONBLOCK);
+
+    auto state = std::make_shared<ProcessState>(pid, stdout_pipe[0], stderr_pipe[0]);
+    return Process(state);
 }
 
 }  // namespace process

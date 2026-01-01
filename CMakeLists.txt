@@ -97,6 +97,7 @@ add_library(bishop_lib
     typechecker/check_lambda.cpp
     codegen/codegen.cpp
     codegen/emit_type.cpp
+    codegen/emit_name.cpp
     codegen/emit_expression.cpp
     codegen/emit_statement.cpp
     codegen/emit_function.cpp

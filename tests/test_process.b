@@ -152,3 +152,90 @@ fn test_args_returns_list() {
     args := process.args();
     assert_eq(true, args.length() >= 0);
 }
+
+// ============================================================
+// Tests for process.spawn (streaming output)
+// ============================================================
+
+fn test_spawn_simple_echo() or err {
+    proc := process.spawn("echo", ["hello"]) or fail err;
+
+    line := proc.stdout().recv();
+    assert_eq("hello", line.trim());
+
+    result := proc.wait() or fail err;
+    assert_eq(true, result.success);
+    assert_eq(0, result.exit_code);
+}
+
+fn test_spawn_multiple_lines() or err {
+    proc := process.spawn("printf", ["one\ntwo\nthree\n"]) or fail err;
+
+    lines := List<str>();
+
+    while true {
+        line := proc.stdout().recv();
+
+        if line == "" {
+            break;
+        }
+
+        lines.append(line.trim());
+    }
+
+    result := proc.wait() or fail err;
+    assert_eq(true, result.success);
+    assert_eq(3, lines.length());
+    assert_eq("one", lines.get(0));
+    assert_eq("two", lines.get(1));
+    assert_eq("three", lines.get(2));
+}
+
+fn test_spawn_stderr() or err {
+    proc := process.spawn("sh", ["-c", "echo error >&2"]) or fail err;
+
+    line := proc.stderr().recv();
+    assert_eq("error", line.trim());
+
+    result := proc.wait() or fail err;
+    assert_eq(true, result.success);
+}
+
+fn test_spawn_exit_code() or err {
+    proc := process.spawn("false", List<str>()) or fail err;
+
+    // Drain stdout (may be empty)
+    while true {
+        line := proc.stdout().recv();
+
+        if line == "" {
+            break;
+        }
+    }
+
+    result := proc.wait() or fail err;
+    assert_eq(false, result.success);
+    assert_eq(1, result.exit_code);
+}
+
+fn test_spawn_with_goroutine() or err {
+    proc := process.spawn("seq", ["1", "5"]) or fail err;
+
+    sum := 0;
+
+    go fn() {
+        while true {
+            line := proc.stdout().recv();
+
+            if line == "" {
+                break;
+            }
+
+            sum = sum + line.trim().to_int();
+        }
+    }();
+
+    result := proc.wait() or fail err;
+    assert_eq(true, result.success);
+    assert_eq(15, sum);
+}

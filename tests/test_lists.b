@@ -105,7 +105,8 @@ fn test_list_append() {
 
 fn test_list_pop() {
     nums := [1, 2, 3];
-    nums.pop();
+    last := nums.pop();
+    assert_eq(last, 3);
     assert_eq(nums.length(), 2);
 }
 

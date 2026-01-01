@@ -13,8 +13,14 @@ namespace codegen {
 /**
  * Emits a channel creation using bishop::rt::Channel.
  */
-string emit_channel_create(const ChannelCreate& channel) {
+string emit_channel_create(CodeGenState& state, const ChannelCreate& channel) {
     string cpp_type = map_type(channel.element_type);
+
+    if (channel.capacity) {
+        string cap = emit(state, *channel.capacity);
+        return "bishop::rt::Channel<" + cpp_type + ">(" + cap + ")";
+    }
+
     return "bishop::rt::Channel<" + cpp_type + ">()";
 }
 

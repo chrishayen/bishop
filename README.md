@@ -581,7 +581,7 @@ nums.last();             // -> int: 30
 
 // Modification methods
 nums.append(40);         // add element to end
-nums.pop();              // remove last element
+last := nums.pop();      // remove and return last element
 nums.set(1, 99);         // replace element at index
 nums.clear();            // remove all elements
 nums.insert(1, 15);      // insert element at index
@@ -1404,6 +1404,70 @@ if result.success {
 result := process.shell("ls -la | grep txt") or return;
 print(result.output);
 ```
+
+#### Streaming Process Output
+
+For long-running processes or when you need to process output line-by-line as it arrives, use `spawn()`:
+
+```bishop
+// Spawn a process and stream its output
+proc := process.spawn("npm", ["install"]) or fail err;
+
+// Read stdout lines as they arrive (empty string signals end)
+while true {
+    line := proc.stdout().recv();
+
+    if line == "" {
+        break;
+    }
+
+    print(line);
+}
+
+// Wait for process to complete and get result
+result := proc.wait() or fail err;
+print("Exit code:", result.exit_code);
+```
+
+Stream stderr separately:
+
+```bishop
+proc := process.spawn("sh", ["-c", "some_command"]) or fail err;
+
+// Read stderr in a goroutine
+go fn() {
+    while true {
+        line := proc.stderr().recv();
+
+        if line == "" {
+            break;
+        }
+
+        print("ERROR:", line);
+    }
+}();
+
+// Read stdout in main fiber
+while true {
+    line := proc.stdout().recv();
+
+    if line == "" {
+        break;
+    }
+
+    print(line);
+}
+
+result := proc.wait() or fail err;
+```
+
+#### process.Process Methods
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `stdout()` | `Channel<str>` | Returns channel receiving stdout lines |
+| `stderr()` | `Channel<str>` | Returns channel receiving stderr lines |
+| `wait()` | `ProcessResult or err` | Waits for process and returns result |
 
 #### Environment Variables
 

@@ -21,7 +21,9 @@ string struct_def(const string& name, const vector<pair<string, string>>& fields
     string body;
 
     for (const auto& [field_name, field_type] : fields) {
-        string cpp_type = map_type(field_type);
+        // Use map_type_for_decl for struct fields to handle Channel types correctly
+        // (Channel types should not have reference suffix in struct fields)
+        string cpp_type = map_type_for_decl(field_type);
 
         if (cpp_type == "void") {
             cpp_type = field_type;
@@ -43,7 +45,8 @@ string struct_def_with_methods(const string& name,
 
     // Generate fields
     for (const auto& [field_name, field_type] : fields) {
-        string cpp_type = map_type(field_type);
+        // Use map_type_for_decl for struct fields to handle Channel types correctly
+        string cpp_type = map_type_for_decl(field_type);
 
         if (cpp_type == "void") {
             cpp_type = field_type;

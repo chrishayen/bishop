@@ -11,10 +11,10 @@ using namespace std;
 namespace codegen {
 
 /**
- * Emits a variable reference (just the name).
+ * Emits a variable reference, escaping C++ reserved keywords.
  */
 string variable_ref(const string& name) {
-    return name;
+    return escape_reserved_name(name);
 }
 
 /**

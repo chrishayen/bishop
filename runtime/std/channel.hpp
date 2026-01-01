@@ -14,13 +14,28 @@
 namespace bishop::rt {
 
 /**
+ * Round up to next power of 2 (min 2 for boost::fibers requirement).
+ */
+inline size_t next_power_of_2(size_t n) {
+    if (n < 2) return 2;
+    n--;
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+    n |= n >> 32;
+    return n + 1;
+}
+
+/**
  * Typed channel for communication between fibers.
  * Wraps boost::fibers::buffered_channel with send/recv API.
  */
 template<typename T>
 class Channel {
 public:
-    Channel() : ch_(2) {}  // capacity must be power of 2, min 2 for boost::fibers
+    Channel(size_t capacity = 2) : ch_(next_power_of_2(capacity)) {}
 
     /**
      * Send a value through the channel. Blocks until space available.

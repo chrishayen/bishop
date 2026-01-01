@@ -17,6 +17,15 @@ TypeInfo check_channel_create(TypeCheckerState& state, const ChannelCreate& chan
         error(state, "unknown channel element type '" + channel.element_type + "'", channel.line);
     }
 
+    // Validate optional capacity argument
+    if (channel.capacity) {
+        TypeInfo cap_type = infer_type(state, *channel.capacity);
+
+        if (cap_type.base_type != "int") {
+            error(state, "Channel capacity must be int, got '" + format_type(cap_type) + "'", channel.line);
+        }
+    }
+
     return {"Channel<" + channel.element_type + ">", false, false};
 }
 

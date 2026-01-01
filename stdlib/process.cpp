@@ -119,6 +119,40 @@
  * }
  */
 
+/**
+ * @bishop_struct Process
+ * @module process
+ * @description A spawned process with streaming stdout/stderr channels.
+ * @method stdout() Channel<str> - Returns channel that receives stdout lines
+ * @method stderr() Channel<str> - Returns channel that receives stderr lines
+ * @method wait() ProcessResult or err - Waits for process to complete
+ * @example
+ * proc := process.spawn("ls", ["-la"]) or fail err;
+ * while true {
+ *     line := proc.stdout().recv();
+ *     if line == "" break;
+ *     print(line);
+ * }
+ * result := proc.wait() or fail err;
+ */
+
+/**
+ * @bishop_fn spawn
+ * @module process
+ * @description Spawns a process and returns a Process with streaming channels.
+ * @param cmd str - Command to execute
+ * @param args List<str> - Arguments to pass to the command
+ * @returns process.Process or err - Process handle with stdout/stderr channels
+ * @example
+ * proc := process.spawn("npm", ["install"]) or fail err;
+ * while true {
+ *     line := proc.stdout().recv();
+ *     if line == "" break;
+ *     print(line);
+ * }
+ * result := proc.wait() or fail err;
+ */
+
 #include "process.hpp"
 
 using namespace std;
@@ -211,6 +245,50 @@ unique_ptr<Program> create_process_module() {
     args_fn->visibility = Visibility::Public;
     args_fn->return_type = "List<str>";
     program->functions.push_back(move(args_fn));
+
+    // Process :: struct { } (opaque - channels accessed via methods)
+    auto process_struct = make_unique<StructDef>();
+    process_struct->name = "Process";
+    process_struct->visibility = Visibility::Public;
+    program->structs.push_back(move(process_struct));
+
+    // Process :: stdout(self) -> Channel<str>
+    auto stdout_method = make_unique<MethodDef>();
+    stdout_method->struct_name = "Process";
+    stdout_method->name = "stdout";
+    stdout_method->visibility = Visibility::Public;
+    stdout_method->params.push_back({"process.Process", "self"});
+    stdout_method->return_type = "Channel<str>";
+    program->methods.push_back(move(stdout_method));
+
+    // Process :: stderr(self) -> Channel<str>
+    auto stderr_method = make_unique<MethodDef>();
+    stderr_method->struct_name = "Process";
+    stderr_method->name = "stderr";
+    stderr_method->visibility = Visibility::Public;
+    stderr_method->params.push_back({"process.Process", "self"});
+    stderr_method->return_type = "Channel<str>";
+    program->methods.push_back(move(stderr_method));
+
+    // Process :: wait(self) -> process.ProcessResult or err
+    auto wait_method = make_unique<MethodDef>();
+    wait_method->struct_name = "Process";
+    wait_method->name = "wait";
+    wait_method->visibility = Visibility::Public;
+    wait_method->params.push_back({"process.Process", "self"});
+    wait_method->return_type = "process.ProcessResult";
+    wait_method->error_type = "err";
+    program->methods.push_back(move(wait_method));
+
+    // fn spawn(str cmd, List<str> args) -> process.Process or err
+    auto spawn_fn = make_unique<FunctionDef>();
+    spawn_fn->name = "spawn";
+    spawn_fn->visibility = Visibility::Public;
+    spawn_fn->params.push_back({"str", "cmd"});
+    spawn_fn->params.push_back({"List<str>", "args"});
+    spawn_fn->return_type = "process.Process";
+    spawn_fn->error_type = "err";
+    program->functions.push_back(move(spawn_fn));
 
     return program;
 }

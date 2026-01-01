@@ -77,10 +77,11 @@
 /**
  * @bishop_method pop
  * @type List<T>
- * @description Removes the last element from the list.
+ * @description Removes and returns the last element from the list.
+ * @returns T - The removed element
  * @example
  * nums := [1, 2, 3];
- * nums.pop();  // nums is now [1, 2]
+ * last := nums.pop();  // last is 3, nums is now [1, 2]
  */
 
 /**
@@ -154,7 +155,7 @@ std::optional<ListMethodInfo> get_list_method_info(const std::string& method_nam
 
         // Modification methods
         {"append", {{"T"}, "void"}},
-        {"pop", {{}, "void"}},
+        {"pop", {{}, "T"}},
         {"set", {{"int", "T"}, "void"}},
         {"clear", {{}, "void"}},
         {"insert", {{"int", "T"}, "void"}},

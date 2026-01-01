@@ -101,6 +101,20 @@ fn test_channel_types() {
     ch_bool := Channel<bool>();
 }
 
+fn test_channel_buffered() {
+    // Buffered channel with capacity 64
+    ch := Channel<int>(64);
+
+    // Can send without blocking up to capacity
+    ch.send(1);
+    ch.send(2);
+    ch.send(3);
+
+    assert_eq(ch.recv(), 1);
+    assert_eq(ch.recv(), 2);
+    assert_eq(ch.recv(), 3);
+}
+
 // ============================================
 // Channel Send/Recv with Goroutines
 // ============================================

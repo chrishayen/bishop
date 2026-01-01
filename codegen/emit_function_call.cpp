@@ -6,41 +6,10 @@
 #include "codegen.hpp"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
-#include <unordered_set>
 
 using namespace std;
 
 namespace codegen {
-
-/**
- * Set of C++ reserved keywords that need to be escaped with a trailing
- * underscore when used as function names.
- */
-static const unordered_set<string> CPP_RESERVED_KEYWORDS = {
-    "int", "float", "double", "bool", "char", "void", "long", "short",
-    "signed", "unsigned", "const", "volatile", "static", "extern",
-    "class", "struct", "union", "enum", "template", "typename",
-    "namespace", "using", "operator", "new", "delete", "this",
-    "if", "else", "switch", "case", "default", "while", "do", "for",
-    "break", "continue", "return", "goto", "try", "catch", "throw",
-    "true", "false", "nullptr", "auto", "register", "inline", "virtual",
-    "explicit", "friend", "mutable", "public", "private", "protected",
-    "sizeof", "typedef", "export", "asm", "alignas", "alignof",
-    "decltype", "noexcept", "static_assert", "thread_local", "constexpr",
-    "consteval", "constinit", "concept", "requires",
-    "co_await", "co_return", "co_yield"
-};
-
-/**
- * Escapes a function name if it is a C++ reserved keyword.
- */
-static string escape_reserved_name(const string& name) {
-    if (CPP_RESERVED_KEYWORDS.count(name) > 0) {
-        return name + "_";
-    }
-
-    return name;
-}
 
 /**
  * Emits a function call: name(arg1, arg2, ...).

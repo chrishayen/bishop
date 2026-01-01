@@ -52,7 +52,10 @@ string emit_list_method_call(CodeGenState& state, const MethodCall& call, const 
     }
 
     if (call.method_name == "pop") {
-        return obj_str + ".pop_back()";
+        return fmt::format(
+            "[](auto& v) {{ auto tmp = v.back(); v.pop_back(); return tmp; }}({})",
+            obj_str
+        );
     }
 
     if (call.method_name == "get") {

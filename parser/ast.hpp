@@ -168,9 +168,10 @@ struct AddressOf : ASTNode {
 // Channels - Concurrent communication primitives
 //------------------------------------------------------------------------------
 
-/** @brief Channel creation: Channel<int>() */
+/** @brief Channel creation: Channel<int>() or Channel<int>(capacity) */
 struct ChannelCreate : ASTNode {
-    string element_type;  ///< Type of elements the channel carries
+    string element_type;              ///< Type of elements the channel carries
+    unique_ptr<ASTNode> capacity;     ///< Optional buffer capacity
 };
 
 /** @brief List creation: List<int>() */

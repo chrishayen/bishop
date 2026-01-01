@@ -59,6 +59,9 @@ std::string map_type(const std::string& t);
 std::string map_type_for_decl(const std::string& t);
 std::string extract_element_type(const std::string& generic_type, const std::string& prefix);
 
+// Name utilities (emit_name.cpp)
+std::string escape_reserved_name(const std::string& name);
+
 // Expression emission (emit_expression.cpp)
 std::string emit(CodeGenState& state, const ASTNode& node);
 
@@ -91,7 +94,7 @@ std::string emit_lambda_expr(CodeGenState& state, const LambdaExpr& lambda);
 std::string emit_lambda_call(CodeGenState& state, const LambdaCall& call);
 
 // Channel (emit_channel.cpp)
-std::string emit_channel_create(const ChannelCreate& channel);
+std::string emit_channel_create(CodeGenState& state, const ChannelCreate& channel);
 
 // List (emit_list.cpp)
 std::string emit_list_create(const ListCreate& list);

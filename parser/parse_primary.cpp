@@ -115,7 +115,7 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return group;
     }
 
-    // Handle channel creation: Channel<int>() or Channel<List<int>>()
+    // Handle channel creation: Channel<int>() or Channel<int>(capacity)
     if (check(state, TokenType::CHANNEL)) {
         int start_line = current(state).line;
         advance(state);
@@ -126,11 +126,17 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
 
         consume(state, TokenType::GT);
         consume(state, TokenType::LPAREN);
-        consume(state, TokenType::RPAREN);
 
         auto channel = make_unique<ChannelCreate>();
         channel->element_type = element_type;
         channel->line = start_line;
+
+        // Optional capacity argument
+        if (!check(state, TokenType::RPAREN)) {
+            channel->capacity = parse_expression(state);
+        }
+
+        consume(state, TokenType::RPAREN);
         return channel;
     }
 

@@ -87,7 +87,7 @@ string emit(CodeGenState& state, const ASTNode& node) {
     }
 
     if (auto* channel = dynamic_cast<const ChannelCreate*>(&node)) {
-        return emit_channel_create(*channel);
+        return emit_channel_create(state, *channel);
     }
 
     if (auto* list = dynamic_cast<const ListCreate*>(&node)) {

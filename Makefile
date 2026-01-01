@@ -10,6 +10,7 @@ configure:
 
 build: configure
 	@cmake --build $(BUILD_DIR) --parallel
+	@$(BUILD_DIR)/bishop golden.b && mv golden $(BUILD_DIR)/golden
 
 clean:
 	@rm -rf $(BUILD_DIR)
@@ -47,6 +48,9 @@ install: build
 	@cp $(BUILD_DIR)/include/bishop/random.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/log.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/sync.hpp ~/.local/include/bishop/
+	@cp $(BUILD_DIR)/include/bishop/channel.hpp ~/.local/include/bishop/
+	@cp $(BUILD_DIR)/include/bishop/json.hpp ~/.local/include/bishop/
+	@cp $(BUILD_DIR)/include/bishop/markdown.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/algo.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/yaml.hpp ~/.local/include/bishop/
 	@cp $(BUILD_DIR)/include/bishop/fiber_asio/*.hpp ~/.local/include/bishop/fiber_asio/

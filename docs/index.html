@@ -1474,10 +1474,19 @@ conn := net.<span class="token-function">connect</span>(<span class="token-strin
                 </div>
                 <pre><code><span class="token-keyword">import</span> process;
 
-<span class="token-comment">// Execute command</span>
+<span class="token-comment">// Execute command (blocking)</span>
 result := process.<span class="token-function">run</span>(<span class="token-string">"ls"</span>, [<span class="token-string">"-la"</span>]) <span class="token-keyword">or</span> <span class="token-keyword">return</span>;
 <span class="token-builtin">print</span>(result.output);
 <span class="token-builtin">print</span>(result.exit_code);
+
+<span class="token-comment">// Streaming output over channels</span>
+proc := process.<span class="token-function">spawn</span>(<span class="token-string">"npm"</span>, [<span class="token-string">"install"</span>]) <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-keyword">err</span>;
+<span class="token-keyword">while</span> <span class="token-keyword">true</span> {
+    line := proc.<span class="token-function">stdout</span>().<span class="token-function">recv</span>();
+    <span class="token-keyword">if</span> line == <span class="token-string">""</span> { <span class="token-keyword">break</span>; }
+    <span class="token-builtin">print</span>(line);
+}
+result := proc.<span class="token-function">wait</span>() <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-keyword">err</span>;
 
 <span class="token-comment">// Environment variables</span>
 home := process.<span class="token-function">env</span>(<span class="token-string">"HOME"</span>) <span class="token-keyword">or</span> <span class="token-keyword">fail</span> <span class="token-keyword">err</span>;
