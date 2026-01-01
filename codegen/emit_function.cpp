@@ -43,8 +43,18 @@ string function_def(const string& name, const vector<FunctionParam>& params,
 string method_def(const string& name,
                   const vector<pair<string, string>>& params,
                   const string& return_type,
-                  const vector<string>& body_stmts) {
-    string rt = return_type.empty() ? "void" : map_type(return_type);
+                  const vector<string>& body_stmts,
+                  const string& error_type = "") {
+    string rt;
+    if (!error_type.empty()) {
+        if (return_type.empty()) {
+            rt = "bishop::rt::Result<void>";
+        } else {
+            rt = "bishop::rt::Result<" + map_type(return_type) + ">";
+        }
+    } else {
+        rt = return_type.empty() ? "void" : map_type(return_type);
+    }
 
     vector<string> param_strs;
 
@@ -151,7 +161,8 @@ string generate_function(CodeGenState& state, const FunctionDef& fn) {
         out = function_def("_bishop_main", params, rt_type, body);
 
         // Generate int main() using runtime wrapper
-        out += "\nint main() {\n";
+        out += "\nint main(int argc, char* argv[]) {\n";
+        out += "\tprocess::init_args(argc, argv);\n";
         out += "\tbishop::rt::run(_bishop_main);\n";
         out += "\treturn 0;\n";
         out += "}\n";
@@ -225,6 +236,10 @@ string generate_method(CodeGenState& state, const MethodDef& method) {
 
     if (method.is_static) {
         // Static method: all params are actual params (no self)
+        bool is_fallible = !method.error_type.empty();
+        bool prev_fallible = state.in_fallible_function;
+        state.in_fallible_function = is_fallible;
+
         vector<pair<string, string>> params;
 
         for (const auto& p : method.params) {
@@ -237,11 +252,16 @@ string generate_method(CodeGenState& state, const MethodDef& method) {
             body.push_back(generate_statement(state, *stmt));
         }
 
+        state.in_fallible_function = prev_fallible;
         state.current_struct = prev_struct;
         return static_method_def(method.name, params, method.return_type, body, method.error_type);
     }
 
     // Instance method: skip 'self' parameter for C++ method (it becomes 'this')
+    bool is_fallible = !method.error_type.empty();
+    bool prev_fallible = state.in_fallible_function;
+    state.in_fallible_function = is_fallible;
+
     vector<pair<string, string>> params;
 
     for (size_t i = 1; i < method.params.size(); i++) {
@@ -254,8 +274,9 @@ string generate_method(CodeGenState& state, const MethodDef& method) {
         body.push_back(generate_statement(state, *stmt));
     }
 
+    state.in_fallible_function = prev_fallible;
     state.current_struct = prev_struct;
-    return method_def(method.name, params, method.return_type, body);
+    return method_def(method.name, params, method.return_type, body, method.error_type);
 }
 
 /**
@@ -286,7 +307,15 @@ string generate_method_declaration(CodeGenState& state, const MethodDef& method)
     }
 
     // Instance method
-    rt = method.return_type.empty() ? "void" : map_type(method.return_type);
+    if (!method.error_type.empty()) {
+        if (method.return_type.empty()) {
+            rt = "bishop::rt::Result<void>";
+        } else {
+            rt = "bishop::rt::Result<" + map_type(method.return_type) + ">";
+        }
+    } else {
+        rt = method.return_type.empty() ? "void" : map_type(method.return_type);
+    }
 
     vector<string> param_strs;
 
@@ -310,6 +339,10 @@ string generate_standalone_method(CodeGenState& state, const MethodDef& method) 
     string struct_name = method.struct_name;
 
     if (method.is_static) {
+        bool is_fallible = !method.error_type.empty();
+        bool prev_fallible = state.in_fallible_function;
+        state.in_fallible_function = is_fallible;
+
         if (!method.error_type.empty()) {
             if (method.return_type.empty()) {
                 rt = "bishop::rt::Result<void>";
@@ -332,6 +365,17 @@ string generate_standalone_method(CodeGenState& state, const MethodDef& method) 
             body.push_back(generate_statement(state, *stmt));
         }
 
+        // Add implicit return {} for Result<void> methods without explicit return
+        if (is_fallible && (method.return_type.empty() || method.return_type == "void") && !body.empty()) {
+            string last = body.back();
+            size_t last_newline = last.rfind('\n');
+            string last_line = (last_newline == string::npos) ? last : last.substr(last_newline + 1);
+
+            if (last_line.find("return") == string::npos) {
+                body.push_back("return {};");
+            }
+        }
+
         string out = fmt::format("{} {}::{}({}) {{\n", rt, struct_name, method.name, fmt::join(param_strs, ", "));
 
         for (const auto& stmt : body) {
@@ -339,12 +383,25 @@ string generate_standalone_method(CodeGenState& state, const MethodDef& method) 
         }
 
         out += "}\n";
+        state.in_fallible_function = prev_fallible;
         state.current_struct = prev_struct;
         return out;
     }
 
     // Instance method
-    rt = method.return_type.empty() ? "void" : map_type(method.return_type);
+    bool is_fallible = !method.error_type.empty();
+    bool prev_fallible = state.in_fallible_function;
+    state.in_fallible_function = is_fallible;
+
+    if (!method.error_type.empty()) {
+        if (method.return_type.empty()) {
+            rt = "bishop::rt::Result<void>";
+        } else {
+            rt = "bishop::rt::Result<" + map_type(method.return_type) + ">";
+        }
+    } else {
+        rt = method.return_type.empty() ? "void" : map_type(method.return_type);
+    }
 
     vector<string> param_strs;
 
@@ -358,6 +415,17 @@ string generate_standalone_method(CodeGenState& state, const MethodDef& method) 
         body.push_back(generate_statement(state, *stmt));
     }
 
+    // Add implicit return {} for Result<void> methods without explicit return
+    if (is_fallible && (method.return_type.empty() || method.return_type == "void") && !body.empty()) {
+        string last = body.back();
+        size_t last_newline = last.rfind('\n');
+        string last_line = (last_newline == string::npos) ? last : last.substr(last_newline + 1);
+
+        if (last_line.find("return") == string::npos) {
+            body.push_back("return {};");
+        }
+    }
+
     string out = fmt::format("{} {}::{}({}) {{\n", rt, struct_name, method.name, fmt::join(param_strs, ", "));
 
     for (const auto& stmt : body) {
@@ -365,6 +433,7 @@ string generate_standalone_method(CodeGenState& state, const MethodDef& method) 
     }
 
     out += "}\n";
+    state.in_fallible_function = prev_fallible;
     state.current_struct = prev_struct;
     return out;
 }

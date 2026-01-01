@@ -635,8 +635,9 @@ int init_project(const string& project_name) {
 
 /**
  * Compiles and runs a bishop source file or project directory.
+ * Extra arguments are passed to the compiled program.
  */
-int run_file(const string& path) {
+int run_file(const string& path, const vector<string>& extra_args = {}) {
     string filename;
 
     if (fs::is_directory(path)) {
@@ -724,7 +725,16 @@ int run_file(const string& path) {
     }
 
     // Run (static linking, no LD_LIBRARY_PATH needed)
-    return system(exe_file.c_str());
+    string run_cmd = exe_file;
+    for (const auto& arg : extra_args) {
+        // Quote arguments that contain spaces
+        if (arg.find(' ') != string::npos) {
+            run_cmd += " \"" + arg + "\"";
+        } else {
+            run_cmd += " " + arg;
+        }
+    }
+    return system(run_cmd.c_str());
 }
 
 /**
@@ -851,11 +861,17 @@ int main(int argc, char* argv[]) {
 
     if (cmd == "run") {
         if (argc < 3) {
-            cerr << "Usage: bishop run <file>" << endl;
+            cerr << "Usage: bishop run <file> [args...]" << endl;
             return 1;
         }
 
-        return run_file(argv[2]);
+        // Collect extra arguments for the program
+        vector<string> extra_args;
+        for (int i = 3; i < argc; i++) {
+            extra_args.push_back(argv[i]);
+        }
+
+        return run_file(argv[2], extra_args);
     }
 
     return build_file(cmd);
