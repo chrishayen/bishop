@@ -443,6 +443,7 @@ struct ProcessState {
 
     void read_lines_to_channel(int fd, bishop::rt::Channel<std::string>& ch) {
         char buffer[4096];
+        std::string pending;
 
         while (true) {
             ssize_t bytes_read = read(fd, buffer, sizeof(buffer));
@@ -453,20 +454,37 @@ struct ProcessState {
                     continue;
                 }
 
-                // Real error - end the stream
+                // Real error - send any remaining data and end the stream
+                if (!pending.empty()) {
+                    ch.send(pending);
+                }
+
                 ch.send("");
                 break;
             }
 
             if (bytes_read == 0) {
-                // EOF - end stream
+                // EOF - send any remaining data and end stream
+                if (!pending.empty()) {
+                    ch.send(pending);
+                }
+
                 ch.send("");
                 break;
             }
 
-            // Send data immediately as it arrives
-            ch.send(std::string(buffer, bytes_read));
-            boost::this_fiber::yield();
+            // Append new data to pending buffer
+            pending.append(buffer, bytes_read);
+
+            // Send complete lines
+            size_t pos;
+
+            while ((pos = pending.find('\n')) != std::string::npos) {
+                std::string line = pending.substr(0, pos);
+                pending.erase(0, pos + 1);
+                ch.send(line);
+                boost::this_fiber::yield();
+            }
         }
 
         close(fd);
