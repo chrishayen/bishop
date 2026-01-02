@@ -113,6 +113,18 @@ std::string emit_pair_field_access(const std::string& obj_str, const std::string
 std::string emit_tuple_create(CodeGenState& state, const TupleCreate& tuple);
 std::string emit_tuple_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
 
+// Deque (emit_deque.cpp)
+std::string emit_deque_create(const DequeCreate& deque);
+std::string emit_deque_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
+
+// Stack (emit_stack.cpp)
+std::string emit_stack_create(const StackCreate& stack);
+std::string emit_stack_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
+
+// Queue (emit_queue.cpp)
+std::string emit_queue_create(const QueueCreate& queue);
+std::string emit_queue_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
+
 // Method call (emit_method_call.cpp)
 std::string method_call(const std::string& object, const std::string& method, const std::vector<std::string>& args);
 std::string emit_method_call(CodeGenState& state, const MethodCall& call);

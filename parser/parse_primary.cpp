@@ -220,6 +220,63 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return tuple;
     }
 
+    // Handle deque creation: Deque<int>() or Deque<List<int>>()
+    if (check(state, TokenType::DEQUE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Deque<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+        consume(state, TokenType::RPAREN);
+
+        auto deque = make_unique<DequeCreate>();
+        deque->element_type = element_type;
+        deque->line = start_line;
+        return deque;
+    }
+
+    // Handle stack creation: Stack<int>() or Stack<List<int>>()
+    if (check(state, TokenType::STACK)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Stack<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+        consume(state, TokenType::RPAREN);
+
+        auto stack = make_unique<StackCreate>();
+        stack->element_type = element_type;
+        stack->line = start_line;
+        return stack;
+    }
+
+    // Handle queue creation: Queue<int>() or Queue<List<int>>()
+    if (check(state, TokenType::QUEUE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Queue<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+        consume(state, TokenType::RPAREN);
+
+        auto queue = make_unique<QueueCreate>();
+        queue->element_type = element_type;
+        queue->line = start_line;
+        return queue;
+    }
+
     // Handle list literal: [expr, expr, ...]
     if (check(state, TokenType::LBRACKET)) {
         int start_line = current(state).line;

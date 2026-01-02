@@ -78,6 +78,27 @@ string map_type(const string& t) {
         return "std::vector<" + map_type(element_type) + ">";
     }
 
+    // Handle Deque<T> types: Deque<int> -> std::deque<int>
+    if (t.rfind("Deque<", 0) == 0 && t.back() == '>') {
+        string element_type = extract_element_type(t, "Deque<");
+        assert(!element_type.empty() && "malformed Deque type passed typechecker");
+        return "std::deque<" + map_type(element_type) + ">";
+    }
+
+    // Handle Stack<T> types: Stack<int> -> std::stack<int>
+    if (t.rfind("Stack<", 0) == 0 && t.back() == '>') {
+        string element_type = extract_element_type(t, "Stack<");
+        assert(!element_type.empty() && "malformed Stack type passed typechecker");
+        return "std::stack<" + map_type(element_type) + ">";
+    }
+
+    // Handle Queue<T> types: Queue<int> -> std::queue<int>
+    if (t.rfind("Queue<", 0) == 0 && t.back() == '>') {
+        string element_type = extract_element_type(t, "Queue<");
+        assert(!element_type.empty() && "malformed Queue type passed typechecker");
+        return "std::queue<" + map_type(element_type) + ">";
+    }
+
     // Handle function types: fn(int, str) -> bool -> std::function<bool(int, std::string)>
     if (t.rfind("fn(", 0) == 0) {
         // Find the closing paren and extract param types

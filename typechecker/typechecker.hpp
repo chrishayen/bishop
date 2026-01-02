@@ -191,6 +191,18 @@ TypeInfo check_pair_field(TypeCheckerState& state, const FieldAccess& access, co
 TypeInfo check_tuple_create(TypeCheckerState& state, const TupleCreate& tuple);
 TypeInfo check_tuple_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
 
+// Deque type inference (check_deque.cpp)
+TypeInfo check_deque_create(TypeCheckerState& state, const DequeCreate& deque);
+TypeInfo check_deque_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+
+// Stack type inference (check_stack.cpp)
+TypeInfo check_stack_create(TypeCheckerState& state, const StackCreate& stack);
+TypeInfo check_stack_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+
+// Queue type inference (check_queue.cpp)
+TypeInfo check_queue_create(TypeCheckerState& state, const QueueCreate& queue);
+TypeInfo check_queue_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+
 // Function call type inference (check_function_call.cpp)
 TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call);
 

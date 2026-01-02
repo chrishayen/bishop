@@ -95,6 +95,18 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
         return check_tuple_create(state, *tuple);
     }
 
+    if (auto* deque = dynamic_cast<const DequeCreate*>(&expr)) {
+        return check_deque_create(state, *deque);
+    }
+
+    if (auto* stack = dynamic_cast<const StackCreate*>(&expr)) {
+        return check_stack_create(state, *stack);
+    }
+
+    if (auto* queue = dynamic_cast<const QueueCreate*>(&expr)) {
+        return check_queue_create(state, *queue);
+    }
+
     if (auto* lambda = dynamic_cast<const LambdaExpr*>(&expr)) {
         return check_lambda_expr(state, *lambda);
     }

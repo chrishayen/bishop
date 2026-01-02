@@ -677,6 +677,118 @@ for i in 0..5 {
 // sum is 15
 ```
 
+## Deques
+
+A double-ended queue that supports efficient insertion and removal from both ends.
+
+### Deque Creation
+
+```bishop
+dq := Deque<int>();      // Empty deque
+dq := Deque<str>();      // Empty string deque
+```
+
+### Deque Methods
+
+| Method           | Description                          |
+|------------------|--------------------------------------|
+| `push_front(T)`  | Add element to front                 |
+| `push_back(T)`   | Add element to back                  |
+| `pop_front()`    | Remove and return front element      |
+| `pop_back()`     | Remove and return back element       |
+| `front()`        | Return front element without removing|
+| `back()`         | Return back element without removing |
+| `get(int)`       | Access element at index              |
+| `length()`       | Return number of elements            |
+| `is_empty()`     | Return true if deque is empty        |
+| `clear()`        | Remove all elements                  |
+
+### Deque Usage
+
+```bishop
+dq := Deque<int>();
+dq.push_back(1);     // [1]
+dq.push_back(2);     // [1, 2]
+dq.push_front(0);    // [0, 1, 2]
+
+val := dq.pop_front();  // val = 0, dq = [1, 2]
+val = dq.pop_back();    // val = 2, dq = [1]
+
+print(dq.front());   // 1
+print(dq.length());  // 1
+```
+
+## Stacks
+
+A LIFO (Last-In-First-Out) stack data structure.
+
+### Stack Creation
+
+```bishop
+s := Stack<int>();      // Empty stack
+s := Stack<str>();      // Empty string stack
+```
+
+### Stack Methods
+
+| Method        | Description                         |
+|---------------|-------------------------------------|
+| `push(T)`     | Push element onto top of stack      |
+| `pop()`       | Remove and return top element (LIFO)|
+| `top()`       | Return top element without removing |
+| `length()`    | Return number of elements           |
+| `is_empty()`  | Return true if stack is empty       |
+
+### Stack Usage (LIFO Order)
+
+```bishop
+s := Stack<int>();
+s.push(1);
+s.push(2);
+s.push(3);
+
+print(s.top());    // 3 (top element)
+print(s.pop());    // 3 (removed, LIFO)
+print(s.pop());    // 2
+print(s.pop());    // 1
+```
+
+## Queues
+
+A FIFO (First-In-First-Out) queue data structure.
+
+### Queue Creation
+
+```bishop
+q := Queue<int>();      // Empty queue
+q := Queue<str>();      // Empty string queue
+```
+
+### Queue Methods
+
+| Method        | Description                          |
+|---------------|--------------------------------------|
+| `push(T)`     | Add element to back of queue         |
+| `pop()`       | Remove and return front element (FIFO)|
+| `front()`     | Return front element without removing|
+| `back()`      | Return back element without removing |
+| `length()`    | Return number of elements            |
+| `is_empty()`  | Return true if queue is empty        |
+
+### Queue Usage (FIFO Order)
+
+```bishop
+q := Queue<int>();
+q.push(1);
+q.push(2);
+q.push(3);
+
+print(q.front());  // 1 (first in)
+print(q.pop());    // 1 (removed, FIFO)
+print(q.pop());    // 2
+print(q.pop());    // 3
+```
+
 ## Error Handling
 
 ### Error Types
