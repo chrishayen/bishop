@@ -20,7 +20,10 @@ string emit_map_create(const MapCreate& map) {
 }
 
 /**
- * Emits a map literal: {"key": value, ...} -> std::unordered_map<K, V>{{"key", value}, ...}.
+ * Emits a map literal: {"key": value, ...} -> std::unordered_map{std::make_pair(key, value), ...}.
+ *
+ * Uses std::make_pair for each entry to help class template argument deduction (CTAD)
+ * correctly infer the map types.
  */
 string emit_map_literal(CodeGenState& state, const MapLiteral& map) {
     string entries;
@@ -32,7 +35,7 @@ string emit_map_literal(CodeGenState& state, const MapLiteral& map) {
 
         string key = emit(state, *map.entries[i].first);
         string value = emit(state, *map.entries[i].second);
-        entries += "{" + key + ", " + value + "}";
+        entries += "std::make_pair(" + key + ", " + value + ")";
     }
 
     return "std::unordered_map{" + entries + "}";
