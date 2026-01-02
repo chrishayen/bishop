@@ -147,26 +147,26 @@ fn test_time_since() {
 // Tests for formatting and parsing
 // ============================================================
 
-fn test_timestamp_format() or err {
+fn test_timestamp_format() -> void or err {
     ts := time.parse("2024-01-15 14:30:00", "%Y-%m-%d %H:%M:%S") or fail err;
     formatted := ts.format("%Y-%m-%d");
     assert_eq("2024-01-15", formatted);
 }
 
-fn test_timestamp_format_time() or err {
+fn test_timestamp_format_time() -> void or err {
     ts := time.parse("2024-01-15 14:30:45", "%Y-%m-%d %H:%M:%S") or fail err;
     formatted := ts.format("%H:%M:%S");
     assert_eq("14:30:45", formatted);
 }
 
-fn test_time_parse_basic() or err {
+fn test_time_parse_basic() -> void or err {
     ts := time.parse("2024-01-15", "%Y-%m-%d") or fail err;
     assert_eq(2024, ts.year);
     assert_eq(1, ts.month);
     assert_eq(15, ts.day);
 }
 
-fn test_time_parse_full() or err {
+fn test_time_parse_full() -> void or err {
     ts := time.parse("2024-03-20 10:15:30", "%Y-%m-%d %H:%M:%S") or fail err;
     assert_eq(2024, ts.year);
     assert_eq(3, ts.month);
@@ -176,7 +176,7 @@ fn test_time_parse_full() or err {
     assert_eq(30, ts.second);
 }
 
-fn test_time_parse_invalid_fails() or err {
+fn test_time_parse_invalid_fails() -> void or err {
     ts := time.parse("not-a-date", "%Y-%m-%d") or {
         return;
     };

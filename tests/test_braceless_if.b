@@ -24,7 +24,7 @@ fn test_braceless_if_else_chain() {
     assert_eq(result, 2);
 }
 
-fn test_braceless_if_with_fail() or err {
+fn test_braceless_if_with_fail() -> void or err {
     x := 5;
 
     if x < 0 fail NotFound;
@@ -37,7 +37,7 @@ fn helper_braceless(int x) -> int or err {
     else return x * 2;
 }
 
-fn test_braceless_if_else_with_fail() or err {
+fn test_braceless_if_else_with_fail() -> void or err {
     result := helper_braceless(5) or fail err;
     assert_eq(result, 10);
 }
@@ -55,7 +55,7 @@ fn get_value(bool empty) -> int or err {
     else return 42;
 }
 
-fn test_braceless_return_value() or err {
+fn test_braceless_return_value() -> void or err {
     v := get_value(false) or fail err;
     assert_eq(v, 42);
 }
