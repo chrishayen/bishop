@@ -229,6 +229,12 @@ struct QueueCreate : ASTNode {
     string element_type;  ///< Type of elements the queue holds
 };
 
+/** @brief Priority queue creation: PriorityQueue<T>() or PriorityQueue<T>.min() */
+struct PriorityQueueCreate : ASTNode {
+    string element_type;    ///< Type of elements (e.g., "int", "Task")
+    bool is_min_heap;       ///< True for min heap (via .min()), false for max heap (default)
+};
+
 /** @brief Set creation: Set<T>() */
 struct SetCreate : ASTNode {
     string element_type;  ///< Type of elements the set holds

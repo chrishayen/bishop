@@ -130,6 +130,10 @@ std::string emit_stack_method_call(CodeGenState& state, const MethodCall& call, 
 std::string emit_queue_create(const QueueCreate& queue);
 std::string emit_queue_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
 
+// PriorityQueue (emit_priority_queue.cpp)
+std::string emit_priority_queue_create(CodeGenState& state, const PriorityQueueCreate& pq);
+std::string emit_priority_queue_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
+
 // Set (emit_set.cpp)
 std::string emit_set_create(const SetCreate& set);
 std::string emit_set_literal(CodeGenState& state, const SetLiteral& set);

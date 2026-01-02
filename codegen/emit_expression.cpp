@@ -126,6 +126,10 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return emit_queue_create(*queue);
     }
 
+    if (auto* pq = dynamic_cast<const PriorityQueueCreate*>(&node)) {
+        return emit_priority_queue_create(state, *pq);
+    }
+
     if (auto* set = dynamic_cast<const SetCreate*>(&node)) {
         return emit_set_create(*set);
     }

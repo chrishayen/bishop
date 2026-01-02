@@ -194,6 +194,15 @@ string parse_base_type(ParserState& state) {
         return "Queue<" + element_type + ">";
     }
 
+    // PriorityQueue<T> type
+    if (check(state, TokenType::PRIORITY_QUEUE)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "PriorityQueue<" + element_type + ">";
+    }
+
     // Set<T> type
     if (check(state, TokenType::SET)) {
         advance(state);

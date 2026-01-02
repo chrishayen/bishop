@@ -303,6 +303,17 @@ TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall) {
         return check_queue_method(state, mcall, element_type);
     }
 
+    if (effective_type.base_type.rfind("PriorityQueue<", 0) == 0) {
+        string element_type = extract_element_type(effective_type.base_type, "PriorityQueue<");
+
+        if (element_type.empty()) {
+            error(state, "malformed PriorityQueue type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
+        return check_priority_queue_method(state, mcall, element_type);
+    }
+
     if (effective_type.base_type.rfind("Set<", 0) == 0) {
         string element_type = extract_element_type(effective_type.base_type, "Set<");
 

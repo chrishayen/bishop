@@ -133,6 +133,11 @@ string emit_method_call(CodeGenState& state, const MethodCall& call) {
         return emit_queue_method_call(state, call, obj_str, args);
     }
 
+    // Handle PriorityQueue methods
+    if (call.object_type.rfind("PriorityQueue<", 0) == 0) {
+        return emit_priority_queue_method_call(state, call, obj_str, args);
+    }
+
     // Handle Set methods
     if (call.object_type.rfind("Set<", 0) == 0) {
         return emit_set_method_call(state, call, obj_str, args);
