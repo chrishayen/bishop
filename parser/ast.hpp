@@ -197,6 +197,12 @@ struct TupleCreate : ASTNode {
     vector<unique_ptr<ASTNode>> elements;   ///< Element expressions (2-5 elements)
 };
 
+/** @brief Priority queue creation: PriorityQueue<T>() or PriorityQueue<T>.min() */
+struct PriorityQueueCreate : ASTNode {
+    string element_type;    ///< Type of elements (e.g., "int", "Task")
+    bool is_min_heap;       ///< True for min heap (via .min()), false for max heap (default)
+};
+
 /** @brief A single case in a select statement */
 struct SelectCase : ASTNode {
     string binding_name;              ///< Variable to bind result (empty for send)

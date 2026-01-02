@@ -28,6 +28,9 @@
 // Error handling primitives
 #include <bishop/error.hpp>
 
+// Collections
+#include <bishop/priority_queue.hpp>
+
 namespace bishop::rt {
 
 // ============================================================================

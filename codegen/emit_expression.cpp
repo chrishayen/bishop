@@ -106,6 +106,10 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return emit_tuple_create(state, *tuple);
     }
 
+    if (auto* pq = dynamic_cast<const PriorityQueueCreate*>(&node)) {
+        return emit_priority_queue_create(state, *pq);
+    }
+
     if (auto* lambda = dynamic_cast<const LambdaExpr*>(&node)) {
         return emit_lambda_expr(state, *lambda);
     }

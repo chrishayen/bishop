@@ -78,6 +78,14 @@ string map_type(const string& t) {
         return "std::vector<" + map_type(element_type) + ">";
     }
 
+    // Handle PriorityQueue<T> types: PriorityQueue<int> -> bishop::MaxPriorityQueue<int>
+    // Note: This maps to MaxPriorityQueue by default; min heap is handled at creation time
+    if (t.rfind("PriorityQueue<", 0) == 0 && t.back() == '>') {
+        string element_type = extract_element_type(t, "PriorityQueue<");
+        assert(!element_type.empty() && "malformed PriorityQueue type passed typechecker");
+        return "bishop::PriorityQueueBase<" + map_type(element_type) + ">";
+    }
+
     // Handle function types: fn(int, str) -> bool -> std::function<bool(int, std::string)>
     if (t.rfind("fn(", 0) == 0) {
         // Find the closing paren and extract param types

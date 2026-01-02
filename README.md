@@ -677,6 +677,84 @@ for i in 0..5 {
 // sum is 15
 ```
 
+## PriorityQueue
+
+Priority queues maintain elements in priority order. By default, they are max heaps (highest value first).
+
+### Max Heap (Default)
+
+```bishop
+pq := PriorityQueue<int>();  // max heap by default
+
+pq.push(5);
+pq.push(10);
+pq.push(3);
+
+pq.top();      // 10 (peek highest priority)
+val := pq.pop();  // 10 (remove and return highest)
+pq.pop();      // 5
+pq.pop();      // 3
+```
+
+### Min Heap
+
+Use `.min()` to create a min heap (lowest value first):
+
+```bishop
+pq := PriorityQueue<int>.min();
+
+pq.push(5);
+pq.push(10);
+pq.push(3);
+
+pq.top();      // 3 (peek lowest priority)
+val := pq.pop();  // 3 (remove and return lowest)
+pq.pop();      // 5
+pq.pop();      // 10
+```
+
+### Custom Comparison
+
+For custom structs, define a `less_than` method to control priority ordering:
+
+```bishop
+Task :: struct {
+    name str,
+    priority int
+}
+
+impl Task {
+    fn less_than(self, other: Task) -> bool {
+        return self.priority < other.priority;
+    }
+}
+
+// Max heap: highest priority value first
+pq := PriorityQueue<Task>();
+pq.push(Task { name: "low", priority: 10 });
+pq.push(Task { name: "high", priority: 1 });
+pq.push(Task { name: "med", priority: 5 });
+
+task := pq.pop();  // Task with priority 10 (highest)
+
+// Min heap: lowest priority value first
+pq_min := PriorityQueue<Task>.min();
+pq_min.push(Task { name: "low", priority: 10 });
+pq_min.push(Task { name: "high", priority: 1 });
+
+task := pq_min.pop();  // Task with priority 1 (lowest)
+```
+
+### PriorityQueue Methods
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `push(elem)` | `void` | Add element to queue |
+| `pop()` | `T` | Remove and return highest priority element |
+| `top()` | `T` | Peek at highest priority element without removing |
+| `length()` | `int` | Number of elements in queue |
+| `is_empty()` | `bool` | True if queue has no elements |
+
 ## Error Handling
 
 ### Error Types
@@ -2847,7 +2925,7 @@ fn test_math() {
 
 ## Keywords
 
-`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `using`, `select`, `case`, `Channel`, `List`, `Pair`, `Tuple`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`
+`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `using`, `select`, `case`, `Channel`, `List`, `Pair`, `Tuple`, `PriorityQueue`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`
 
 ## Decorators
 
