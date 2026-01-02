@@ -212,6 +212,16 @@ struct QueueCreate : ASTNode {
     string element_type;  ///< Type of elements the queue holds
 };
 
+/** @brief Set creation: Set<T>() */
+struct SetCreate : ASTNode {
+    string element_type;  ///< Type of elements the set holds
+};
+
+/** @brief Set literal: {1, 2, 3} */
+struct SetLiteral : ASTNode {
+    vector<unique_ptr<ASTNode>> elements;  ///< Set element expressions
+};
+
 /** @brief A single case in a select statement */
 struct SelectCase : ASTNode {
     string binding_name;              ///< Variable to bind result (empty for send)

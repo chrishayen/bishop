@@ -20,6 +20,7 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#include <unordered_set>
 #include <utility>
 #include <thread>
 #include <mutex>
@@ -27,6 +28,7 @@
 #include <deque>
 #include <stack>
 #include <queue>
+#include <type_traits>
 
 // Error handling primitives
 #include <bishop/error.hpp>

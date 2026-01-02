@@ -39,6 +39,7 @@ static unordered_map<string, TokenType> keywords = {
     {"Deque", TokenType::DEQUE},
     {"Stack", TokenType::STACK},
     {"Queue", TokenType::QUEUE},
+    {"Set", TokenType::SET},
     {"select", TokenType::SELECT},
     {"case", TokenType::CASE},
     {"extern", TokenType::EXTERN},

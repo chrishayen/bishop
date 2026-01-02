@@ -9,7 +9,7 @@ IOError :: err {
     path str
 }
 
-fn might_fail() or err {
+fn might_fail() -> void or err {
     fail "something went wrong";
 }
 
@@ -41,13 +41,13 @@ fn test_default() {
     assert_eq(y, 5);
 }
 
-fn test_or_fail() or err {
+fn test_or_fail() -> void or err {
     // Test or fail - propagate errors
     x := returns_value() or fail err;
     assert_eq(x, 42);
 }
 
-fn test_or_match() or err {
+fn test_or_match() -> void or err {
     // Test or match with different error types
     x := returns_value() or match err {
         IOError => 0,
@@ -60,7 +60,7 @@ fn returns_io_error() -> int or err {
     fail IOError { message: "not found", code: 404, path: "/test" };
 }
 
-fn test_or_match_typed() or err {
+fn test_or_match_typed() -> void or err {
     // Test or match with typed error
     x := returns_io_error() or match err {
         IOError => 999,
@@ -86,7 +86,7 @@ fn wrapper() -> int or err {
     return x;
 }
 
-fn test_error_propagation() or err {
+fn test_error_propagation() -> void or err {
     // Test that errors propagate correctly
     result := wrapper() or match err {
         IOError => 123,

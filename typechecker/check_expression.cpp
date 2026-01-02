@@ -107,6 +107,14 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
         return check_queue_create(state, *queue);
     }
 
+    if (auto* set = dynamic_cast<const SetCreate*>(&expr)) {
+        return check_set_create(state, *set);
+    }
+
+    if (auto* set = dynamic_cast<const SetLiteral*>(&expr)) {
+        return check_set_literal(state, *set);
+    }
+
     if (auto* lambda = dynamic_cast<const LambdaExpr*>(&expr)) {
         return check_lambda_expr(state, *lambda);
     }

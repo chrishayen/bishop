@@ -11,7 +11,7 @@ fn test_exists() {
     assert_eq(true, fs.exists("tests"));
 }
 
-fn test_write() or err {
+fn test_write() -> void or err {
     _a := fs.write_file("test_out.txt", "Hello") or fail err;
     content := fs.read_file("test_out.txt");
     assert_eq("Hello", content);

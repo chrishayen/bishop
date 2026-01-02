@@ -164,6 +164,7 @@ enum class TokenType {
     DEQUE,
     STACK,
     QUEUE,
+    SET,
     SELECT,
     CASE,
     EXTERN,

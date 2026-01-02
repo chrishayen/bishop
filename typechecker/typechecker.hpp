@@ -203,6 +203,11 @@ TypeInfo check_stack_method(TypeCheckerState& state, const MethodCall& mcall, co
 TypeInfo check_queue_create(TypeCheckerState& state, const QueueCreate& queue);
 TypeInfo check_queue_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
 
+// Set type inference (check_set.cpp)
+TypeInfo check_set_create(TypeCheckerState& state, const SetCreate& set);
+TypeInfo check_set_literal(TypeCheckerState& state, const SetLiteral& set);
+TypeInfo check_set_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+
 // Function call type inference (check_function_call.cpp)
 TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call);
 
