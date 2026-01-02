@@ -20,7 +20,7 @@ Parser :: parse(self) -> int or err
 }
 
 // Fallible instance method returning void
-Parser :: validate(self) or err
+Parser :: validate(self) -> void or err
 {
     if self.data.empty()
     {
@@ -35,7 +35,7 @@ Parser :: parse_or_default(self, int fallback) -> int or err
     return result;
 }
 
-fn test_fallible_instance_method_success() or err
+fn test_fallible_instance_method_success() -> void or err
 {
     p := Parser { data: "42" };
     result := p.parse() or fail err;
@@ -52,7 +52,7 @@ fn test_fallible_instance_method_failure()
     assert_eq(result, 999);
 }
 
-fn test_fallible_instance_method_void_success() or err
+fn test_fallible_instance_method_void_success() -> void or err
 {
     p := Parser { data: "hello" };
     p.validate() or fail err;
@@ -69,7 +69,7 @@ fn test_fallible_instance_method_void_failure()
     assert_true(failed);
 }
 
-fn test_fallible_instance_method_propagation() or err
+fn test_fallible_instance_method_propagation() -> void or err
 {
     p := Parser { data: "123" };
     result := p.parse_or_default(0) or fail err;

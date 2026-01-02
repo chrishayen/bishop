@@ -117,6 +117,11 @@ std::string emit_tuple_method_call(CodeGenState& state, const MethodCall& call, 
 std::string emit_priority_queue_create(CodeGenState& state, const PriorityQueueCreate& pq);
 std::string emit_priority_queue_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
 
+// Set (emit_set.cpp)
+std::string emit_set_create(const SetCreate& set);
+std::string emit_set_literal(CodeGenState& state, const SetLiteral& set);
+std::string emit_set_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
+
 // Method call (emit_method_call.cpp)
 std::string method_call(const std::string& object, const std::string& method, const std::vector<std::string>& args);
 std::string emit_method_call(CodeGenState& state, const MethodCall& call);

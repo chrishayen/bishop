@@ -753,6 +753,89 @@ task := pq_min.pop();  // Task with priority 1 (lowest)
 | `length()` | `int` | Number of elements in queue |
 | `is_empty()` | `bool` | True if queue has no elements |
 
+## Sets
+
+Sets store unique elements with O(1) lookup. Duplicate elements are automatically deduplicated.
+
+### Set Creation
+
+```bishop
+nums := Set<int>();           // empty set
+names := Set<str>();          // empty string set
+```
+
+### Set Literals
+
+```bishop
+nums := {1, 2, 3};             // inferred as Set<int>
+names := {"a", "b", "c"};      // inferred as Set<str>
+unique := {1, 2, 2, 3, 3, 3};  // duplicates removed: {1, 2, 3}
+```
+
+### Typed Declaration
+
+```bishop
+Set<int> nums = {1, 2, 3};
+Set<str> names = Set<str>();
+```
+
+### Set Methods
+
+```bishop
+nums := {10, 20, 30};
+
+// Query methods
+nums.length();           // -> int: 3
+nums.is_empty();         // -> bool: false
+nums.contains(20);       // -> bool: true
+
+// Modification methods
+nums.add(40);            // add element
+nums.remove(20);         // remove element, returns true if found
+nums.clear();            // remove all elements
+```
+
+### Set Operations
+
+```bishop
+a := {1, 2, 3};
+b := {2, 3, 4};
+
+// Union: elements in either set
+c := a.union(b);              // {1, 2, 3, 4}
+
+// Intersection: elements in both sets
+d := a.intersection(b);       // {2, 3}
+
+// Difference: elements in a but not in b
+e := a.difference(b);         // {1}
+
+// Symmetric difference: elements in either but not both
+f := a.symmetric_difference(b);  // {1, 4}
+```
+
+### Set Predicates
+
+```bishop
+a := {1, 2};
+b := {1, 2, 3};
+
+a.is_subset(b);    // -> bool: true (all elements of a are in b)
+b.is_superset(a);  // -> bool: true (b contains all elements of a)
+```
+
+### Set Iteration
+
+```bishop
+nums := {1, 2, 3};
+
+for n in nums {
+    print(n);
+}
+```
+
+**Note:** Set iteration order is not guaranteed.
+
 ## Error Handling
 
 ### Error Types
@@ -778,7 +861,19 @@ All errors automatically have:
 
 ### Fallible Functions
 
-Functions that can fail use `-> T or err` return syntax:
+Functions that can fail use `-> T or err` return syntax. For functions that don't return a value but can still fail, use `-> void or err`:
+
+```bishop
+// Void function that can fail
+fn do_something() -> void or err {
+    if !ready {
+        fail "not ready";
+    }
+    // ... do work ...
+}
+```
+
+Functions that return a value use `-> T or err`:
 
 ```bishop
 fn read_config(str path) -> Config or err {

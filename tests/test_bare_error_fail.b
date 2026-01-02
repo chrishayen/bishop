@@ -14,15 +14,15 @@ ValidationError :: err {
     reason str
 }
 
-fn fail_not_found() or err {
+fn fail_not_found() -> void or err {
     fail NotFound;
 }
 
-fn fail_empty_file() or err {
+fn fail_empty_file() -> void or err {
     fail EmptyFile;
 }
 
-fn fail_validation() or err {
+fn fail_validation() -> void or err {
     fail ValidationError;
 }
 
@@ -33,7 +33,7 @@ fn returns_or_fails(bool should_fail) -> int or err {
     return 42;
 }
 
-fn test_bare_error_simple() or err {
+fn test_bare_error_simple() -> void or err {
     // Test that bare error types work
     result := returns_or_fails(false) or return;
     assert_eq(result, 42);
@@ -48,7 +48,7 @@ fn test_bare_error_fails() {
     assert_eq(result, 999);
 }
 
-fn test_or_fail_bare() or err {
+fn test_or_fail_bare() -> void or err {
     // Test propagating with or fail on bare error
     x := returns_or_fails(false) or fail err;
     assert_eq(x, 42);

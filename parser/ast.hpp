@@ -203,6 +203,16 @@ struct PriorityQueueCreate : ASTNode {
     bool is_min_heap;       ///< True for min heap (via .min()), false for max heap (default)
 };
 
+/** @brief Set creation: Set<T>() */
+struct SetCreate : ASTNode {
+    string element_type;  ///< Type of elements the set holds
+};
+
+/** @brief Set literal: {1, 2, 3} */
+struct SetLiteral : ASTNode {
+    vector<unique_ptr<ASTNode>> elements;  ///< Set element expressions
+};
+
 /** @brief A single case in a select statement */
 struct SelectCase : ASTNode {
     string binding_name;              ///< Variable to bind result (empty for send)

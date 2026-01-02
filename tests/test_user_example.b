@@ -18,7 +18,7 @@ SkillFile :: read_content(str path) -> str or err {
     else return content;
 }
 
-fn test_read_content_success() or err {
+fn test_read_content_success() -> void or err {
     result := SkillFile.read_content("/some/path") or fail err;
     assert_eq(result, "sample content");
 }

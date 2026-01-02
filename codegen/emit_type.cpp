@@ -86,6 +86,13 @@ string map_type(const string& t) {
         return "bishop::PriorityQueueBase<" + map_type(element_type) + ">";
     }
 
+    // Handle Set<T> types: Set<int> -> std::unordered_set<int>
+    if (t.rfind("Set<", 0) == 0 && t.back() == '>') {
+        string element_type = extract_element_type(t, "Set<");
+        assert(!element_type.empty() && "malformed Set type passed typechecker");
+        return "std::unordered_set<" + map_type(element_type) + ">";
+    }
+
     // Handle function types: fn(int, str) -> bool -> std::function<bool(int, std::string)>
     if (t.rfind("fn(", 0) == 0) {
         // Find the closing paren and extract param types

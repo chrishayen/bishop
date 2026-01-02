@@ -257,6 +257,58 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return pq;
     }
 
+    // Handle set creation: Set<int>() or Set<str>()
+    if (check(state, TokenType::SET)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Set<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+        consume(state, TokenType::RPAREN);
+
+        auto set = make_unique<SetCreate>();
+        set->element_type = element_type;
+        set->line = start_line;
+        return set;
+    }
+
+    // Handle set literal: {expr, expr, ...}
+    // Distinguished from struct literal by not being preceded by a type name
+    if (check(state, TokenType::LBRACE)) {
+        int start_line = current(state).line;
+        advance(state);
+
+        // Empty set literal is not allowed - use Set<T>() instead
+        if (check(state, TokenType::RBRACE)) {
+            throw runtime_error("empty set literal not allowed, use Set<T>() instead at line " + to_string(start_line));
+        }
+
+        // Peek ahead to see if this looks like a struct literal (field: value pattern)
+        // If we see IDENT followed by COLON, it's likely a struct literal, but that
+        // would have been caught by the IDENT handler above, so here it must be a set literal
+        auto set = make_unique<SetLiteral>();
+        set->line = start_line;
+
+        while (!check(state, TokenType::RBRACE) && !check(state, TokenType::EOF_TOKEN)) {
+            auto elem = parse_expression(state);
+
+            if (elem) {
+                set->elements.push_back(move(elem));
+            }
+
+            if (check(state, TokenType::COMMA)) {
+                advance(state);
+            }
+        }
+
+        consume(state, TokenType::RBRACE);
+        return set;
+    }
+
     // Handle list literal: [expr, expr, ...]
     if (check(state, TokenType::LBRACKET)) {
         int start_line = current(state).line;

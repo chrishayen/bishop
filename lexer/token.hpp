@@ -162,6 +162,7 @@ enum class TokenType {
     PAIR,
     TUPLE,
     PRIORITY_QUEUE,
+    SET,
     SELECT,
     CASE,
     EXTERN,
