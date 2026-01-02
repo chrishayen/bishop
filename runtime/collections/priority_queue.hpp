@@ -97,12 +97,14 @@ struct MaxHeapComparator {
 
 /**
  * Max heap comparator for custom types with less_than method.
+ * Uses const_cast because Bishop methods don't have const qualifiers yet,
+ * but less_than is logically const (pure comparison, no mutation).
  */
 template<typename T>
 struct MaxHeapComparatorLessThan {
     bool operator()(const T& a, const T& b) const {
         // For max heap, return true if a < b
-        return a.less_than(b);
+        return const_cast<T&>(a).less_than(const_cast<T&>(b));
     }
 };
 
@@ -120,12 +122,14 @@ struct MinHeapComparator {
 
 /**
  * Min heap comparator for custom types with less_than method.
+ * Uses const_cast because Bishop methods don't have const qualifiers yet,
+ * but less_than is logically const (pure comparison, no mutation).
  */
 template<typename T>
 struct MinHeapComparatorLessThan {
     bool operator()(const T& a, const T& b) const {
         // For min heap, return true if a > b (using less_than: b < a)
-        return b.less_than(a);
+        return const_cast<T&>(b).less_than(const_cast<T&>(a));
     }
 };
 
