@@ -24,6 +24,9 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
+#include <deque>
+#include <stack>
+#include <queue>
 
 // Error handling primitives
 #include <bishop/error.hpp>
