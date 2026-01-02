@@ -138,6 +138,17 @@ string parse_base_type(ParserState& state) {
         return "List<" + element_type + ">";
     }
 
+    // Map<K, V> type
+    if (check(state, TokenType::MAP)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string key_type = parse_type(state);
+        consume(state, TokenType::COMMA);
+        string value_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Map<" + key_type + ", " + value_type + ">";
+    }
+
     // Pair<T> type
     if (check(state, TokenType::PAIR)) {
         advance(state);

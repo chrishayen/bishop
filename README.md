@@ -635,6 +635,78 @@ quotient := result.first;   // 3
 remainder := result.second; // 2
 ```
 
+## Maps
+
+Maps are key-value collections that provide fast lookup by key.
+
+### Map Creation
+
+```bishop
+ages := Map<str, int>();           // empty map
+config := Map<str, str>();         // string to string map
+codes := Map<int, str>();          // int to string map
+```
+
+### Map Literals
+
+```bishop
+ages := {"alice": 30, "bob": 25};           // inferred as Map<str, int>
+config := {"host": "localhost", "port": "8080"};  // inferred as Map<str, str>
+```
+
+### Typed Declaration
+
+```bishop
+Map<str, int> ages = {"alice": 30};
+Map<str, str> config = Map<str, str>();
+```
+
+### Map Methods
+
+```bishop
+ages := {"alice": 30, "bob": 25};
+
+// Query methods
+ages.length();           // -> int: 2
+ages.is_empty();         // -> bool: false
+ages.contains("alice");  // -> bool: true
+
+// Access methods (get returns optional)
+age := ages.get("alice") default 0;  // -> int: 30
+age := ages.get("unknown") default 0;  // -> int: 0 (key not found)
+
+// Modification methods
+ages.set("charlie", 35);    // add or update key
+ages.remove("bob");         // remove key
+ages.clear();               // remove all entries
+
+// Iteration methods
+keys := ages.keys();        // -> List<str>: all keys
+vals := ages.values();      // -> List<int>: all values
+items := ages.items();      // -> List<MapItem<str, int>>: all entries
+```
+
+### Iterating Maps
+
+```bishop
+ages := {"alice": 30, "bob": 25};
+
+// Iterate over keys
+for key in ages.keys() {
+    print(key);
+}
+
+// Iterate over values
+for val in ages.values() {
+    print(val);
+}
+
+// Iterate over key-value pairs
+for item in ages.items() {
+    print(item.key + ": " + str(item.value));
+}
+```
+
 ## Tuples
 
 Tuples hold 2-5 values of the same type.

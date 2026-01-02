@@ -5,6 +5,7 @@
 
 #include "typechecker.hpp"
 #include "strings.hpp"
+#include "common/type_utils.hpp"
 
 using namespace std;
 
@@ -234,6 +235,17 @@ TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall) {
         }
 
         return check_list_method(state, mcall, element_type);
+    }
+
+    if (effective_type.base_type.rfind("Map<", 0) == 0) {
+        auto [key_type, value_type] = bishop::extract_map_types(effective_type.base_type);
+
+        if (key_type.empty() || value_type.empty()) {
+            error(state, "malformed Map type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
+        return check_map_method(state, mcall, key_type, value_type);
     }
 
     if (effective_type.base_type.rfind("Pair<", 0) == 0) {
