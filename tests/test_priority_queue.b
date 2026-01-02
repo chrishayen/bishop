@@ -76,16 +76,14 @@ fn test_length_empty() {
 }
 
 // Struct with less_than method for custom comparison
-struct Task {
-    name: str
-    priority: int
+Task :: struct {
+    name str,
+    priority int
 }
 
-impl Task {
-    // Lower priority value = higher priority (like nice values)
-    fn less_than(self, other: Task) -> bool {
-        return self.priority < other.priority;
-    }
+// Lower priority value = higher priority (like nice values)
+Task :: less_than(self, Task other) -> bool {
+    return self.priority < other.priority;
 }
 
 // Test max heap with custom struct using less_than

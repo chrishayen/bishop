@@ -723,10 +723,8 @@ Task :: struct {
     priority int
 }
 
-impl Task {
-    fn less_than(self, other: Task) -> bool {
-        return self.priority < other.priority;
-    }
+Task :: less_than(self, Task other) -> bool {
+    return self.priority < other.priority;
 }
 
 // Max heap: highest priority value first
