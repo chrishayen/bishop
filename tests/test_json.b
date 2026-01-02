@@ -154,7 +154,29 @@ fn test_remove_key() {
 fn test_keys() {
     data := json.parse('{"a": 1, "b": 2}') or return;
     key_list := data.keys();
-    assert_eq(true, key_list.length() > 0);
+    assert_eq(2, key_list.length());
+
+    // Keys are sorted alphabetically in JSON objects
+    assert_eq("a", key_list.get(0));
+    assert_eq("b", key_list.get(1));
+}
+
+fn test_keys_empty_object() {
+    data := json.parse('{}') or return;
+    key_list := data.keys();
+    assert_eq(0, key_list.length());
+}
+
+fn test_keys_iteration() {
+    data := json.parse('{"x": 1, "y": 2, "z": 3}') or return;
+    key_list := data.keys();
+    count := 0;
+
+    for k in key_list {
+        count = count + 1;
+    }
+
+    assert_eq(3, count);
 }
 
 fn test_stringify_compact() {

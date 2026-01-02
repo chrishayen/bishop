@@ -303,13 +303,16 @@ public:
         return 0;
     }
 
-    std::string keys() const {
-        if (!is_object()) return "";
-        std::string result;
+    /**
+     * Returns the keys of a JSON object as a vector.
+     * Returns an empty vector if not an object.
+     */
+    std::vector<std::string> keys() const {
+        std::vector<std::string> result;
+        if (!is_object()) return result;
         const auto& obj = std::get<JsonObject>(value);
         for (const auto& [key, _] : obj) {
-            if (!result.empty()) result += "\n";
-            result += key;
+            result.push_back(key);
         }
         return result;
     }

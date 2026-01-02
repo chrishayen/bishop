@@ -2201,7 +2201,12 @@ val.as_bool() or return;   // -> bool or err
 // Check for key existence
 data.has("name");   // -> bool
 data.length();      // -> int (object keys or array elements)
-data.keys();        // -> List<str> (object keys)
+
+// Get all keys from an object
+key_list := data.keys();   // -> List<str> (object keys)
+for key in key_list {
+    print(key);
+}
 ```
 
 #### Creating JSON
