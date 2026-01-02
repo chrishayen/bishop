@@ -383,10 +383,13 @@
 /**
  * @bishop_method keys
  * @type Json
- * @description Returns the keys of a JSON object as newline-separated string.
- * @returns str - Newline-separated list of keys
+ * @description Returns the keys of a JSON object as a list.
+ * @returns List<str> - List of keys
  * @example
  * key_list := obj.keys();
+ * for key in key_list {
+ *     print(key);
+ * }
  */
 
 /**
@@ -779,13 +782,13 @@ unique_ptr<Program> create_json_module() {
     length_method->return_type = "int";
     program->methods.push_back(move(length_method));
 
-    // Json :: keys(self) -> str
+    // Json :: keys(self) -> List<str>
     auto keys_method = make_unique<MethodDef>();
     keys_method->struct_name = "Json";
     keys_method->name = "keys";
     keys_method->visibility = Visibility::Public;
     keys_method->params.push_back({"json.Json", "self"});
-    keys_method->return_type = "str";
+    keys_method->return_type = "List<str>";
     program->methods.push_back(move(keys_method));
 
     // Json :: has(self, str key) -> bool
