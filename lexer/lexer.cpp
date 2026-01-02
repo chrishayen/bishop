@@ -34,6 +34,7 @@ static unordered_map<string, TokenType> keywords = {
     {"private", TokenType::PRIVATE},
     {"Channel", TokenType::CHANNEL},
     {"List", TokenType::LIST},
+    {"Map", TokenType::MAP},
     {"Pair", TokenType::PAIR},
     {"Tuple", TokenType::TUPLE},
     {"PriorityQueue", TokenType::PRIORITY_QUEUE},

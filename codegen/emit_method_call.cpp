@@ -92,6 +92,11 @@ string emit_method_call(CodeGenState& state, const MethodCall& call) {
         return emit_list_method_call(state, call, obj_str, args);
     }
 
+    // Handle Map methods - map to std::unordered_map equivalents
+    if (call.object_type.rfind("Map<", 0) == 0) {
+        return emit_map_method_call(state, call, obj_str, args);
+    }
+
     // Handle extended string methods
     if (call.object_type == "str") {
         string result = emit_str_method_call(state, call, obj_str, args);
