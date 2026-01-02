@@ -93,9 +93,15 @@ add_library(bishop_lib
     typechecker/maps.cpp
     typechecker/pairs.cpp
     typechecker/tuples.cpp
+    typechecker/deques.cpp
+    typechecker/stacks.cpp
+    typechecker/queues.cpp
     typechecker/sets.cpp
     typechecker/check_pair.cpp
     typechecker/check_tuple.cpp
+    typechecker/check_deque.cpp
+    typechecker/check_stack.cpp
+    typechecker/check_queue.cpp
     typechecker/check_priority_queue.cpp
     typechecker/priority_queues.cpp
     typechecker/check_map.cpp
@@ -131,6 +137,9 @@ add_library(bishop_lib
     codegen/emit_string.cpp
     codegen/emit_pair.cpp
     codegen/emit_tuple.cpp
+    codegen/emit_deque.cpp
+    codegen/emit_stack.cpp
+    codegen/emit_queue.cpp
     codegen/emit_priority_queue.cpp
     codegen/emit_set.cpp
     codegen/emit_method_call.cpp

@@ -270,6 +270,39 @@ TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall) {
         return check_tuple_method(state, mcall, element_type);
     }
 
+    if (effective_type.base_type.rfind("Deque<", 0) == 0) {
+        string element_type = extract_element_type(effective_type.base_type, "Deque<");
+
+        if (element_type.empty()) {
+            error(state, "malformed Deque type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
+        return check_deque_method(state, mcall, element_type);
+    }
+
+    if (effective_type.base_type.rfind("Stack<", 0) == 0) {
+        string element_type = extract_element_type(effective_type.base_type, "Stack<");
+
+        if (element_type.empty()) {
+            error(state, "malformed Stack type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
+        return check_stack_method(state, mcall, element_type);
+    }
+
+    if (effective_type.base_type.rfind("Queue<", 0) == 0) {
+        string element_type = extract_element_type(effective_type.base_type, "Queue<");
+
+        if (element_type.empty()) {
+            error(state, "malformed Queue type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
+        return check_queue_method(state, mcall, element_type);
+    }
+
     if (effective_type.base_type.rfind("PriorityQueue<", 0) == 0) {
         string element_type = extract_element_type(effective_type.base_type, "PriorityQueue<");
 

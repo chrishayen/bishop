@@ -114,6 +114,18 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return emit_tuple_create(state, *tuple);
     }
 
+    if (auto* deque = dynamic_cast<const DequeCreate*>(&node)) {
+        return emit_deque_create(*deque);
+    }
+
+    if (auto* stack = dynamic_cast<const StackCreate*>(&node)) {
+        return emit_stack_create(*stack);
+    }
+
+    if (auto* queue = dynamic_cast<const QueueCreate*>(&node)) {
+        return emit_queue_create(*queue);
+    }
+
     if (auto* pq = dynamic_cast<const PriorityQueueCreate*>(&node)) {
         return emit_priority_queue_create(state, *pq);
     }

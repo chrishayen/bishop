@@ -231,6 +231,69 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return decl;
     }
 
+    // Deque<T> variable declaration: Deque<int> dq = Deque<int>(); or Deque<List<int>> x = ...;
+    if (check(state, TokenType::DEQUE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Deque<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+
+        auto decl = make_unique<VariableDecl>();
+        decl->type = "Deque<" + element_type + ">";
+        decl->line = start_line;
+        decl->name = consume(state, TokenType::IDENT).value;
+        consume(state, TokenType::ASSIGN);
+        decl->value = parse_expression(state);
+        consume(state, TokenType::SEMICOLON);
+        return decl;
+    }
+
+    // Stack<T> variable declaration: Stack<int> s = Stack<int>(); or Stack<List<int>> x = ...;
+    if (check(state, TokenType::STACK)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Stack<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+
+        auto decl = make_unique<VariableDecl>();
+        decl->type = "Stack<" + element_type + ">";
+        decl->line = start_line;
+        decl->name = consume(state, TokenType::IDENT).value;
+        consume(state, TokenType::ASSIGN);
+        decl->value = parse_expression(state);
+        consume(state, TokenType::SEMICOLON);
+        return decl;
+    }
+
+    // Queue<T> variable declaration: Queue<int> q = Queue<int>(); or Queue<List<int>> x = ...;
+    if (check(state, TokenType::QUEUE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Queue<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+
+        auto decl = make_unique<VariableDecl>();
+        decl->type = "Queue<" + element_type + ">";
+        decl->line = start_line;
+        decl->name = consume(state, TokenType::IDENT).value;
+        consume(state, TokenType::ASSIGN);
+        decl->value = parse_expression(state);
+        consume(state, TokenType::SEMICOLON);
+        return decl;
+    }
+
     // Map<K, V> variable declaration: Map<str, int> ages = {"alice": 30}; or Map<str, List<int>> x = ...;
     if (check(state, TokenType::MAP)) {
         int start_line = current(state).line;

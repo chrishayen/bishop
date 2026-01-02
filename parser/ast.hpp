@@ -214,6 +214,21 @@ struct TupleCreate : ASTNode {
     vector<unique_ptr<ASTNode>> elements;   ///< Element expressions (2-5 elements)
 };
 
+/** @brief Deque creation: Deque<T>() */
+struct DequeCreate : ASTNode {
+    string element_type;  ///< Type of elements the deque holds
+};
+
+/** @brief Stack creation: Stack<T>() */
+struct StackCreate : ASTNode {
+    string element_type;  ///< Type of elements the stack holds
+};
+
+/** @brief Queue creation: Queue<T>() */
+struct QueueCreate : ASTNode {
+    string element_type;  ///< Type of elements the queue holds
+};
+
 /** @brief Priority queue creation: PriorityQueue<T>() or PriorityQueue<T>.min() */
 struct PriorityQueueCreate : ASTNode {
     string element_type;    ///< Type of elements (e.g., "int", "Task")

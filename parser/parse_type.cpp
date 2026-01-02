@@ -167,6 +167,33 @@ string parse_base_type(ParserState& state) {
         return "Tuple<" + element_type + ">";
     }
 
+    // Deque<T> type
+    if (check(state, TokenType::DEQUE)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Deque<" + element_type + ">";
+    }
+
+    // Stack<T> type
+    if (check(state, TokenType::STACK)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Stack<" + element_type + ">";
+    }
+
+    // Queue<T> type
+    if (check(state, TokenType::QUEUE)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Queue<" + element_type + ">";
+    }
+
     // PriorityQueue<T> type
     if (check(state, TokenType::PRIORITY_QUEUE)) {
         advance(state);

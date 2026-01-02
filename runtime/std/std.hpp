@@ -25,6 +25,9 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
+#include <deque>
+#include <stack>
+#include <queue>
 #include <type_traits>
 
 // Error handling primitives
