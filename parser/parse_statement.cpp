@@ -231,6 +231,27 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return decl;
     }
 
+    // Set<T> variable declaration: Set<int> nums = {1, 2, 3}; or Set<str> names = Set<str>();
+    if (check(state, TokenType::SET)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Set<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+
+        auto decl = make_unique<VariableDecl>();
+        decl->type = "Set<" + element_type + ">";
+        decl->line = start_line;
+        decl->name = consume(state, TokenType::IDENT).value;
+        consume(state, TokenType::ASSIGN);
+        decl->value = parse_expression(state);
+        consume(state, TokenType::SEMICOLON);
+        return decl;
+    }
+
     // NOT expression statement: !expr or fail "msg"; !valid or continue; etc.
     if (check(state, TokenType::NOT)) {
         auto expr = parse_expression(state);

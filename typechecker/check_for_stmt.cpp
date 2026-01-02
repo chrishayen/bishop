@@ -37,9 +37,7 @@ void check_for_stmt(TypeCheckerState& state, const ForStmt& for_stmt) {
     } else {
         TypeInfo iter_type = infer_type(state, *for_stmt.iterable);
 
-        if (iter_type.base_type.rfind("List<", 0) != 0) {
-            error(state, "for-each requires a List, got '" + format_type(iter_type) + "'", for_stmt.line);
-        } else {
+        if (iter_type.base_type.rfind("List<", 0) == 0) {
             string element_type = extract_element_type(iter_type.base_type, "List<");
 
             if (element_type.empty()) {
@@ -47,6 +45,16 @@ void check_for_stmt(TypeCheckerState& state, const ForStmt& for_stmt) {
             } else {
                 loop_var_type = {element_type, false, false};
             }
+        } else if (iter_type.base_type.rfind("Set<", 0) == 0) {
+            string element_type = extract_element_type(iter_type.base_type, "Set<");
+
+            if (element_type.empty()) {
+                error(state, "malformed Set type '" + iter_type.base_type + "' in for-each loop", for_stmt.line);
+            } else {
+                loop_var_type = {element_type, false, false};
+            }
+        } else {
+            error(state, "for-each requires a List or Set, got '" + format_type(iter_type) + "'", for_stmt.line);
         }
     }
 

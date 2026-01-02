@@ -161,6 +161,7 @@ enum class TokenType {
     LIST,
     PAIR,
     TUPLE,
+    SET,
     SELECT,
     CASE,
     EXTERN,
