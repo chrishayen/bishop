@@ -39,7 +39,7 @@ fn get_content(str path) -> str or err {
 // Test: Standalone function call with or fail
 // ============================================================
 
-fn test_standalone_func_or_fail_success() or err {
+fn test_standalone_func_or_fail_success() -> void or err {
     // Should not fail when condition is true
     check_exists(true) or fail err;
     check_valid(true) or fail err;
@@ -82,7 +82,7 @@ fn test_standalone_var_or_fail_false() {
     assert_eq(result, 0);
 }
 
-fn test_standalone_var_or_fail_true() or err {
+fn test_standalone_var_or_fail_true() -> void or err {
     result := helper_var_or_fail_true() or fail err;
     assert_eq(result, 1);
 }
@@ -206,7 +206,7 @@ fn load_data(bool exists, bool valid) -> str or err {
     return "data loaded";
 }
 
-fn test_guard_all_pass() or err {
+fn test_guard_all_pass() -> void or err {
     result := load_data(true, true) or fail err;
     assert_eq(result, "data loaded");
 }
@@ -236,7 +236,7 @@ fn validate_all(bool a, bool b, bool c) -> str or err {
     return "all valid";
 }
 
-fn test_multiple_standalone_all_pass() or err {
+fn test_multiple_standalone_all_pass() -> void or err {
     result := validate_all(true, true, true) or fail err;
     assert_eq(result, "all valid");
 }
@@ -271,7 +271,7 @@ fn helper_comparison_or_fail_fail() -> int or err {
     return 1;
 }
 
-fn test_comparison_or_fail_pass() or err {
+fn test_comparison_or_fail_pass() -> void or err {
     result := helper_comparison_or_fail_pass() or fail err;
     assert_eq(result, 1);
 }
@@ -295,7 +295,7 @@ fn helper_method_comparison_or_fail_fail() -> int or err {
     return 1;
 }
 
-fn test_method_comparison_or_fail_pass() or err {
+fn test_method_comparison_or_fail_pass() -> void or err {
     result := helper_method_comparison_or_fail_pass() or fail err;
     assert_eq(result, 1);
 }
@@ -313,7 +313,7 @@ fn helper_complex_expr_or_fail() -> int or err {
     return 1;
 }
 
-fn test_complex_expr_or_fail() or err {
+fn test_complex_expr_or_fail() -> void or err {
     result := helper_complex_expr_or_fail() or fail err;
     assert_eq(result, 1);
 }

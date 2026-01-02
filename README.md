@@ -702,7 +702,19 @@ All errors automatically have:
 
 ### Fallible Functions
 
-Functions that can fail use `-> T or err` return syntax:
+Functions that can fail use `-> T or err` return syntax. For functions that don't return a value but can still fail, use `-> void or err`:
+
+```bishop
+// Void function that can fail
+fn do_something() -> void or err {
+    if !ready {
+        fail "not ready";
+    }
+    // ... do work ...
+}
+```
+
+Functions that return a value use `-> T or err`:
 
 ```bishop
 fn read_config(str path) -> Config or err {
