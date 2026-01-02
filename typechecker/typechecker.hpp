@@ -197,6 +197,10 @@ TypeInfo check_pair_field(TypeCheckerState& state, const FieldAccess& access, co
 TypeInfo check_tuple_create(TypeCheckerState& state, const TupleCreate& tuple);
 TypeInfo check_tuple_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
 
+// PriorityQueue type inference (check_priority_queue.cpp)
+TypeInfo check_priority_queue_create(TypeCheckerState& state, const PriorityQueueCreate& pq);
+TypeInfo check_priority_queue_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+
 // Set type inference (check_set.cpp)
 TypeInfo check_set_create(TypeCheckerState& state, const SetCreate& set);
 TypeInfo check_set_literal(TypeCheckerState& state, const SetLiteral& set);

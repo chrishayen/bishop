@@ -244,6 +244,43 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return tuple;
     }
 
+    // Handle priority queue creation: PriorityQueue<T>() or PriorityQueue<T>.min()
+    if (check(state, TokenType::PRIORITY_QUEUE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like PriorityQueue<Task>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+
+        auto pq = make_unique<PriorityQueueCreate>();
+        pq->element_type = element_type;
+        pq->line = start_line;
+        pq->is_min_heap = false;  // Default to max heap
+
+        // Check for .min() static method call
+        if (check(state, TokenType::DOT)) {
+            advance(state);
+            Token method = consume(state, TokenType::IDENT);
+
+            if (method.value == "min") {
+                consume(state, TokenType::LPAREN);
+                consume(state, TokenType::RPAREN);
+                pq->is_min_heap = true;
+            } else {
+                throw runtime_error("PriorityQueue<T> only supports .min() constructor, got '." + method.value + "' at line " + to_string(start_line));
+            }
+        } else {
+            // Default max heap: PriorityQueue<T>()
+            consume(state, TokenType::LPAREN);
+            consume(state, TokenType::RPAREN);
+        }
+
+        return pq;
+    }
+
     // Handle set creation: Set<int>() or Set<str>()
     if (check(state, TokenType::SET)) {
         int start_line = current(state).line;

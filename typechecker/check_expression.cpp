@@ -103,6 +103,10 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
         return check_tuple_create(state, *tuple);
     }
 
+    if (auto* pq = dynamic_cast<const PriorityQueueCreate*>(&expr)) {
+        return check_priority_queue_create(state, *pq);
+    }
+
     if (auto* set = dynamic_cast<const SetCreate*>(&expr)) {
         return check_set_create(state, *set);
     }

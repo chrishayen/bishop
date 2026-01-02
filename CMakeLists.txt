@@ -96,6 +96,8 @@ add_library(bishop_lib
     typechecker/sets.cpp
     typechecker/check_pair.cpp
     typechecker/check_tuple.cpp
+    typechecker/check_priority_queue.cpp
+    typechecker/priority_queues.cpp
     typechecker/check_map.cpp
     typechecker/check_set.cpp
     typechecker/check_lambda.cpp
@@ -129,6 +131,7 @@ add_library(bishop_lib
     codegen/emit_string.cpp
     codegen/emit_pair.cpp
     codegen/emit_tuple.cpp
+    codegen/emit_priority_queue.cpp
     codegen/emit_set.cpp
     codegen/emit_method_call.cpp
     codegen/emit_function_call.cpp
@@ -173,6 +176,9 @@ add_custom_target(bishop_runtime_headers ALL
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/std/channel.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/channel.hpp
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/runtime/collections/priority_queue.hpp
+        ${CMAKE_BINARY_DIR}/include/bishop/priority_queue.hpp
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/runtime/http/http.hpp
         ${CMAKE_BINARY_DIR}/include/bishop/http.hpp
