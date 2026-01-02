@@ -267,6 +267,36 @@ bool is_valid_type(const TypeCheckerState& state, const string& type) {
         return is_valid_type(state, element_type);
     }
 
+    if (type.rfind("Deque<", 0) == 0 && type.back() == '>') {
+        string element_type = extract_element_type(type, "Deque<");
+
+        if (element_type.empty()) {
+            return false;
+        }
+
+        return is_valid_type(state, element_type);
+    }
+
+    if (type.rfind("Stack<", 0) == 0 && type.back() == '>') {
+        string element_type = extract_element_type(type, "Stack<");
+
+        if (element_type.empty()) {
+            return false;
+        }
+
+        return is_valid_type(state, element_type);
+    }
+
+    if (type.rfind("Queue<", 0) == 0 && type.back() == '>') {
+        string element_type = extract_element_type(type, "Queue<");
+
+        if (element_type.empty()) {
+            return false;
+        }
+
+        return is_valid_type(state, element_type);
+    }
+
     // Pointer type: StructName* -> check that base is a valid struct
     if (!type.empty() && type.back() == '*') {
         string pointee = type.substr(0, type.length() - 1);
