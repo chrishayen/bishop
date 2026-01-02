@@ -162,6 +162,7 @@ enum class TokenType {
     MAP,
     PAIR,
     TUPLE,
+    SET,
     SELECT,
     CASE,
     EXTERN,

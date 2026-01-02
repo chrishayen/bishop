@@ -83,16 +83,11 @@ unique_ptr<FunctionDef> parse_function(ParserState& state, Visibility vis) {
             }
         }
     } else if (check(state, TokenType::OR)) {
-        // Void fallible function: fn foo() or err { }
-        advance(state);
-
-        if (check(state, TokenType::ERR)) {
-            func->error_type = "err";
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            func->error_type = current(state).value;
-            advance(state);
-        }
+        // Invalid syntax: fn foo() or err { } - must use -> void or err
+        Token tok = current(state);
+        throw runtime_error("invalid function declaration: 'fn " + func->name +
+            "() or ...' requires explicit return type. Use 'fn " + func->name +
+            "() -> void or err { }' instead at line " + to_string(tok.line));
     }
 
     consume(state, TokenType::LBRACE);
@@ -190,16 +185,11 @@ unique_ptr<MethodDef> parse_method_def(ParserState& state, const string& struct_
             }
         }
     } else if (check(state, TokenType::OR)) {
-        // Void fallible method: Type :: method() or err { }
-        advance(state);
-
-        if (check(state, TokenType::ERR)) {
-            method->error_type = "err";
-            advance(state);
-        } else if (check(state, TokenType::IDENT)) {
-            method->error_type = current(state).value;
-            advance(state);
-        }
+        // Invalid syntax: Type :: method() or err { } - must use -> void or err
+        Token tok = current(state);
+        throw runtime_error("invalid method declaration: '" + struct_name + " :: " + method->name +
+            "() or ...' requires explicit return type. Use '" + struct_name + " :: " + method->name +
+            "() -> void or err { }' instead at line " + to_string(tok.line));
     }
 
     consume(state, TokenType::LBRACE);

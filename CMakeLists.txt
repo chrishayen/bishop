@@ -93,9 +93,11 @@ add_library(bishop_lib
     typechecker/maps.cpp
     typechecker/pairs.cpp
     typechecker/tuples.cpp
+    typechecker/sets.cpp
     typechecker/check_pair.cpp
     typechecker/check_tuple.cpp
     typechecker/check_map.cpp
+    typechecker/check_set.cpp
     typechecker/check_lambda.cpp
     codegen/codegen.cpp
     codegen/emit_type.cpp
@@ -127,6 +129,7 @@ add_library(bishop_lib
     codegen/emit_string.cpp
     codegen/emit_pair.cpp
     codegen/emit_tuple.cpp
+    codegen/emit_set.cpp
     codegen/emit_method_call.cpp
     codegen/emit_function_call.cpp
     codegen/emit_field.cpp

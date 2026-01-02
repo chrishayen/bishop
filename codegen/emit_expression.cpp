@@ -114,6 +114,14 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return emit_tuple_create(state, *tuple);
     }
 
+    if (auto* set = dynamic_cast<const SetCreate*>(&node)) {
+        return emit_set_create(*set);
+    }
+
+    if (auto* set = dynamic_cast<const SetLiteral*>(&node)) {
+        return emit_set_literal(state, *set);
+    }
+
     if (auto* lambda = dynamic_cast<const LambdaExpr*>(&node)) {
         return emit_lambda_expr(state, *lambda);
     }

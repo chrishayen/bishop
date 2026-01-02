@@ -118,6 +118,11 @@ std::string emit_pair_field_access(const std::string& obj_str, const std::string
 std::string emit_tuple_create(CodeGenState& state, const TupleCreate& tuple);
 std::string emit_tuple_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
 
+// Set (emit_set.cpp)
+std::string emit_set_create(const SetCreate& set);
+std::string emit_set_literal(CodeGenState& state, const SetLiteral& set);
+std::string emit_set_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
+
 // Method call (emit_method_call.cpp)
 std::string method_call(const std::string& object, const std::string& method, const std::vector<std::string>& args);
 std::string emit_method_call(CodeGenState& state, const MethodCall& call);
