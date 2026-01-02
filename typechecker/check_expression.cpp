@@ -87,6 +87,14 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
         return check_list_literal(state, *list);
     }
 
+    if (auto* map = dynamic_cast<const MapCreate*>(&expr)) {
+        return check_map_create(state, *map);
+    }
+
+    if (auto* map = dynamic_cast<const MapLiteral*>(&expr)) {
+        return check_map_literal(state, *map);
+    }
+
     if (auto* pair = dynamic_cast<const PairCreate*>(&expr)) {
         return check_pair_create(state, *pair);
     }

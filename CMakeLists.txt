@@ -90,11 +90,13 @@ add_library(bishop_lib
     typechecker/check_select_stmt.cpp
     typechecker/strings.cpp
     typechecker/lists.cpp
+    typechecker/maps.cpp
     typechecker/pairs.cpp
     typechecker/tuples.cpp
     typechecker/sets.cpp
     typechecker/check_pair.cpp
     typechecker/check_tuple.cpp
+    typechecker/check_map.cpp
     typechecker/check_set.cpp
     typechecker/check_lambda.cpp
     codegen/codegen.cpp
@@ -123,6 +125,7 @@ add_library(bishop_lib
     codegen/emit_lambda.cpp
     codegen/emit_channel.cpp
     codegen/emit_list.cpp
+    codegen/emit_map.cpp
     codegen/emit_string.cpp
     codegen/emit_pair.cpp
     codegen/emit_tuple.cpp

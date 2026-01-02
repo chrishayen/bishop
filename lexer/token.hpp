@@ -159,6 +159,7 @@ enum class TokenType {
     PRIVATE,
     CHANNEL,
     LIST,
+    MAP,
     PAIR,
     TUPLE,
     SET,

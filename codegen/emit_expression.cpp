@@ -98,6 +98,14 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return emit_list_literal(state, *list);
     }
 
+    if (auto* map = dynamic_cast<const MapCreate*>(&node)) {
+        return emit_map_create(*map);
+    }
+
+    if (auto* map = dynamic_cast<const MapLiteral*>(&node)) {
+        return emit_map_literal(state, *map);
+    }
+
     if (auto* pair = dynamic_cast<const PairCreate*>(&node)) {
         return emit_pair_create(state, *pair);
     }

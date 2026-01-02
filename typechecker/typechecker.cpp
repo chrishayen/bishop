@@ -267,6 +267,16 @@ bool is_valid_type(const TypeCheckerState& state, const string& type) {
         return is_valid_type(state, element_type);
     }
 
+    if (type.rfind("Map<", 0) == 0 && type.back() == '>') {
+        auto [key_type, value_type] = bishop::extract_map_types(type);
+
+        if (key_type.empty() || value_type.empty()) {
+            return false;
+        }
+
+        return is_valid_type(state, key_type) && is_valid_type(state, value_type);
+    }
+
     if (type.rfind("Set<", 0) == 0 && type.back() == '>') {
         string element_type = extract_element_type(type, "Set<");
 

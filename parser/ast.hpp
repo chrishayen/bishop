@@ -184,6 +184,23 @@ struct ListLiteral : ASTNode {
     vector<unique_ptr<ASTNode>> elements;  ///< List element expressions
 };
 
+/** @brief Map creation: Map<K, V>() */
+struct MapCreate : ASTNode {
+    string key_type;    ///< Type of keys
+    string value_type;  ///< Type of values
+};
+
+/** @brief Map literal: {"key": value, ...} */
+struct MapLiteral : ASTNode {
+    vector<pair<unique_ptr<ASTNode>, unique_ptr<ASTNode>>> entries;  ///< Key-value pairs
+};
+
+/** @brief Map item for iteration: has key and value fields */
+struct MapItem : ASTNode {
+    string key_type;    ///< Type of keys
+    string value_type;  ///< Type of values
+};
+
 /** @brief Pair creation: Pair<T>(a, b) */
 struct PairCreate : ASTNode {
     string element_type;               ///< Type of elements (homogeneous)
