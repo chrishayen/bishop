@@ -159,6 +159,30 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return list;
     }
 
+    // Handle map creation: Map<str, int>() or Map<str, List<int>>()
+    if (check(state, TokenType::MAP)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Parse key type
+        string key_type = parse_type(state);
+        consume(state, TokenType::COMMA);
+
+        // Parse value type
+        string value_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+        consume(state, TokenType::RPAREN);
+
+        auto map = make_unique<MapCreate>();
+        map->key_type = key_type;
+        map->value_type = value_type;
+        map->line = start_line;
+        return map;
+    }
+
     // Handle pair creation: Pair<int>(a, b) or Pair<List<int>>(a, b)
     if (check(state, TokenType::PAIR)) {
         int start_line = current(state).line;
@@ -294,6 +318,35 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         set->element_type = element_type;
         set->line = start_line;
         return set;
+    }
+
+    // Handle map literal: {"key": value, ...}
+    // Must be checked BEFORE set literal since both start with LBRACE
+    // Distinguished from struct literal by having STRING : at start instead of IDENT :
+    if (check(state, TokenType::LBRACE) && check_ahead(state, 1, TokenType::STRING) && check_ahead(state, 2, TokenType::COLON)) {
+        int start_line = current(state).line;
+        advance(state);  // consume '{'
+
+        auto map = make_unique<MapLiteral>();
+        map->line = start_line;
+
+        while (!check(state, TokenType::RBRACE) && !check(state, TokenType::EOF_TOKEN)) {
+            // Parse key expression
+            auto key = parse_expression(state);
+            consume(state, TokenType::COLON);
+
+            // Parse value expression
+            auto value = parse_expression(state);
+
+            map->entries.push_back({move(key), move(value)});
+
+            if (check(state, TokenType::COMMA)) {
+                advance(state);
+            }
+        }
+
+        consume(state, TokenType::RBRACE);
+        return map;
     }
 
     // Handle set literal: {expr, expr, ...}

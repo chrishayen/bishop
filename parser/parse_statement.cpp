@@ -294,6 +294,31 @@ unique_ptr<ASTNode> parse_statement(ParserState& state) {
         return decl;
     }
 
+    // Map<K, V> variable declaration: Map<str, int> ages = {"alice": 30}; or Map<str, List<int>> x = ...;
+    if (check(state, TokenType::MAP)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Parse key type (supports nested generics)
+        string key_type = parse_type(state);
+        consume(state, TokenType::COMMA);
+
+        // Parse value type (supports nested generics)
+        string value_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+
+        auto decl = make_unique<VariableDecl>();
+        decl->type = "Map<" + key_type + ", " + value_type + ">";
+        decl->line = start_line;
+        decl->name = consume(state, TokenType::IDENT).value;
+        consume(state, TokenType::ASSIGN);
+        decl->value = parse_expression(state);
+        consume(state, TokenType::SEMICOLON);
+        return decl;
+    }
+
     // Set<T> variable declaration: Set<int> nums = {1, 2, 3}; or Set<str> names = Set<str>();
     if (check(state, TokenType::SET)) {
         int start_line = current(state).line;

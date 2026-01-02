@@ -101,6 +101,11 @@ std::string emit_list_create(const ListCreate& list);
 std::string emit_list_literal(CodeGenState& state, const ListLiteral& list);
 std::string emit_list_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
 
+// Map (emit_map.cpp)
+std::string emit_map_create(const MapCreate& map);
+std::string emit_map_literal(CodeGenState& state, const MapLiteral& map);
+std::string emit_map_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
+
 // String methods (emit_string.cpp)
 std::string emit_str_method_call(CodeGenState& state, const MethodCall& call, const std::string& obj_str, const std::vector<std::string>& args);
 

@@ -62,6 +62,51 @@ string map_type(const string& t) {
         return "std::vector<" + map_type(element_type) + ">";
     }
 
+    // Handle Map<K, V> types: Map<str, int> -> std::unordered_map<std::string, int>
+    if (t.rfind("Map<", 0) == 0 && t.back() == '>') {
+        // Extract key and value types by finding the comma at depth 1
+        size_t start = 4;  // After "Map<"
+        int depth = 1;
+        size_t comma_pos = string::npos;
+
+        for (size_t i = start; i < t.size(); i++) {
+            if (t[i] == '<') depth++;
+            else if (t[i] == '>') depth--;
+            else if (t[i] == ',' && depth == 1 && comma_pos == string::npos) {
+                comma_pos = i;
+                break;
+            }
+        }
+
+        assert(comma_pos != string::npos && "malformed Map type passed typechecker");
+        string key_type = t.substr(start, comma_pos - start);
+        string value_type = t.substr(comma_pos + 2, t.size() - comma_pos - 3);  // Skip ", " and ">"
+        return "std::unordered_map<" + map_type(key_type) + ", " + map_type(value_type) + ">";
+    }
+
+    // Handle MapItem<K, V> types for iteration
+    if (t.rfind("MapItem<", 0) == 0 && t.back() == '>') {
+        // MapItem is a struct with key and value fields - we use an anonymous struct
+        size_t start = 8;  // After "MapItem<"
+        int depth = 1;
+        size_t comma_pos = string::npos;
+
+        for (size_t i = start; i < t.size(); i++) {
+            if (t[i] == '<') depth++;
+            else if (t[i] == '>') depth--;
+            else if (t[i] == ',' && depth == 1 && comma_pos == string::npos) {
+                comma_pos = i;
+                break;
+            }
+        }
+
+        assert(comma_pos != string::npos && "malformed MapItem type passed typechecker");
+        string key_type = t.substr(start, comma_pos - start);
+        string value_type = t.substr(comma_pos + 2, t.size() - comma_pos - 3);
+        // Use auto for the struct since it's generated inline
+        return "auto";
+    }
+
     // Handle Pair<T> types: Pair<int> -> std::pair<int, int>
     if (t.rfind("Pair<", 0) == 0 && t.back() == '>') {
         string element_type = extract_element_type(t, "Pair<");

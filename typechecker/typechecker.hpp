@@ -182,6 +182,12 @@ TypeInfo check_list_create(TypeCheckerState& state, const ListCreate& list);
 TypeInfo check_list_literal(TypeCheckerState& state, const ListLiteral& list);
 TypeInfo check_list_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
 
+// Map type inference (check_map.cpp)
+TypeInfo check_map_create(TypeCheckerState& state, const MapCreate& map);
+TypeInfo check_map_literal(TypeCheckerState& state, const MapLiteral& map);
+TypeInfo check_map_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& key_type, const std::string& value_type);
+TypeInfo check_map_item_field(TypeCheckerState& state, const FieldAccess& access, const std::string& key_type, const std::string& value_type);
+
 // Pair type inference (check_pair.cpp)
 TypeInfo check_pair_create(TypeCheckerState& state, const PairCreate& pair);
 TypeInfo check_pair_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);

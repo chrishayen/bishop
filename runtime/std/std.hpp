@@ -215,6 +215,16 @@ namespace detail {
 
     template<typename T>
     inline constexpr bool is_result_v = is_result<T>::value;
+
+    // Type trait to detect std::optional types
+    template<typename T>
+    struct is_optional : std::false_type {};
+
+    template<typename T>
+    struct is_optional<std::optional<T>> : std::true_type {};
+
+    template<typename T>
+    inline constexpr bool is_optional_v = is_optional<std::decay_t<T>>::value;
 }
 
 /**
@@ -236,15 +246,18 @@ inline bool is_or_falsy(const T& value) {
 }
 
 /**
- * Get the actual value from either a Result or falsy type.
+ * Get the actual value from either a Result, optional, or falsy type.
  * Used by 'or' handlers to extract the value when condition passes.
  *
  * For Result<T> types: returns .value()
- * For falsy types: returns the value as-is
+ * For std::optional<T> types: returns .value() (unwraps the optional)
+ * For other falsy types: returns the value as-is
  */
 template<typename T>
 inline decltype(auto) or_value(const T& value) {
     if constexpr (detail::is_result_v<std::decay_t<T>>) {
+        return value.value();
+    } else if constexpr (detail::is_optional_v<T>) {
         return value.value();
     } else {
         return value;
@@ -254,6 +267,8 @@ inline decltype(auto) or_value(const T& value) {
 template<typename T>
 inline decltype(auto) or_value(T& value) {
     if constexpr (detail::is_result_v<std::decay_t<T>>) {
+        return value.value();
+    } else if constexpr (detail::is_optional_v<T>) {
         return value.value();
     } else {
         return value;
