@@ -2703,14 +2703,21 @@ Notes:
 
 ## Visibility
 
-Use `@private` to restrict visibility to the current file:
+Use `@private` to restrict visibility to the current file. The decorator can be on the same line or a separate line:
 
 ```bishop
-@private
-fn internal_helper() -> int {
+// Same line syntax
+@private fn internal_helper() -> int {
     return 42;
 }
 
+// Separate line syntax (also valid)
+@private
+fn another_helper() -> int {
+    return 43;
+}
+
+// Works with structs too
 @private MyStruct :: struct {
     value int
 }
@@ -2728,10 +2735,16 @@ fn internal_helper() -> int {
 
 ### Declaring External Functions
 
+The `@extern` decorator can be on the same line or a separate line:
+
 ```bishop
+// Same line syntax
 @extern("c") fn puts(cstr s) -> cint;
 @extern("m") fn sqrt(f64 x) -> f64;
-@extern("m") fn floor(f64 x) -> f64;
+
+// Separate line syntax (also valid)
+@extern("m")
+fn floor(f64 x) -> f64;
 ```
 
 The library name in `@extern("lib")` maps to `-llib` when linking:
