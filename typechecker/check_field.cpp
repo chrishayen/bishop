@@ -4,6 +4,7 @@
  */
 
 #include "typechecker.hpp"
+#include "common/type_utils.hpp"
 
 using namespace std;
 
@@ -54,6 +55,19 @@ TypeInfo check_field_access(TypeCheckerState& state, const FieldAccess& access) 
         }
 
         return check_pair_field(state, access, element_type);
+    }
+
+    // Handle MapItem<K, V> field access (key, value)
+    if (struct_type.rfind("MapItem<", 0) == 0) {
+        auto [key_type, value_type] = bishop::extract_map_types(
+            "Map<" + struct_type.substr(8));  // Convert MapItem<K, V> to Map<K, V> for extraction
+
+        if (key_type.empty() || value_type.empty()) {
+            error(state, "malformed MapItem type '" + struct_type + "'", access.line);
+            return {"unknown", false, false};
+        }
+
+        return check_map_item_field(state, access, key_type, value_type);
     }
 
     // Handle err type field access (message, cause, root_cause)

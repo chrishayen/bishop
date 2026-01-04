@@ -92,6 +92,11 @@ string emit_method_call(CodeGenState& state, const MethodCall& call) {
         return emit_list_method_call(state, call, obj_str, args);
     }
 
+    // Handle Map methods - map to std::unordered_map equivalents
+    if (call.object_type.rfind("Map<", 0) == 0) {
+        return emit_map_method_call(state, call, obj_str, args);
+    }
+
     // Handle extended string methods
     if (call.object_type == "str") {
         string result = emit_str_method_call(state, call, obj_str, args);
@@ -111,6 +116,31 @@ string emit_method_call(CodeGenState& state, const MethodCall& call) {
     // Handle Tuple methods
     if (call.object_type.rfind("Tuple<", 0) == 0) {
         return emit_tuple_method_call(state, call, obj_str, args);
+    }
+
+    // Handle Deque methods
+    if (call.object_type.rfind("Deque<", 0) == 0) {
+        return emit_deque_method_call(state, call, obj_str, args);
+    }
+
+    // Handle Stack methods
+    if (call.object_type.rfind("Stack<", 0) == 0) {
+        return emit_stack_method_call(state, call, obj_str, args);
+    }
+
+    // Handle Queue methods
+    if (call.object_type.rfind("Queue<", 0) == 0) {
+        return emit_queue_method_call(state, call, obj_str, args);
+    }
+
+    // Handle PriorityQueue methods
+    if (call.object_type.rfind("PriorityQueue<", 0) == 0) {
+        return emit_priority_queue_method_call(state, call, obj_str, args);
+    }
+
+    // Handle Set methods
+    if (call.object_type.rfind("Set<", 0) == 0) {
+        return emit_set_method_call(state, call, obj_str, args);
     }
 
     // Use -> for pointer types (auto-deref like Go)

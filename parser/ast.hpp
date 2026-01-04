@@ -184,6 +184,23 @@ struct ListLiteral : ASTNode {
     vector<unique_ptr<ASTNode>> elements;  ///< List element expressions
 };
 
+/** @brief Map creation: Map<K, V>() */
+struct MapCreate : ASTNode {
+    string key_type;    ///< Type of keys
+    string value_type;  ///< Type of values
+};
+
+/** @brief Map literal: {"key": value, ...} */
+struct MapLiteral : ASTNode {
+    vector<pair<unique_ptr<ASTNode>, unique_ptr<ASTNode>>> entries;  ///< Key-value pairs
+};
+
+/** @brief Map item for iteration: has key and value fields */
+struct MapItem : ASTNode {
+    string key_type;    ///< Type of keys
+    string value_type;  ///< Type of values
+};
+
 /** @brief Pair creation: Pair<T>(a, b) */
 struct PairCreate : ASTNode {
     string element_type;               ///< Type of elements (homogeneous)
@@ -195,6 +212,37 @@ struct PairCreate : ASTNode {
 struct TupleCreate : ASTNode {
     string element_type;                    ///< Type of elements (homogeneous)
     vector<unique_ptr<ASTNode>> elements;   ///< Element expressions (2-5 elements)
+};
+
+/** @brief Deque creation: Deque<T>() */
+struct DequeCreate : ASTNode {
+    string element_type;  ///< Type of elements the deque holds
+};
+
+/** @brief Stack creation: Stack<T>() */
+struct StackCreate : ASTNode {
+    string element_type;  ///< Type of elements the stack holds
+};
+
+/** @brief Queue creation: Queue<T>() */
+struct QueueCreate : ASTNode {
+    string element_type;  ///< Type of elements the queue holds
+};
+
+/** @brief Priority queue creation: PriorityQueue<T>() or PriorityQueue<T>.min() */
+struct PriorityQueueCreate : ASTNode {
+    string element_type;    ///< Type of elements (e.g., "int", "Task")
+    bool is_min_heap;       ///< True for min heap (via .min()), false for max heap (default)
+};
+
+/** @brief Set creation: Set<T>() */
+struct SetCreate : ASTNode {
+    string element_type;  ///< Type of elements the set holds
+};
+
+/** @brief Set literal: {1, 2, 3} */
+struct SetLiteral : ASTNode {
+    vector<unique_ptr<ASTNode>> elements;  ///< Set element expressions
 };
 
 /** @brief A single case in a select statement */

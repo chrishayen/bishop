@@ -60,7 +60,7 @@ fn test_bool_false_triggers_fail() {
     assert_eq(result, 0);
 }
 
-fn test_bool_true_does_not_fail() or err {
+fn test_bool_true_does_not_fail() -> void or err {
     // true should not trigger or fail
     result := helper_bool_or_fail_true() or fail err;
     assert_eq(result, 1);
@@ -99,7 +99,7 @@ fn test_int_zero_triggers_fail() {
     assert_eq(result, 0);
 }
 
-fn test_int_nonzero_does_not_fail() or err {
+fn test_int_nonzero_does_not_fail() -> void or err {
     // non-zero should not trigger or fail
     result := helper_int_nonzero_or_fail() or fail err;
     assert_eq(result, 1);
@@ -117,7 +117,7 @@ fn test_str_empty_triggers_fail() {
     assert_eq(result, 0);
 }
 
-fn test_str_nonempty_does_not_fail() or err {
+fn test_str_nonempty_does_not_fail() -> void or err {
     // non-empty string should not trigger or fail
     result := helper_str_nonempty_or_fail() or fail err;
     assert_eq(result, 1);
@@ -127,7 +127,7 @@ fn test_str_nonempty_does_not_fail() or err {
 // Test: Guard clause patterns (main use case from issue)
 // ============================================================
 
-fn test_guard_all_pass() or err {
+fn test_guard_all_pass() -> void or err {
     result := helper_guard_example(true, true) or fail err;
     assert_eq(result, "success");
 }

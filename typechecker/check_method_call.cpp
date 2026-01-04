@@ -5,6 +5,7 @@
 
 #include "typechecker.hpp"
 #include "strings.hpp"
+#include "common/type_utils.hpp"
 
 using namespace std;
 
@@ -236,6 +237,17 @@ TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall) {
         return check_list_method(state, mcall, element_type);
     }
 
+    if (effective_type.base_type.rfind("Map<", 0) == 0) {
+        auto [key_type, value_type] = bishop::extract_map_types(effective_type.base_type);
+
+        if (key_type.empty() || value_type.empty()) {
+            error(state, "malformed Map type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
+        return check_map_method(state, mcall, key_type, value_type);
+    }
+
     if (effective_type.base_type.rfind("Pair<", 0) == 0) {
         string element_type = extract_element_type(effective_type.base_type, "Pair<");
 
@@ -256,6 +268,61 @@ TypeInfo check_method_call(TypeCheckerState& state, const MethodCall& mcall) {
         }
 
         return check_tuple_method(state, mcall, element_type);
+    }
+
+    if (effective_type.base_type.rfind("Deque<", 0) == 0) {
+        string element_type = extract_element_type(effective_type.base_type, "Deque<");
+
+        if (element_type.empty()) {
+            error(state, "malformed Deque type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
+        return check_deque_method(state, mcall, element_type);
+    }
+
+    if (effective_type.base_type.rfind("Stack<", 0) == 0) {
+        string element_type = extract_element_type(effective_type.base_type, "Stack<");
+
+        if (element_type.empty()) {
+            error(state, "malformed Stack type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
+        return check_stack_method(state, mcall, element_type);
+    }
+
+    if (effective_type.base_type.rfind("Queue<", 0) == 0) {
+        string element_type = extract_element_type(effective_type.base_type, "Queue<");
+
+        if (element_type.empty()) {
+            error(state, "malformed Queue type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
+        return check_queue_method(state, mcall, element_type);
+    }
+
+    if (effective_type.base_type.rfind("PriorityQueue<", 0) == 0) {
+        string element_type = extract_element_type(effective_type.base_type, "PriorityQueue<");
+
+        if (element_type.empty()) {
+            error(state, "malformed PriorityQueue type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
+        return check_priority_queue_method(state, mcall, element_type);
+    }
+
+    if (effective_type.base_type.rfind("Set<", 0) == 0) {
+        string element_type = extract_element_type(effective_type.base_type, "Set<");
+
+        if (element_type.empty()) {
+            error(state, "malformed Set type '" + effective_type.base_type + "'", mcall.line);
+            return {"unknown", false, false};
+        }
+
+        return check_set_method(state, mcall, element_type);
     }
 
     if (effective_type.base_type == "str") {

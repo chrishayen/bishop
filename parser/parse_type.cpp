@@ -138,6 +138,17 @@ string parse_base_type(ParserState& state) {
         return "List<" + element_type + ">";
     }
 
+    // Map<K, V> type
+    if (check(state, TokenType::MAP)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string key_type = parse_type(state);
+        consume(state, TokenType::COMMA);
+        string value_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Map<" + key_type + ", " + value_type + ">";
+    }
+
     // Pair<T> type
     if (check(state, TokenType::PAIR)) {
         advance(state);
@@ -154,6 +165,51 @@ string parse_base_type(ParserState& state) {
         string element_type = parse_type(state);
         consume(state, TokenType::GT);
         return "Tuple<" + element_type + ">";
+    }
+
+    // Deque<T> type
+    if (check(state, TokenType::DEQUE)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Deque<" + element_type + ">";
+    }
+
+    // Stack<T> type
+    if (check(state, TokenType::STACK)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Stack<" + element_type + ">";
+    }
+
+    // Queue<T> type
+    if (check(state, TokenType::QUEUE)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Queue<" + element_type + ">";
+    }
+
+    // PriorityQueue<T> type
+    if (check(state, TokenType::PRIORITY_QUEUE)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "PriorityQueue<" + element_type + ">";
+    }
+
+    // Set<T> type
+    if (check(state, TokenType::SET)) {
+        advance(state);
+        consume(state, TokenType::LT);
+        string element_type = parse_type(state);
+        consume(state, TokenType::GT);
+        return "Set<" + element_type + ">";
     }
 
     // Custom type (struct name), qualified type (module.Type), or generic (Type<T>)

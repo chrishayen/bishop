@@ -87,12 +87,44 @@ TypeInfo infer_type(TypeCheckerState& state, const ASTNode& expr) {
         return check_list_literal(state, *list);
     }
 
+    if (auto* map = dynamic_cast<const MapCreate*>(&expr)) {
+        return check_map_create(state, *map);
+    }
+
+    if (auto* map = dynamic_cast<const MapLiteral*>(&expr)) {
+        return check_map_literal(state, *map);
+    }
+
     if (auto* pair = dynamic_cast<const PairCreate*>(&expr)) {
         return check_pair_create(state, *pair);
     }
 
     if (auto* tuple = dynamic_cast<const TupleCreate*>(&expr)) {
         return check_tuple_create(state, *tuple);
+    }
+
+    if (auto* deque = dynamic_cast<const DequeCreate*>(&expr)) {
+        return check_deque_create(state, *deque);
+    }
+
+    if (auto* stack = dynamic_cast<const StackCreate*>(&expr)) {
+        return check_stack_create(state, *stack);
+    }
+
+    if (auto* queue = dynamic_cast<const QueueCreate*>(&expr)) {
+        return check_queue_create(state, *queue);
+    }
+
+    if (auto* pq = dynamic_cast<const PriorityQueueCreate*>(&expr)) {
+        return check_priority_queue_create(state, *pq);
+    }
+
+    if (auto* set = dynamic_cast<const SetCreate*>(&expr)) {
+        return check_set_create(state, *set);
+    }
+
+    if (auto* set = dynamic_cast<const SetLiteral*>(&expr)) {
+        return check_set_literal(state, *set);
     }
 
     if (auto* lambda = dynamic_cast<const LambdaExpr*>(&expr)) {

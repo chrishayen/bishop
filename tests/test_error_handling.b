@@ -86,7 +86,7 @@ fn test_or_return_with_value_wrapper() {
 // Test: or fail err
 // ============================================================
 
-fn test_or_fail_success() or err {
+fn test_or_fail_success() -> void or err {
     x := always_succeeds() or fail err;
     assert_eq(x, 42);
 }
@@ -96,7 +96,7 @@ fn wrapper_propagate() -> int or err {
     return x;
 }
 
-fn test_propagation_chain() or err {
+fn test_propagation_chain() -> void or err {
     result := wrapper_propagate() or match err {
         SimpleError => 123,
         _ => fail err
@@ -122,7 +122,7 @@ fn test_or_block_not_triggered() {
 // Test: or match
 // ============================================================
 
-fn test_or_match_simple_error() or err {
+fn test_or_match_simple_error() -> void or err {
     x := fails_with_simple() or match err {
         SimpleError => 100,
         _ => fail err
@@ -130,7 +130,7 @@ fn test_or_match_simple_error() or err {
     assert_eq(x, 100);
 }
 
-fn test_or_match_validation_error() or err {
+fn test_or_match_validation_error() -> void or err {
     x := fails_with_validation() or match err {
         ValidationError => 200,
         SimpleError => 100,
@@ -139,7 +139,7 @@ fn test_or_match_validation_error() or err {
     assert_eq(x, 200);
 }
 
-fn test_or_match_network_error() or err {
+fn test_or_match_network_error() -> void or err {
     x := fails_with_network() or match err {
         NetworkError => 300,
         ValidationError => 200,
@@ -149,7 +149,7 @@ fn test_or_match_network_error() or err {
     assert_eq(x, 300);
 }
 
-fn test_or_match_wildcard() or err {
+fn test_or_match_wildcard() -> void or err {
     x := always_fails() or match err {
         SimpleError => 100,
         _ => 999
@@ -157,7 +157,7 @@ fn test_or_match_wildcard() or err {
     assert_eq(x, 999);
 }
 
-fn test_or_match_success() or err {
+fn test_or_match_success() -> void or err {
     x := always_succeeds() or match err {
         _ => 0
     };
@@ -192,19 +192,19 @@ fn test_default_true() {
 // Test: default with fallible functions
 // ============================================================
 
-fn test_default_with_zero_result() or err {
+fn test_default_with_zero_result() -> void or err {
     x := returns_zero() or fail err;
     y := x default 50;
     assert_eq(y, 50);
 }
 
-fn test_default_with_false_result() or err {
+fn test_default_with_false_result() -> void or err {
     b := returns_false() or fail err;
     result := b default true;
     assert_eq(result, true);
 }
 
-fn test_default_with_true_result() or err {
+fn test_default_with_true_result() -> void or err {
     b := returns_true() or fail err;
     result := b default false;
     assert_eq(result, true);
@@ -214,13 +214,13 @@ fn test_default_with_true_result() or err {
 // Test: Chained operations
 // ============================================================
 
-fn test_chained_success() or err {
+fn test_chained_success() -> void or err {
     a := always_succeeds() or fail err;
     b := always_succeeds() or fail err;
     assert_eq(a + b, 84);
 }
 
-fn test_multiple_match_handlers() or err {
+fn test_multiple_match_handlers() -> void or err {
     x := fails_with_simple() or match err {
         SimpleError => 1,
         _ => fail err
@@ -241,7 +241,7 @@ fn deeply_nested() -> int or err {
     return a + b + c;
 }
 
-fn test_deeply_nested() or err {
+fn test_deeply_nested() -> void or err {
     result := deeply_nested() or fail err;
     assert_eq(result, 126);
 }
@@ -259,7 +259,7 @@ fn get_network_error() -> int or err {
     };
 }
 
-fn test_error_fields_in_match() or err {
+fn test_error_fields_in_match() -> void or err {
     x := get_network_error() or match err {
         NetworkError => 504,
         _ => 0
@@ -287,7 +287,7 @@ fn might_fail_differently(int which) -> int or err {
     return which * 10;
 }
 
-fn test_multiple_error_types() or err {
+fn test_multiple_error_types() -> void or err {
     // Success case
     a := might_fail_differently(0) or fail err;
     assert_eq(a, 0);
@@ -330,7 +330,7 @@ fn layer3() -> int or err {
     return layer2() or fail err;
 }
 
-fn test_deep_propagation() or err {
+fn test_deep_propagation() -> void or err {
     result := layer3() or match err {
         _ => 999
     };
@@ -348,12 +348,12 @@ fn conditional_fail(bool should_fail) -> int or err {
     return 100;
 }
 
-fn test_conditional_success() or err {
+fn test_conditional_success() -> void or err {
     x := conditional_fail(false) or fail err;
     assert_eq(x, 100);
 }
 
-fn test_conditional_failure() or err {
+fn test_conditional_failure() -> void or err {
     x := conditional_fail(true) or match err {
         _ => 200
     };
@@ -368,7 +368,7 @@ fn get_error_with_message() -> int or err {
     fail "specific error message";
 }
 
-fn test_error_message_handling() or err {
+fn test_error_message_handling() -> void or err {
     x := get_error_with_message() or match err {
         _ => 42
     };

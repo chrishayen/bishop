@@ -159,6 +159,30 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
         return list;
     }
 
+    // Handle map creation: Map<str, int>() or Map<str, List<int>>()
+    if (check(state, TokenType::MAP)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Parse key type
+        string key_type = parse_type(state);
+        consume(state, TokenType::COMMA);
+
+        // Parse value type
+        string value_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+        consume(state, TokenType::RPAREN);
+
+        auto map = make_unique<MapCreate>();
+        map->key_type = key_type;
+        map->value_type = value_type;
+        map->line = start_line;
+        return map;
+    }
+
     // Handle pair creation: Pair<int>(a, b) or Pair<List<int>>(a, b)
     if (check(state, TokenType::PAIR)) {
         int start_line = current(state).line;
@@ -218,6 +242,181 @@ unique_ptr<ASTNode> parse_primary(ParserState& state) {
 
         consume(state, TokenType::RPAREN);
         return tuple;
+    }
+
+    // Handle deque creation: Deque<int>() or Deque<List<int>>()
+    if (check(state, TokenType::DEQUE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Deque<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+        consume(state, TokenType::RPAREN);
+
+        auto deque = make_unique<DequeCreate>();
+        deque->element_type = element_type;
+        deque->line = start_line;
+        return deque;
+    }
+
+    // Handle stack creation: Stack<int>() or Stack<List<int>>()
+    if (check(state, TokenType::STACK)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Stack<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+        consume(state, TokenType::RPAREN);
+
+        auto stack = make_unique<StackCreate>();
+        stack->element_type = element_type;
+        stack->line = start_line;
+        return stack;
+    }
+
+    // Handle queue creation: Queue<int>() or Queue<List<int>>()
+    if (check(state, TokenType::QUEUE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Queue<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+        consume(state, TokenType::RPAREN);
+
+        auto queue = make_unique<QueueCreate>();
+        queue->element_type = element_type;
+        queue->line = start_line;
+        return queue;
+    }
+
+    // Handle priority queue creation: PriorityQueue<T>() or PriorityQueue<T>.min()
+    if (check(state, TokenType::PRIORITY_QUEUE)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like PriorityQueue<Task>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+
+        auto pq = make_unique<PriorityQueueCreate>();
+        pq->element_type = element_type;
+        pq->line = start_line;
+        pq->is_min_heap = false;  // Default to max heap
+
+        // Check for .min() static method call
+        if (check(state, TokenType::DOT)) {
+            advance(state);
+            Token method = consume(state, TokenType::IDENT);
+
+            if (method.value == "min") {
+                consume(state, TokenType::LPAREN);
+                consume(state, TokenType::RPAREN);
+                pq->is_min_heap = true;
+            } else {
+                throw runtime_error("PriorityQueue<T> only supports .min() constructor, got '." + method.value + "' at line " + to_string(start_line));
+            }
+        } else {
+            // Default max heap: PriorityQueue<T>()
+            consume(state, TokenType::LPAREN);
+            consume(state, TokenType::RPAREN);
+        }
+
+        return pq;
+    }
+
+    // Handle set creation: Set<int>() or Set<str>()
+    if (check(state, TokenType::SET)) {
+        int start_line = current(state).line;
+        advance(state);
+        consume(state, TokenType::LT);
+
+        // Use parse_type to support nested generics like Set<List<int>>
+        string element_type = parse_type(state);
+
+        consume(state, TokenType::GT);
+        consume(state, TokenType::LPAREN);
+        consume(state, TokenType::RPAREN);
+
+        auto set = make_unique<SetCreate>();
+        set->element_type = element_type;
+        set->line = start_line;
+        return set;
+    }
+
+    // Handle map literal: {"key": value, ...}
+    // Must be checked BEFORE set literal since both start with LBRACE
+    // Distinguished from struct literal by having STRING : at start instead of IDENT :
+    if (check(state, TokenType::LBRACE) && check_ahead(state, 1, TokenType::STRING) && check_ahead(state, 2, TokenType::COLON)) {
+        int start_line = current(state).line;
+        advance(state);  // consume '{'
+
+        auto map = make_unique<MapLiteral>();
+        map->line = start_line;
+
+        while (!check(state, TokenType::RBRACE) && !check(state, TokenType::EOF_TOKEN)) {
+            // Parse key expression
+            auto key = parse_expression(state);
+            consume(state, TokenType::COLON);
+
+            // Parse value expression
+            auto value = parse_expression(state);
+
+            map->entries.push_back({move(key), move(value)});
+
+            if (check(state, TokenType::COMMA)) {
+                advance(state);
+            }
+        }
+
+        consume(state, TokenType::RBRACE);
+        return map;
+    }
+
+    // Handle set literal: {expr, expr, ...}
+    // Distinguished from struct literal by not being preceded by a type name
+    if (check(state, TokenType::LBRACE)) {
+        int start_line = current(state).line;
+        advance(state);
+
+        // Empty set literal is not allowed - use Set<T>() instead
+        if (check(state, TokenType::RBRACE)) {
+            throw runtime_error("empty set literal not allowed, use Set<T>() instead at line " + to_string(start_line));
+        }
+
+        // Peek ahead to see if this looks like a struct literal (field: value pattern)
+        // If we see IDENT followed by COLON, it's likely a struct literal, but that
+        // would have been caught by the IDENT handler above, so here it must be a set literal
+        auto set = make_unique<SetLiteral>();
+        set->line = start_line;
+
+        while (!check(state, TokenType::RBRACE) && !check(state, TokenType::EOF_TOKEN)) {
+            auto elem = parse_expression(state);
+
+            if (elem) {
+                set->elements.push_back(move(elem));
+            }
+
+            if (check(state, TokenType::COMMA)) {
+                advance(state);
+            }
+        }
+
+        consume(state, TokenType::RBRACE);
+        return set;
     }
 
     // Handle list literal: [expr, expr, ...]

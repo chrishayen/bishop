@@ -182,6 +182,12 @@ TypeInfo check_list_create(TypeCheckerState& state, const ListCreate& list);
 TypeInfo check_list_literal(TypeCheckerState& state, const ListLiteral& list);
 TypeInfo check_list_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
 
+// Map type inference (check_map.cpp)
+TypeInfo check_map_create(TypeCheckerState& state, const MapCreate& map);
+TypeInfo check_map_literal(TypeCheckerState& state, const MapLiteral& map);
+TypeInfo check_map_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& key_type, const std::string& value_type);
+TypeInfo check_map_item_field(TypeCheckerState& state, const FieldAccess& access, const std::string& key_type, const std::string& value_type);
+
 // Pair type inference (check_pair.cpp)
 TypeInfo check_pair_create(TypeCheckerState& state, const PairCreate& pair);
 TypeInfo check_pair_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
@@ -190,6 +196,27 @@ TypeInfo check_pair_field(TypeCheckerState& state, const FieldAccess& access, co
 // Tuple type inference (check_tuple.cpp)
 TypeInfo check_tuple_create(TypeCheckerState& state, const TupleCreate& tuple);
 TypeInfo check_tuple_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+
+// Deque type inference (check_deque.cpp)
+TypeInfo check_deque_create(TypeCheckerState& state, const DequeCreate& deque);
+TypeInfo check_deque_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+
+// Stack type inference (check_stack.cpp)
+TypeInfo check_stack_create(TypeCheckerState& state, const StackCreate& stack);
+TypeInfo check_stack_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+
+// Queue type inference (check_queue.cpp)
+TypeInfo check_queue_create(TypeCheckerState& state, const QueueCreate& queue);
+TypeInfo check_queue_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+
+// PriorityQueue type inference (check_priority_queue.cpp)
+TypeInfo check_priority_queue_create(TypeCheckerState& state, const PriorityQueueCreate& pq);
+TypeInfo check_priority_queue_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
+
+// Set type inference (check_set.cpp)
+TypeInfo check_set_create(TypeCheckerState& state, const SetCreate& set);
+TypeInfo check_set_literal(TypeCheckerState& state, const SetLiteral& set);
+TypeInfo check_set_method(TypeCheckerState& state, const MethodCall& mcall, const std::string& element_type);
 
 // Function call type inference (check_function_call.cpp)
 TypeInfo check_function_call(TypeCheckerState& state, const FunctionCall& call);

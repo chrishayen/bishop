@@ -98,12 +98,44 @@ string emit(CodeGenState& state, const ASTNode& node) {
         return emit_list_literal(state, *list);
     }
 
+    if (auto* map = dynamic_cast<const MapCreate*>(&node)) {
+        return emit_map_create(*map);
+    }
+
+    if (auto* map = dynamic_cast<const MapLiteral*>(&node)) {
+        return emit_map_literal(state, *map);
+    }
+
     if (auto* pair = dynamic_cast<const PairCreate*>(&node)) {
         return emit_pair_create(state, *pair);
     }
 
     if (auto* tuple = dynamic_cast<const TupleCreate*>(&node)) {
         return emit_tuple_create(state, *tuple);
+    }
+
+    if (auto* deque = dynamic_cast<const DequeCreate*>(&node)) {
+        return emit_deque_create(*deque);
+    }
+
+    if (auto* stack = dynamic_cast<const StackCreate*>(&node)) {
+        return emit_stack_create(*stack);
+    }
+
+    if (auto* queue = dynamic_cast<const QueueCreate*>(&node)) {
+        return emit_queue_create(*queue);
+    }
+
+    if (auto* pq = dynamic_cast<const PriorityQueueCreate*>(&node)) {
+        return emit_priority_queue_create(state, *pq);
+    }
+
+    if (auto* set = dynamic_cast<const SetCreate*>(&node)) {
+        return emit_set_create(*set);
+    }
+
+    if (auto* set = dynamic_cast<const SetLiteral*>(&node)) {
+        return emit_set_literal(state, *set);
     }
 
     if (auto* lambda = dynamic_cast<const LambdaExpr*>(&node)) {

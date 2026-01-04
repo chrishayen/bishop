@@ -635,6 +635,78 @@ quotient := result.first;   // 3
 remainder := result.second; // 2
 ```
 
+## Maps
+
+Maps are key-value collections that provide fast lookup by key.
+
+### Map Creation
+
+```bishop
+ages := Map<str, int>();           // empty map
+config := Map<str, str>();         // string to string map
+codes := Map<int, str>();          // int to string map
+```
+
+### Map Literals
+
+```bishop
+ages := {"alice": 30, "bob": 25};           // inferred as Map<str, int>
+config := {"host": "localhost", "port": "8080"};  // inferred as Map<str, str>
+```
+
+### Typed Declaration
+
+```bishop
+Map<str, int> ages = {"alice": 30};
+Map<str, str> config = Map<str, str>();
+```
+
+### Map Methods
+
+```bishop
+ages := {"alice": 30, "bob": 25};
+
+// Query methods
+ages.length();           // -> int: 2
+ages.is_empty();         // -> bool: false
+ages.contains("alice");  // -> bool: true
+
+// Access methods (get returns optional)
+age := ages.get("alice") default 0;  // -> int: 30
+age := ages.get("unknown") default 0;  // -> int: 0 (key not found)
+
+// Modification methods
+ages.set("charlie", 35);    // add or update key
+ages.remove("bob");         // remove key
+ages.clear();               // remove all entries
+
+// Iteration methods
+keys := ages.keys();        // -> List<str>: all keys
+vals := ages.values();      // -> List<int>: all values
+items := ages.items();      // -> List<MapItem<str, int>>: all entries
+```
+
+### Iterating Maps
+
+```bishop
+ages := {"alice": 30, "bob": 25};
+
+// Iterate over keys
+for key in ages.keys() {
+    print(key);
+}
+
+// Iterate over values
+for val in ages.values() {
+    print(val);
+}
+
+// Iterate over key-value pairs
+for item in ages.items() {
+    print(item.key + ": " + str(item.value));
+}
+```
+
 ## Tuples
 
 Tuples hold 2-5 values of the same type.
@@ -677,6 +749,278 @@ for i in 0..5 {
 // sum is 15
 ```
 
+## Deques
+
+A double-ended queue that supports efficient insertion and removal from both ends.
+
+### Deque Creation
+
+```bishop
+dq := Deque<int>();      // Empty deque
+dq := Deque<str>();      // Empty string deque
+```
+
+### Deque Methods
+
+| Method           | Description                          |
+|------------------|--------------------------------------|
+| `push_front(T)`  | Add element to front                 |
+| `push_back(T)`   | Add element to back                  |
+| `pop_front()`    | Remove and return front element      |
+| `pop_back()`     | Remove and return back element       |
+| `front()`        | Return front element without removing|
+| `back()`         | Return back element without removing |
+| `get(int)`       | Access element at index              |
+| `length()`       | Return number of elements            |
+| `is_empty()`     | Return true if deque is empty        |
+| `clear()`        | Remove all elements                  |
+
+### Deque Usage
+
+```bishop
+dq := Deque<int>();
+dq.push_back(1);     // [1]
+dq.push_back(2);     // [1, 2]
+dq.push_front(0);    // [0, 1, 2]
+
+val := dq.pop_front();  // val = 0, dq = [1, 2]
+val = dq.pop_back();    // val = 2, dq = [1]
+
+print(dq.front());   // 1
+print(dq.length());  // 1
+```
+
+## Stacks
+
+A LIFO (Last-In-First-Out) stack data structure.
+
+### Stack Creation
+
+```bishop
+s := Stack<int>();      // Empty stack
+s := Stack<str>();      // Empty string stack
+```
+
+### Stack Methods
+
+| Method        | Description                         |
+|---------------|-------------------------------------|
+| `push(T)`     | Push element onto top of stack      |
+| `pop()`       | Remove and return top element (LIFO)|
+| `top()`       | Return top element without removing |
+| `length()`    | Return number of elements           |
+| `is_empty()`  | Return true if stack is empty       |
+
+### Stack Usage (LIFO Order)
+
+```bishop
+s := Stack<int>();
+s.push(1);
+s.push(2);
+s.push(3);
+
+print(s.top());    // 3 (top element)
+print(s.pop());    // 3 (removed, LIFO)
+print(s.pop());    // 2
+print(s.pop());    // 1
+```
+
+## Queues
+
+A FIFO (First-In-First-Out) queue data structure.
+
+### Queue Creation
+
+```bishop
+q := Queue<int>();      // Empty queue
+q := Queue<str>();      // Empty string queue
+```
+
+### Queue Methods
+
+| Method        | Description                          |
+|---------------|--------------------------------------|
+| `push(T)`     | Add element to back of queue         |
+| `pop()`       | Remove and return front element (FIFO)|
+| `front()`     | Return front element without removing|
+| `back()`      | Return back element without removing |
+| `length()`    | Return number of elements            |
+| `is_empty()`  | Return true if queue is empty        |
+
+### Queue Usage (FIFO Order)
+
+```bishop
+q := Queue<int>();
+q.push(1);
+q.push(2);
+q.push(3);
+
+print(q.front());  // 1 (first in)
+print(q.pop());    // 1 (removed, FIFO)
+print(q.pop());    // 2
+print(q.pop());    // 3
+```
+
+## PriorityQueue
+
+Priority queues maintain elements in priority order. By default, they are max heaps (highest value first).
+
+### Max Heap (Default)
+
+```bishop
+pq := PriorityQueue<int>();  // max heap by default
+
+pq.push(5);
+pq.push(10);
+pq.push(3);
+
+pq.top();      // 10 (peek highest priority)
+val := pq.pop();  // 10 (remove and return highest)
+pq.pop();      // 5
+pq.pop();      // 3
+```
+
+### Min Heap
+
+Use `.min()` to create a min heap (lowest value first):
+
+```bishop
+pq := PriorityQueue<int>.min();
+
+pq.push(5);
+pq.push(10);
+pq.push(3);
+
+pq.top();      // 3 (peek lowest priority)
+val := pq.pop();  // 3 (remove and return lowest)
+pq.pop();      // 5
+pq.pop();      // 10
+```
+
+### Custom Comparison
+
+For custom structs, define a `less_than` method to control priority ordering:
+
+```bishop
+Task :: struct {
+    name str,
+    priority int
+}
+
+Task :: less_than(self, Task other) -> bool {
+    return self.priority < other.priority;
+}
+
+// Max heap: highest priority value first
+pq := PriorityQueue<Task>();
+pq.push(Task { name: "low", priority: 10 });
+pq.push(Task { name: "high", priority: 1 });
+pq.push(Task { name: "med", priority: 5 });
+
+task := pq.pop();  // Task with priority 10 (highest)
+
+// Min heap: lowest priority value first
+pq_min := PriorityQueue<Task>.min();
+pq_min.push(Task { name: "low", priority: 10 });
+pq_min.push(Task { name: "high", priority: 1 });
+
+task := pq_min.pop();  // Task with priority 1 (lowest)
+```
+
+### PriorityQueue Methods
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `push(elem)` | `void` | Add element to queue |
+| `pop()` | `T` | Remove and return highest priority element |
+| `top()` | `T` | Peek at highest priority element without removing |
+| `length()` | `int` | Number of elements in queue |
+| `is_empty()` | `bool` | True if queue has no elements |
+
+## Sets
+
+Sets store unique elements with O(1) lookup. Duplicate elements are automatically deduplicated.
+
+### Set Creation
+
+```bishop
+nums := Set<int>();           // empty set
+names := Set<str>();          // empty string set
+```
+
+### Set Literals
+
+```bishop
+nums := {1, 2, 3};             // inferred as Set<int>
+names := {"a", "b", "c"};      // inferred as Set<str>
+unique := {1, 2, 2, 3, 3, 3};  // duplicates removed: {1, 2, 3}
+```
+
+### Typed Declaration
+
+```bishop
+Set<int> nums = {1, 2, 3};
+Set<str> names = Set<str>();
+```
+
+### Set Methods
+
+```bishop
+nums := {10, 20, 30};
+
+// Query methods
+nums.length();           // -> int: 3
+nums.is_empty();         // -> bool: false
+nums.contains(20);       // -> bool: true
+
+// Modification methods
+nums.add(40);            // add element
+nums.remove(20);         // remove element, returns true if found
+nums.clear();            // remove all elements
+```
+
+### Set Operations
+
+```bishop
+a := {1, 2, 3};
+b := {2, 3, 4};
+
+// Union: elements in either set
+c := a.union(b);              // {1, 2, 3, 4}
+
+// Intersection: elements in both sets
+d := a.intersection(b);       // {2, 3}
+
+// Difference: elements in a but not in b
+e := a.difference(b);         // {1}
+
+// Symmetric difference: elements in either but not both
+f := a.symmetric_difference(b);  // {1, 4}
+```
+
+### Set Predicates
+
+```bishop
+a := {1, 2};
+b := {1, 2, 3};
+
+a.is_subset(b);    // -> bool: true (all elements of a are in b)
+b.is_superset(a);  // -> bool: true (b contains all elements of a)
+```
+
+### Set Iteration
+
+```bishop
+nums := {1, 2, 3};
+
+for n in nums {
+    print(n);
+}
+```
+
+**Note:** Set iteration order is not guaranteed.
+
+
 ## Error Handling
 
 ### Error Types
@@ -702,7 +1046,19 @@ All errors automatically have:
 
 ### Fallible Functions
 
-Functions that can fail use `-> T or err` return syntax:
+Functions that can fail use `-> T or err` return syntax. For functions that don't return a value but can still fail, use `-> void or err`:
+
+```bishop
+// Void function that can fail
+fn do_something() -> void or err {
+    if !ready {
+        fail "not ready";
+    }
+    // ... do work ...
+}
+```
+
+Functions that return a value use `-> T or err`:
 
 ```bishop
 fn read_config(str path) -> Config or err {
@@ -2201,7 +2557,12 @@ val.as_bool() or return;   // -> bool or err
 // Check for key existence
 data.has("name");   // -> bool
 data.length();      // -> int (object keys or array elements)
-data.keys();        // -> List<str> (object keys)
+
+// Get all keys from an object
+key_list := data.keys();   // -> List<str> (object keys)
+for key in key_list {
+    print(key);
+}
 ```
 
 #### Creating JSON
@@ -2842,7 +3203,7 @@ fn test_math() {
 
 ## Keywords
 
-`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `using`, `select`, `case`, `Channel`, `List`, `Pair`, `Tuple`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`
+`fn`, `return`, `struct`, `if`, `else`, `while`, `for`, `in`, `true`, `false`, `none`, `is`, `import`, `using`, `select`, `case`, `Channel`, `List`, `Pair`, `Tuple`, `PriorityQueue`, `extern`, `go`, `sleep`, `err`, `fail`, `or`, `match`, `default`, `with`, `as`, `const`, `continue`, `break`
 
 ## Decorators
 
